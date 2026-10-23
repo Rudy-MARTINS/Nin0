@@ -1,0 +1,528 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/nino.tscn" id="1_nino"]
+[ext_resource type="PackedScene" path="res://scenes/camera/third_person_camera.tscn" id="2_cam"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug_hud.tscn" id="3_hud"]
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
+sky_top_color = Color(0.42, 0.55, 0.72, 1)
+sky_horizon_color = Color(0.85, 0.82, 0.76, 1)
+ground_horizon_color = Color(0.85, 0.82, 0.76, 1)
+
+[sub_resource type="Sky" id="Sky_res"]
+sky_material = SubResource("Sky_mat")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("Sky_res")
+ambient_light_source = 3
+ambient_light_energy = 0.45
+tonemap_mode = 2
+
+[sub_resource type="FastNoiseLite" id="Noise_grip"]
+frequency = 0.08
+
+[sub_resource type="Gradient" id="Grad_grip"]
+colors = PackedColorArray(0.72, 0.72, 0.72, 1, 1, 1, 1, 1)
+
+[sub_resource type="NoiseTexture2D" id="Tex_grip"]
+width = 128
+height = 128
+seamless = true
+color_ramp = SubResource("Grad_grip")
+noise = SubResource("Noise_grip")
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.5, 0.36, 0.24, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_plaster"]
+albedo_color = Color(0.86, 0.85, 0.81, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_book_red"]
+albedo_color = Color(0.62, 0.17, 0.15, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_book_blue"]
+albedo_color = Color(0.18, 0.3, 0.55, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_plank"]
+albedo_color = Color(0.78, 0.63, 0.42, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_ceramic"]
+albedo_color = Color(0.95, 0.95, 0.92, 1)
+roughness = 0.15
+
+[sub_resource type="StandardMaterial3D" id="Mat_metal"]
+albedo_color = Color(0.35, 0.45, 0.6, 1)
+metallic = 0.7
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_shelf"]
+albedo_color = Color(0.45, 0.3, 0.2, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_pencil"]
+albedo_color = Color(0.95, 0.78, 0.2, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_dice"]
+albedo_color = Color(0.97, 0.97, 0.97, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_eraser"]
+albedo_color = Color(0.95, 0.55, 0.6, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_coin"]
+albedo_color = Color(0.8, 0.65, 0.3, 1)
+metallic = 0.9
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_tape"]
+albedo_color = Color(0.9, 0.82, 0.62, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_cap"]
+albedo_color = Color(0.8, 0.15, 0.12, 1)
+metallic = 0.5
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_climb_cardboard"]
+albedo_color = Color(0.78, 0.6, 0.38, 1)
+albedo_texture = SubResource("Tex_grip")
+roughness = 1.0
+uv1_scale = Vector3(1.5, 1.5, 1.5)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="Mat_climb_cork"]
+albedo_color = Color(0.74, 0.52, 0.32, 1)
+albedo_texture = SubResource("Tex_grip")
+roughness = 1.0
+uv1_scale = Vector3(2.5, 2.5, 2.5)
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="Mesh_1"]
+material = SubResource("Mat_floor")
+size = Vector3(24, 0.2, 24)
+
+[sub_resource type="BoxShape3D" id="Shape_1"]
+size = Vector3(24, 0.2, 24)
+
+[sub_resource type="BoxMesh" id="Mesh_2"]
+material = SubResource("Mat_plaster")
+size = Vector3(24, 5, 0.4)
+
+[sub_resource type="BoxShape3D" id="Shape_2"]
+size = Vector3(24, 5, 0.4)
+
+[sub_resource type="BoxMesh" id="Mesh_3"]
+material = SubResource("Mat_plaster")
+size = Vector3(24, 5, 0.4)
+
+[sub_resource type="BoxShape3D" id="Shape_3"]
+size = Vector3(24, 5, 0.4)
+
+[sub_resource type="BoxMesh" id="Mesh_4"]
+material = SubResource("Mat_plaster")
+size = Vector3(0.4, 5, 24)
+
+[sub_resource type="BoxShape3D" id="Shape_4"]
+size = Vector3(0.4, 5, 24)
+
+[sub_resource type="BoxMesh" id="Mesh_5"]
+material = SubResource("Mat_plaster")
+size = Vector3(0.4, 5, 24)
+
+[sub_resource type="BoxShape3D" id="Shape_5"]
+size = Vector3(0.4, 5, 24)
+
+[sub_resource type="BoxMesh" id="Mesh_6"]
+material = SubResource("Mat_book_red")
+size = Vector3(2.6, 0.7, 2.0)
+
+[sub_resource type="BoxShape3D" id="Shape_6"]
+size = Vector3(2.6, 0.7, 2.0)
+
+[sub_resource type="BoxMesh" id="Mesh_7"]
+material = SubResource("Mat_plank")
+size = Vector3(3.2, 0.06, 1.2)
+
+[sub_resource type="BoxShape3D" id="Shape_7"]
+size = Vector3(3.2, 0.06, 1.2)
+
+[sub_resource type="BoxMesh" id="Mesh_8"]
+material = SubResource("Mat_climb_cardboard")
+size = Vector3(3.0, 1.6, 2.4)
+
+[sub_resource type="BoxShape3D" id="Shape_8"]
+size = Vector3(3.0, 1.6, 2.4)
+
+[sub_resource type="BoxMesh" id="Mesh_9"]
+material = SubResource("Mat_tape")
+size = Vector3(3.02, 0.01, 0.4)
+
+[sub_resource type="CylinderMesh" id="Mesh_10"]
+material = SubResource("Mat_cap")
+top_radius = 0.15
+bottom_radius = 0.15
+height = 0.06
+
+[sub_resource type="CylinderShape3D" id="Shape_10"]
+radius = 0.15
+height = 0.06
+
+[sub_resource type="BoxMesh" id="Mesh_11"]
+material = SubResource("Mat_shelf")
+size = Vector3(5, 0.2, 1.6)
+
+[sub_resource type="BoxShape3D" id="Shape_11"]
+size = Vector3(5, 0.2, 1.6)
+
+[sub_resource type="BoxMesh" id="Mesh_12"]
+material = SubResource("Mat_shelf")
+size = Vector3(0.15, 0.6, 1.2)
+
+[sub_resource type="BoxShape3D" id="Shape_12"]
+size = Vector3(0.15, 0.6, 1.2)
+
+[sub_resource type="BoxMesh" id="Mesh_13"]
+material = SubResource("Mat_shelf")
+size = Vector3(0.15, 0.6, 1.2)
+
+[sub_resource type="BoxShape3D" id="Shape_13"]
+size = Vector3(0.15, 0.6, 1.2)
+
+[sub_resource type="BoxMesh" id="Mesh_14"]
+material = SubResource("Mat_climb_cork")
+size = Vector3(2.0, 3.1, 0.15)
+
+[sub_resource type="BoxShape3D" id="Shape_14"]
+size = Vector3(2.0, 3.1, 0.15)
+
+[sub_resource type="CylinderMesh" id="Mesh_15"]
+material = SubResource("Mat_ceramic")
+top_radius = 0.45
+bottom_radius = 0.45
+height = 1.0
+
+[sub_resource type="CylinderShape3D" id="Shape_15"]
+radius = 0.45
+height = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_16"]
+material = SubResource("Mat_metal")
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="Shape_16"]
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="BoxMesh" id="Mesh_17"]
+material = SubResource("Mat_book_blue")
+size = Vector3(2.2, 0.3, 1.5)
+
+[sub_resource type="BoxShape3D" id="Shape_17"]
+size = Vector3(2.2, 0.3, 1.5)
+
+[sub_resource type="CylinderMesh" id="Mesh_18"]
+material = SubResource("Mat_pencil")
+top_radius = 0.03
+bottom_radius = 0.03
+height = 1.8
+
+[sub_resource type="CylinderShape3D" id="Shape_18"]
+radius = 0.03
+height = 1.8
+
+[sub_resource type="CylinderMesh" id="Mesh_19"]
+material = SubResource("Mat_pencil")
+top_radius = 0.03
+bottom_radius = 0.03
+height = 1.8
+
+[sub_resource type="CylinderShape3D" id="Shape_19"]
+radius = 0.03
+height = 1.8
+
+[sub_resource type="BoxMesh" id="Mesh_20"]
+material = SubResource("Mat_dice")
+size = Vector3(0.16, 0.16, 0.16)
+
+[sub_resource type="BoxShape3D" id="Shape_20"]
+size = Vector3(0.16, 0.16, 0.16)
+
+[sub_resource type="BoxMesh" id="Mesh_21"]
+material = SubResource("Mat_dice")
+size = Vector3(0.16, 0.16, 0.16)
+
+[sub_resource type="BoxShape3D" id="Shape_21"]
+size = Vector3(0.16, 0.16, 0.16)
+
+[sub_resource type="BoxMesh" id="Mesh_22"]
+material = SubResource("Mat_eraser")
+size = Vector3(0.5, 0.12, 0.25)
+
+[sub_resource type="BoxShape3D" id="Shape_22"]
+size = Vector3(0.5, 0.12, 0.25)
+
+[sub_resource type="CylinderMesh" id="Mesh_23"]
+material = SubResource("Mat_coin")
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.02
+
+[sub_resource type="CylinderShape3D" id="Shape_23"]
+radius = 0.12
+height = 0.02
+
+[node name="TestLevel" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.819152, -0.439385, 0.368688, 0, 0.642788, 0.766044, -0.573576, -0.627507, 0.526541, 0, 8, 0)
+light_color = Color(1, 0.95, 0.88, 1)
+light_energy = 0.85
+shadow_enabled = true
+directional_shadow_max_distance = 40.0
+
+[node name="Geometry" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/Floor"]
+mesh = SubResource("Mesh_1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Floor"]
+shape = SubResource("Shape_1")
+
+[node name="WallNorth" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -12)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/WallNorth"]
+mesh = SubResource("Mesh_2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/WallNorth"]
+shape = SubResource("Shape_2")
+
+[node name="WallSouth" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 12)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/WallSouth"]
+mesh = SubResource("Mesh_3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/WallSouth"]
+shape = SubResource("Shape_3")
+
+[node name="WallWest" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 2.5, 0)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/WallWest"]
+mesh = SubResource("Mesh_4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/WallWest"]
+shape = SubResource("Shape_4")
+
+[node name="WallEast" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 2.5, 0)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/WallEast"]
+mesh = SubResource("Mesh_5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/WallEast"]
+shape = SubResource("Shape_5")
+
+[node name="Dictionary" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.35, -1)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/Dictionary"]
+mesh = SubResource("Mesh_6")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Dictionary"]
+shape = SubResource("Shape_6")
+
+[node name="Plank" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.975781, 0.21875, 0, -0.21875, 0.975781, 0, 0, 0, 1, -2.13875, 0.35, -1)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/Plank"]
+mesh = SubResource("Mesh_7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Plank"]
+shape = SubResource("Shape_7")
+
+[node name="CardboardBox" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.8, -2)
+collision_layer = 3
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/CardboardBox"]
+mesh = SubResource("Mesh_8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/CardboardBox"]
+shape = SubResource("Shape_8")
+
+[node name="CardboardTape" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1.605, -2)
+mesh = SubResource("Mesh_9")
+
+[node name="BottleCap" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 1.63, -2.6)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/BottleCap"]
+mesh = SubResource("Mesh_10")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/BottleCap"]
+shape = SubResource("Shape_10")
+
+[node name="Shelf" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3, -11.2)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/Shelf"]
+mesh = SubResource("Mesh_11")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Shelf"]
+shape = SubResource("Shape_11")
+
+[node name="ShelfBracketLeft" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2.6, -11.2)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/ShelfBracketLeft"]
+mesh = SubResource("Mesh_12")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/ShelfBracketLeft"]
+shape = SubResource("Shape_12")
+
+[node name="ShelfBracketRight" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 2.6, -11.2)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/ShelfBracketRight"]
+mesh = SubResource("Mesh_13")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/ShelfBracketRight"]
+shape = SubResource("Shape_13")
+
+[node name="CorkBoard" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.55, -10.325)
+collision_layer = 3
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/CorkBoard"]
+mesh = SubResource("Mesh_14")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/CorkBoard"]
+shape = SubResource("Shape_14")
+
+[node name="Mug" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.5, -4.5)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/Mug"]
+mesh = SubResource("Mesh_15")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Mug"]
+shape = SubResource("Shape_15")
+
+[node name="TinBox" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.6, -6)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/TinBox"]
+mesh = SubResource("Mesh_16")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/TinBox"]
+shape = SubResource("Shape_16")
+
+[node name="BookBlue" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -6, 0.15, 4)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/BookBlue"]
+mesh = SubResource("Mesh_17")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/BookBlue"]
+shape = SubResource("Shape_17")
+
+[node name="PencilA" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 1.5, 0.03, 2)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/PencilA"]
+mesh = SubResource("Mesh_18")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/PencilA"]
+shape = SubResource("Shape_18")
+
+[node name="PencilB" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.819152, 0.573576, 3.51214e-17, 0, 6.12323e-17, -1, -0.573576, 0.819152, 5.01586e-17, -2.5, 0.03, 2.2)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/PencilB"]
+mesh = SubResource("Mesh_19")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/PencilB"]
+shape = SubResource("Shape_19")
+
+[node name="DiceA" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, -1, 0.08, 1.2)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/DiceA"]
+mesh = SubResource("Mesh_20")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/DiceA"]
+shape = SubResource("Shape_20")
+
+[node name="DiceB" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.906308, 0, -0.422618, 0, 1, 0, 0.422618, 0, 0.906308, -0.7, 0.08, 1.55)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/DiceB"]
+mesh = SubResource("Mesh_21")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/DiceB"]
+shape = SubResource("Shape_21")
+
+[node name="Eraser" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.984808, 0, 0.173648, 0, 1, 0, -0.173648, 0, 0.984808, 2.5, 0.06, 3.5)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/Eraser"]
+mesh = SubResource("Mesh_22")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Eraser"]
+shape = SubResource("Shape_22")
+
+[node name="Coin" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.01, 3.2)
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Geometry/Coin"]
+mesh = SubResource("Mesh_23")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Coin"]
+shape = SubResource("Shape_23")
+
+[node name="Nino" parent="." instance=ExtResource("1_nino")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 5)
+
+[node name="ThirdPersonCamera" parent="." node_paths=PackedStringArray("target") instance=ExtResource("2_cam")]
+target = NodePath("../Nino")
+
+[node name="DebugHud" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_hud")]
+player = NodePath("../Nino")

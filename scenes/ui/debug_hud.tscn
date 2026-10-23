@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/debug_hud.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0, 0, 0, 0.45)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="DebugHud" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 12.0
+offset_top = 12.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="StateLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Mode : Roues"
+
+[node name="HelpLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Z Q S D / flèches : rouler (et grimper sur une paroi)
+Souris : caméra
+C : lâcher la paroi
+R : réapparaître
+Échap : libérer la souris (clic pour reprendre)"

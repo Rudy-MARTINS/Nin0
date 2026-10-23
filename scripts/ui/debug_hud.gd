@@ -1,0 +1,22 @@
+extends CanvasLayer
+## HUD de prototype : mode de déplacement courant + rappel des commandes.
+
+@export var player: NinoController
+
+@onready var _state_label: Label = $Panel/Margin/VBox/StateLabel
+
+const STATE_NAMES := {
+	NinoController.State.WHEELS: "Roues",
+	NinoController.State.CLIMBING: "Escalade",
+	NinoController.State.MOUNTING: "Escalade (hissage)",
+}
+
+
+func _ready() -> void:
+	if player:
+		player.state_changed.connect(_on_state_changed)
+		_on_state_changed(player.state)
+
+
+func _on_state_changed(new_state: NinoController.State) -> void:
+	_state_label.text = "Mode : %s" % STATE_NAMES.get(new_state, "?")
