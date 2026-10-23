@@ -6,7 +6,7 @@ Notes techniques du premier prototype jouable. Ce document ne remplace pas le GD
 
 ## Lancer le prototype
 
-1. Ouvrir le projet dans Godot **4.3 ou plus récent** (branche 4.x stable).
+1. Ouvrir le projet dans **Godot 4.7** (version officielle du projet).
 2. Ouvrir `scenes/levels/test_level.tscn` et appuyer sur **F6**.
 
 | Touche (AZERTY) | Action |
@@ -68,7 +68,7 @@ Depuis la racine du projet (chemin de Godot à adapter) :
 godot --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
 ```
 
-Il vérifie : aucun saut en mode roues, déplacement, décélération, rotation progressive, tasse non escaladable, escalade et hissage sur le carton, lâcher, descente, limite latérale sur le liège, accès à l'étagère, montée de la pente et réapparition. Sous Windows, utiliser `Godot_v4.x_win64_console.exe` pour voir le résultat dans le terminal.
+Il vérifie : aucun saut en mode roues, déplacement, décélération, rotation progressive, tasse non escaladable, escalade et hissage sur le carton, lâcher, descente, limite latérale sur le liège, accès à l'étagère, montée de la pente et réapparition. Sous Windows, utiliser `Godot_v4.7-stable_win64_console.exe` pour voir le résultat dans le terminal.
 
 ## Évolutions (lot 2)
 

@@ -6,7 +6,7 @@ Ce document décrit la démo telle qu'elle est implémentée : déroulement, lev
 
 ## Lancer la démo
 
-1. Ouvrir le projet dans Godot 4.x. Le projet a été créé avec 4.3 et vérifié avec 4.3 et 4.7.
+1. Ouvrir le projet dans **Godot 4.7** (version officielle du projet depuis la migration ; voir [MIGRATION_GODOT_4_7.md](MIGRATION_GODOT_4_7.md)).
 2. Appuyer sur **F5**. L'écran titre apparaît au-dessus de Nin0 endormi.
 3. **Commencer** lance une nouvelle partie. **Continuer** n'apparaît que si les jambes ont déjà été obtenues ; la reprise se fait au bon endroit (imprimante, ou pied de la porte si Nin0 attend sa réparation).
 4. **Échap** ouvre la pause : reprendre, **recommencer la démo** (efface la progression), quitter. La pause indique aussi les découvertes et, après le premier souvenir, les **archives fragmentées** (consultables).
@@ -147,14 +147,14 @@ Le dessin du mur de gauche n'est plus une découverte à examiner : c'est le sou
 
 ## Tests
 
-### Automatiques (sans affichage, Godot 4.3 et 4.7)
+### Automatiques (sans affichage, Godot 4.7)
 
 ```
-godot --headless --fixed-fps 60 --path . res://tests/test_demo_flow.tscn
-godot --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
+Godot_v4.7-stable_win64_console.exe --headless --fixed-fps 60 --path . res://tests/test_demo_flow.tscn
+Godot_v4.7-stable_win64_console.exe --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
 ```
 
-- `test_demo_flow` (128 vérifications) couvre :
+- `test_demo_flow` (131 vérifications) couvre :
   - le réveil, les pensées, le tutoriel (chaque étape exige l'action, et tourner ne valide pas « avancer ») ;
   - les découvertes, les passages du sol, la visibilité de Nin0 sous le fauteuil ;
   - l'imprimante hors tension, le câble, la multiprise et le lien compris par Nin0 ;
@@ -167,6 +167,8 @@ godot --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
   - « Continuer » (jambes, bobine et carnet en place, découvertes conservées), « Nouvelle partie » (tout réinitialisé), la réinitialisation d'une bobine tombée et la touche R ;
   - **lot 3** : plan dans le tube, fragment ramassé une seule fois, pot hors du passage, dessin non examinable ; calibrage de la vision ; règles d'observation (trop loin, angle rasant, mur, table, visée à côté) ; souvenir obtenu seulement après une visée assez longue, séquence, aucun doublon, archives en pause ; chute réelle au sol, dégâts directs, jauge, réaction, objectif ; bouclier qui absorbe et se recharge, petite chute sans coût ; **retour réel en jambes** (escalade du carton, sauts sur les livres), fragments suffisants ; réparation sur le plateau, coût, jambes conservées ; renfort fabriqué (125) ; fin sur le seuil ; reprise complète (porte ouverte, souvenir, renfort, fragments, objets emportés) ; ancienne sauvegarde sans souvenir automatique ; dégradation décroissante avec données fictives, 7/7 distinguable.
 - `test_lot1_movement` (18 vérifications) couvre les roues, l'escalade et les nouveautés d'escalade : contourner un angle, s'accrocher en quittant le bord d'un carton, redescendre.
+- Les tests utilisent leur propre fichier de sauvegarde (`user://nino_test.cfg`) : la sauvegarde du joueur (`user://nino_demo.cfg`) n'est jamais modifiée, et le test le vérifie.
+- `tests/fixtures/save_lot3_godot43.cfg` est une vraie sauvegarde du lot 3 écrite par la version 4.3 du jeu ; le test vérifie qu'elle est relue intégralement sous 4.7.
 - Sans affichage, la souris ne peut pas être capturée : pour l'étape « caméra » du tutoriel, le test fait tourner la caméra comme le ferait la souris.
 
 ### Manuels, à faire sur PC
@@ -189,5 +191,5 @@ godot --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
 - Les bulles de pensée suivent la tête de Nin0 à l'écran et peuvent être partiellement cachées près des bords.
 - L'escalade reste simple (surfaces planes) ; les transitions d'angle et la descente fonctionnent sur des blocs rectangulaires.
 - Si Nin0 tombe dans l'encoche avant d'y avoir poussé la bobine, il peut en ressortir par le côté ouvert (chute sans dégât) ou utiliser R.
-- **Godot 4.7** ouvre le projet sans erreur mais génère des fichiers `.uid` à côté des scripts. Ils ne sont pas versionnés ici : il est possible de les ajouter au dépôt ou de les ignorer, cela ne change rien au fonctionnement.
+- Les fichiers `.uid` (à côté des scripts et shaders) sont versionnés : ils font partie du projet Godot 4.7 et ne doivent pas être supprimés.
 - Message sans gravité en mode headless : `Parameter "m" is null` apparaît uniquement avec le pilote graphique factice.

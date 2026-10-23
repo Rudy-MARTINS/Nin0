@@ -8,13 +8,13 @@
 - Première démo (déroulement, commandes, architecture, limites) : [docs/DEMO.md](docs/DEMO.md)
 - Systèmes préparés pour la suite (améliorations, modules, souvenirs) : [docs/SYSTEMES_FUTURS.md](docs/SYSTEMES_FUTURS.md)
 - Prototype Lot 1 (déplacement, escalade) : [docs/PROTOTYPE_LOT1.md](docs/PROTOTYPE_LOT1.md)
-- Moteur : Godot 4 (branche stable)
+- Moteur : **Godot 4.7** (version officielle et unique du projet, voir [docs/MIGRATION_GODOT_4_7.md](docs/MIGRATION_GODOT_4_7.md))
 - Plateforme initiale : Windows
 - Outils : Godot, VS Code, Codex, Git
 
 ## Ouvrir le projet
 
-1. Installer Godot 4 (le projet est vérifié avec **4.3** et **4.7**).
+1. Installer **Godot 4.7** (version standard, pas .NET). C'est la seule version de référence du projet.
 2. Cloner ce dépôt.
 3. Dans le gestionnaire de projets Godot, choisir **Importer** puis sélectionner `project.godot`.
 4. Ouvrir le projet puis appuyer sur **F5** : l'écran titre de la démo s'affiche.
