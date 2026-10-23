@@ -1,0 +1,18 @@
+; Engine configuration file.
+; NINO — Godot 4 project
+; Edit with Godot when setting up the first prototype.
+
+config_version=5
+
+[application]
+
+config/name="NINO"
+config/description="Jeu d'exploration 3D miniature"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+run/main_scene=""
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
