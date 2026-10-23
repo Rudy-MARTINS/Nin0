@@ -95,6 +95,11 @@ func _ready() -> void:
 	nino.set_checkpoint(_checkpoint("Start"))
 	_set_sleeping()
 
+	if GameState.dev_mode:
+		_start_dev_session.call_deferred()
+		return
+	# Musique d'introduction : une seule fois au démarrage du jeu (prototype interne).
+	Music.play_once(&"intro")
 	if GameState.skip_title_once:
 		GameState.skip_title_once = false
 		_start_new_game()
@@ -164,6 +169,28 @@ func _start_new_game() -> void:
 
 func _start_from_save() -> void:
 	GameState.load_save()
+	_apply_progress_world()
+	var spot := "Printer"
+	if GameState.injured and not GameState.repaired:
+		spot = "FallSpot"
+	_begin_play_at(_checkpoint(spot))
+	hud.show_hint("%s : déployer les jambes (à l'arrêt)" % Hud.key("F"), 6.0)
+
+
+## Mode développement (scène de l'appartement) : Nin0 complet (jambes, vision),
+## énigmes du placard résolues, porte entrouverte. Rien n'est sauvegardé.
+func _start_dev_session() -> void:
+	GameState.reset_progress()
+	for flag in [&"woke_up", &"tutorial_done", &"printer_seen", &"power_on", &"printer_understood", &"legs_printed",
+			&"legs_installed", &"legs_deployed_once", &"reached_window", &"handle_identified", &"door_opened"]:
+		GameState.set(flag, true)
+	GameState.progress_changed.emit()
+	_apply_progress_world()
+	_begin_play_at(_checkpoint("Printer"))
+
+
+## Met le placard dans l'état de la progression chargée (machine, énigmes, porte…).
+func _apply_progress_world() -> void:
 	power_strip.set_on_immediately()
 	printer.set_completed()
 	notebook.set_toppled_immediately()
@@ -171,11 +198,13 @@ func _start_from_save() -> void:
 	nino.legs_available = true
 	nino.get_visual().set_power(1.0)
 	_refresh_saved_world()
-	var spot := "Printer"
-	if GameState.injured and not GameState.repaired:
-		spot = "FallSpot"
-	nino.global_transform = _checkpoint(spot)
-	nino.set_checkpoint(_checkpoint(spot))
+
+
+func _begin_play_at(spot: Transform3D) -> void:
+	_title_active = false
+	title_screen.visible = false
+	nino.global_transform = spot
+	nino.set_checkpoint(spot)
 	camera.rotation.y = nino.rotation.y
 	camera.pitch = deg_to_rad(-18.0)
 	camera.arm_length = GAMEPLAY_ARM
@@ -187,7 +216,6 @@ func _start_from_save() -> void:
 	hud.fade_to(0.0, 1.0)
 	hud.set_mode("Roues")
 	_refresh_objective()
-	hud.show_hint("%s : déployer les jambes (à l'arrêt)" % Hud.key("F"), 6.0)
 
 
 ## Remet le monde dans l'état sauvegardé (porte, vision, souvenirs, objets emportés).
@@ -656,7 +684,7 @@ func _acquire_memory(memory: MemoryData) -> void:
 	await memory_player.play(memory, GameState.memory_count(), GameState.ARCHIVE.total, GameState.memory_corruption())
 	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.4)
 	visual.glitch_pulse(0.4, 0.3)
-	thoughts.think([&"question"], "…", 2.2, true)
+	thoughts.think([&"question"], "Ce dessin… il me parle ?", 2.6, true)
 	await _wait(1.8)
 	_enable_play()
 
@@ -687,6 +715,9 @@ func _open_door() -> void:
 	shot.tween_property(camera, "rotation:y", deg_to_rad(127.0), 1.2)
 	shot.tween_property(camera, "pitch", deg_to_rad(-10.0), 1.2)
 	shot.tween_property(camera, "arm_length", 4.0, 1.2)
+	# Juste avant le saut décisif.
+	thoughts.think([&"exclamation"], "LEEEROOOY JENKINS !", 1.6, true)
+	await _wait(1.0)
 	await _leap(nino.global_position, door.get_grip_position() + Vector3.DOWN * 0.55, 0.55)
 	await door.pull_lever(nino)
 	# La porte s'ouvre : secousse, Nin0 perd l'équilibre.
@@ -694,6 +725,7 @@ func _open_door() -> void:
 	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.5)
 	await _wait(0.45)
 	Sfx.play(&"surprised", -4.0)
+	Sfx.play(&"cartoon_fall", -6.0)
 	visual.glitch_pulse(0.4, 0.3)
 	var follow := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
 	follow.tween_property(camera, "pitch", deg_to_rad(-32.0), 0.9)

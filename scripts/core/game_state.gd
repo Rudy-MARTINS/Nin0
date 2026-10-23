@@ -77,6 +77,9 @@ var modal_open := false:
 
 ## Fichier de sauvegarde utilisé (SAVE_PATH en jeu, TEST_SAVE_PATH pendant les tests).
 var save_path := SAVE_PATH
+## Mode développement (exploration de l'appartement) : aucune sauvegarde n'est
+## écrite ni effacée, la progression du joueur reste intacte.
+var dev_mode := false
 
 ## Quand vrai, le prochain chargement du niveau saute l'écran titre.
 var skip_title_once := false
@@ -88,6 +91,8 @@ func has_save() -> bool:
 
 
 func save() -> void:
+	if dev_mode:
+		return
 	var config := ConfigFile.new()
 	config.set_value("meta", "version", SAVE_VERSION)
 	config.set_value("progress", "legs_installed", legs_installed)
@@ -177,6 +182,8 @@ func reset_progress() -> void:
 
 
 func erase_save() -> void:
+	if dev_mode:
+		return
 	if FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
 
@@ -357,7 +364,7 @@ func _to_strings(list: Array[StringName]) -> Array:
 ## L'objectif dit ce que le joueur cherche à accomplir ; les pensées de Nin0
 ## disent ce qu'il observe ou comprend (pas de répétition entre les deux).
 func get_objective() -> String:
-	if not woke_up or demo_completed:
+	if dev_mode or not woke_up or demo_completed:
 		return ""
 	if not tutorial_done:
 		return "Prendre ses repères"

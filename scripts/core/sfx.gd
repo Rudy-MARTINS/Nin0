@@ -15,6 +15,7 @@ func _ready() -> void:
 	_build_sounds()
 	for i in 8:
 		var player := AudioStreamPlayer.new()
+		player.bus = &"Sfx"
 		add_child(player)
 		_players.append(player)
 
@@ -37,6 +38,7 @@ func set_loop(key: StringName, sound: StringName, volume_db: float, pitch := 1.0
 	var player: AudioStreamPlayer = _loops.get(key)
 	if player == null:
 		player = AudioStreamPlayer.new()
+		player.bus = &"Sfx"
 		add_child(player)
 		_loops[key] = player
 	if player.stream != _streams.get(sound):
@@ -109,6 +111,7 @@ func _build_sounds() -> void:
 	_streams[&"optic"] = _tone([[400.0, 1600.0, 0.35], [1600.0, 1500.0, 0.05], [900.0, 2200.0, 0.2]], 0.1)
 	_streams[&"fragment"] = _tone([[1300.0, 1700.0, 0.06], [2000.0, 2000.0, 0.07]], 0.14)
 	_streams[&"repair_loop"] = _repair_loop()
+	_streams[&"cartoon_fall"] = _slide_whistle(0.9)
 	_streams[&"repair_done"] = _tone([[523.0, 523.0, 0.1], [784.0, 784.0, 0.1], [1046.0, 1046.0, 0.1], [1568.0, 1568.0, 0.3]], 0.2)
 
 
@@ -252,6 +255,20 @@ func _ambience(duration: float) -> AudioStreamWAV:
 			value = raw[i] * t + raw[count - fade + i] * (1.0 - t)
 		samples.append(value * 0.25)
 	return _to_wav(samples, true)
+
+
+## Sifflet à coulisse descendant (chute cartoon).
+func _slide_whistle(duration: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(duration * RATE)
+	var phase := 0.0
+	for i in count:
+		var t := float(i) / count
+		var freq := lerpf(1900.0, 380.0, t * t) * (1.0 + 0.02 * sin(t * TAU * 22.0))
+		phase += TAU * freq / RATE
+		var envelope := minf(t * 30.0, 1.0) * minf((1.0 - t) * 10.0, 1.0)
+		samples.append(sin(phase) * 0.22 * envelope)
+	return _to_wav(samples)
 
 
 ## Grésillement électrique : impulsions aléatoires.

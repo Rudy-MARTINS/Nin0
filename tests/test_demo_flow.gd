@@ -15,6 +15,7 @@ var _level: Node3D
 var _nino: NinoController
 var _camera: ThirdPersonCamera
 var _thoughts: Array = []
+var _thought_texts: Array[String] = []
 var _personal_save_existed := false
 var _personal_save := ""
 
@@ -34,6 +35,8 @@ func _run() -> void:
 	_load_level()
 	await _wait(1.6)
 
+	_check(Music.has_track(&"intro") and Music.current == &"intro" and not Music.play_once(&"intro"),
+			"musique d'introduction lancée une seule fois au démarrage (bus Music)")
 	# 1. Réveil interactif et pensées.
 	_check(not _nino.controls_enabled and _level._waiting_wake_input, "Nin0 attend le réveil (commandes bloquées)")
 	await _hold(["move_forward"], 0.1)
@@ -251,7 +254,7 @@ func _run() -> void:
 	_check(GameState.has_memory(&"memory_01") and GameState.memory_count() == 1, "souvenir 1 obtenu par la vision focalisée")
 	_check(_level.memory_player.playing, "séquence du souvenir (signal, parasites, fragments)")
 	var memory_done := await _wait_until(16.0, func() -> bool: return not _level.memory_player.playing and _nino.controls_enabled)
-	_check(memory_done and _saw_thought([&"question"]), "fin de la séquence : Nin0 cherche à comprendre, jeu repris")
+	_check(memory_done and _saw_thought([&"question"]) and _thought_texts.has("Ce dessin… il me parle ?"), "fin de la séquence : commentaire mystérieux, jeu repris")
 	_aim_at(drawing.global_position)
 	Input.action_press("focus")
 	await _wait(2.4)
@@ -274,11 +277,15 @@ func _run() -> void:
 	await _tap("interact")
 	var fell := await _wait_until(8.0, func() -> bool: return GameState.injured)
 	_check(fell and _level.door.is_open, "la porte s'ouvre et Nin0 lâche prise")
+	_check(_thought_texts.has("LEEEROOOY JENKINS !"), "bulle « LEEEROOOY JENKINS ! » avant le saut décisif")
 	_check(_nino.global_position.y < 0.3, "Nin0 est réellement tombé au sol (y = %.2f)" % _nino.global_position.y)
 	_check(is_equal_approx(GameState.integrity, 100.0 - _level.DOOR_FALL_DAMAGE) and is_equal_approx(GameState.shield, GameState.shield_max),
 			"chute : intégrité %d / 100, bouclier intact (choc direct)" % roundi(GameState.integrity))
 	_check(_level.hud.get_node("Status").visible, "la jauge d'intégrité apparaît")
 	var recovered := await _wait_until(14.0, func() -> bool: return _nino.controls_enabled)
+	var leaf: Node3D = _level.door.get_node("Hinge/Panel")
+	_check(absf(rad_to_deg(leaf.global_basis.get_euler().y) - _level.door.open_angle) < 1.0 and _level.door.open_angle <= 25.0,
+			"porte entrouverte (battant réellement tourné de %d°)" % roundi(rad_to_deg(leaf.global_basis.get_euler().y)))
 	_check(recovered and _saw_thought([&"robot", &"damage"]) and _saw_thought([&"printer", &"wrench"]), "réaction de blessure, puis Nin0 pense à l'imprimante")
 	_check(GameState.get_objective() == "Se faire réparer à l'imprimante" and not GameState.demo_completed, "objectif : réparation (pas encore la fin)")
 	_check(_level.printer.interactable.enabled, "l'imprimante est de nouveau utilisable")
@@ -435,7 +442,9 @@ func _load_level() -> void:
 	add_child(_level)
 	_nino = _level.get_node("Nino")
 	_camera = _level.get_node("ThirdPersonCamera")
-	_level.thoughts.thought_requested.connect(func(icons: Array, _text: String) -> void: _thoughts.append(icons))
+	_level.thoughts.thought_requested.connect(func(icons: Array, text: String) -> void:
+		_thoughts.append(icons)
+		_thought_texts.append(text))
 
 
 func _saw_thought(icons: Array) -> bool:

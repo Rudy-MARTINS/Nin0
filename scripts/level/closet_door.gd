@@ -6,8 +6,8 @@ extends Node3D
 
 signal opened
 
-## Angle d'ouverture (degrés, autour de Y).
-@export var open_angle := 80.0
+## Angle d'ouverture (degrés, autour de Y) : porte entrouverte, juste assez pour Nin0.
+@export var open_angle := 20.0
 @export var open_duration := 3.2
 
 var is_open := false
@@ -20,6 +20,9 @@ var is_open := false
 
 func _ready() -> void:
 	interactable.enabled = false
+	# Le battant (AnimatableBody3D) doit suivre la rotation de la charnière : sans
+	# synchronisation physique, il suit les changements de transformation du parent.
+	($Hinge/Panel as AnimatableBody3D).sync_to_physics = false
 
 
 ## Position où Nin0 se suspend (suit le levier et la porte).
