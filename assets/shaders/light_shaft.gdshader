@@ -4,7 +4,7 @@ render_mode blend_add, unshaded, cull_disabled, depth_draw_never, shadows_disabl
 #include "res://assets/shaders/noise.gdshaderinc"
 
 uniform vec3 color : source_color = vec3(1.0, 0.85, 0.6);
-uniform float intensity = 0.12;
+uniform float intensity = 0.07;
 
 void fragment() {
 	float along = UV.y;

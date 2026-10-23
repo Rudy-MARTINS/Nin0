@@ -2,27 +2,37 @@
 
 ## État du projet
 
-**Lot 1 — Contrôles (prototype).** Une scène de test jouable : Nino provisoire en mode roues, caméra troisième personne et escalade sur surfaces autorisées.
+**Première démo jouable.** De l'éveil de NINO dans l'atelier jusqu'à l'impression et l'installation de ses deux jambes mécaniques, puis une courte conclusion.
 
 - Conception : [docs/GDD.md](docs/GDD.md)
-- Prototype Lot 1 (commandes, architecture, hypothèses) : [docs/PROTOTYPE_LOT1.md](docs/PROTOTYPE_LOT1.md)
+- Première démo (déroulement, commandes, architecture, limites) : [docs/DEMO.md](docs/DEMO.md)
+- Prototype Lot 1 (déplacement, escalade) : [docs/PROTOTYPE_LOT1.md](docs/PROTOTYPE_LOT1.md)
 - Moteur : Godot 4 (branche stable)
 - Plateforme initiale : Windows
 - Outils : Godot, VS Code, Codex, Git
 
 ## Ouvrir le projet
 
-1. Installer Godot 4.
+1. Installer Godot **4.3** (ou une version 4.x plus récente).
 2. Cloner ce dépôt.
 3. Dans le gestionnaire de projets Godot, choisir **Importer** puis sélectionner `project.godot`.
-4. Ouvrir le projet puis appuyer sur **F5** : la scène de test `scenes/levels/test_level.tscn` se lance.
+4. Ouvrir le projet puis appuyer sur **F5** : l'écran titre de la démo s'affiche.
 
-Commandes : **Z Q S D** / flèches pour rouler et grimper, **souris** pour la caméra, **C** pour lâcher une paroi, **R** pour réapparaître, **Échap** pour libérer la souris.
+| Touche (AZERTY) | Action |
+|---|---|
+| Z Q S D ou flèches | Se déplacer ; sur une paroi : monter / descendre |
+| Souris | Caméra |
+| E (ou Entrée) | Interagir |
+| C | Lâcher une paroi |
+| F | Roues ↔ jambes (à l'arrêt, au sol, une fois les jambes obtenues) |
+| Espace | Sauter (mode jambes uniquement) |
+| R | Revenir au dernier point sûr |
+| Échap | Pause (reprendre, recommencer la démo, quitter) |
 
-## Premier objectif
+Bac à sable de déplacement (jambes disponibles d'emblée) : ouvrir `scenes/levels/test_level.tscn` puis **F6**.
 
-Construire un prototype 3D gris : caméra troisième personne, Nino roulant, collisions et escalade simple sur surfaces autorisées. **Nino ne saute pas au départ.**
+## Prochaines étapes
 
-Les améliorations, la transformation et les fourmis viendront par petits lots testables.
+Les fourmis, l'incident, les combats, les autres pièces et améliorations viendront par petits lots testables (voir GDD §10).
 
 > Le GDD contient des spoilers de conception : ne pas afficher son contenu narratif directement dans le jeu.

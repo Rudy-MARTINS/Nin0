@@ -1757,43 +1757,43 @@ profile = PackedVector2Array(0.53, -3.5, 0.53, 3.5, 0.48, 3.5, 0.48, -3.5, 0.53,
 segments = 24
 
 [node name="Seg0" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(1, -0, 0, 0, 1, 0, 0, 0, 1, -0, -0.51, 0)
+transform = Transform3D(1, 0, 0, -0, 1, 0, 0, 0, 1, -0, -0.51, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg1" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(0.809017, -0.587785, 0, 0.587785, 0.809017, 0, 0, 0, 1, -0.29977, -0.412599, 0)
+transform = Transform3D(0.809017, 0.587785, 0, -0.587785, 0.809017, 0, 0, 0, 1, -0.29977, -0.412599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg2" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(0.309017, -0.951057, 0, 0.951057, 0.309017, 0, 0, 0, 1, -0.485039, -0.157599, 0)
+transform = Transform3D(0.309017, 0.951057, 0, -0.951057, 0.309017, 0, 0, 0, 1, -0.485039, -0.157599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg3" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(-0.309017, -0.951057, 0, 0.951057, -0.309017, 0, 0, 0, 1, -0.485039, 0.157599, 0)
+transform = Transform3D(-0.309017, 0.951057, 0, -0.951057, -0.309017, 0, 0, 0, 1, -0.485039, 0.157599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg4" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(-0.809017, -0.587785, 0, 0.587785, -0.809017, 0, 0, 0, 1, -0.29977, 0.412599, 0)
+transform = Transform3D(-0.809017, 0.587785, 0, -0.587785, -0.809017, 0, 0, 0, 1, -0.29977, 0.412599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg5" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(-1, -1.22465e-16, 0, 1.22465e-16, -1, 0, 0, 0, 1, -6.2457e-17, 0.51, 0)
+transform = Transform3D(-1, 1.22465e-16, 0, -1.22465e-16, -1, 0, 0, 0, 1, -6.2457e-17, 0.51, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg6" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(-0.809017, 0.587785, 0, -0.587785, -0.809017, 0, 0, 0, 1, 0.29977, 0.412599, 0)
+transform = Transform3D(-0.809017, -0.587785, 0, 0.587785, -0.809017, 0, 0, 0, 1, 0.29977, 0.412599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg7" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(-0.309017, 0.951057, 0, -0.951057, -0.309017, 0, 0, 0, 1, 0.485039, 0.157599, 0)
+transform = Transform3D(-0.309017, -0.951057, 0, 0.951057, -0.309017, 0, 0, 0, 1, 0.485039, 0.157599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg8" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(0.309017, 0.951057, 0, -0.951057, 0.309017, 0, 0, 0, 1, 0.485039, -0.157599, 0)
+transform = Transform3D(0.309017, -0.951057, 0, 0.951057, 0.309017, 0, 0, 0, 1, 0.485039, -0.157599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="Seg9" type="CollisionShape3D" parent="Geometry/PosterTube"]
-transform = Transform3D(0.809017, 0.587785, 0, -0.587785, 0.809017, 0, 0, 0, 1, 0.29977, -0.412599, 0)
+transform = Transform3D(0.809017, -0.587785, 0, 0.587785, 0.809017, 0, 0, 0, 1, 0.29977, -0.412599, 0)
 shape = SubResource("Shape_tube_seg")
 
 [node name="OutsideFacade" type="StaticBody3D" parent="Geometry"]

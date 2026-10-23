@@ -2,10 +2,12 @@
 
 Notes techniques du premier prototype jouable. Ce document ne remplace pas le GDD : il décrit **comment** le Lot 1 est implémenté et liste les **hypothèses à valider**.
 
+> Mise à jour : la scène principale est désormais la démo (`scenes/levels/workshop.tscn`, voir [DEMO.md](DEMO.md)). La scène de ce lot reste disponible comme bac à sable (`scenes/levels/test_level.tscn`, F6), avec les jambes activées. Les déplacements roues et escalade décrits ici sont inchangés.
+
 ## Lancer le prototype
 
 1. Ouvrir le projet dans Godot **4.3 ou plus récent** (branche 4.x stable).
-2. Appuyer sur **F5** : la scène principale `scenes/levels/test_level.tscn` se lance.
+2. Ouvrir `scenes/levels/test_level.tscn` et appuyer sur **F6**.
 
 | Touche (AZERTY) | Action |
 |---|---|
@@ -13,7 +15,7 @@ Notes techniques du premier prototype jouable. Ce document ne remplace pas le GD
 | Souris | Tourner la caméra |
 | C | Lâcher la paroi |
 | R | Réapparaître au point de départ |
-| Échap | Libérer la souris (clic gauche pour la reprendre) |
+| F / Espace | Roues ↔ jambes / sauter (bac à sable uniquement) |
 
 Les touches de déplacement sont définies par **position physique** : Z Q S D sur un clavier AZERTY = W A S D sur un clavier QWERTY. Aucune touche de saut n'existe.
 
@@ -63,10 +65,10 @@ Les valeurs se règlent dans l'inspecteur du nœud `Nino` (groupes *Roues*, *Esc
 Depuis la racine du projet (chemin de Godot à adapter) :
 
 ```
-godot --headless --fixed-fps 60 --path . --script res://tests/test_lot1_movement.gd
+godot --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
 ```
 
-Il vérifie : absence d'action de saut, déplacement, décélération, rotation progressive, tasse non escaladable, escalade et hissage sur le carton, lâcher, descente, limite latérale sur le liège, accès à l'étagère, montée de la pente et réapparition. Sous Windows, utiliser `Godot_v4.x_win64_console.exe` pour voir le résultat dans le terminal.
+Il vérifie : aucun saut en mode roues, déplacement, décélération, rotation progressive, tasse non escaladable, escalade et hissage sur le carton, lâcher, descente, limite latérale sur le liège, accès à l'étagère, montée de la pente et réapparition. Sous Windows, utiliser `Godot_v4.x_win64_console.exe` pour voir le résultat dans le terminal.
 
 ## Limites connues
 

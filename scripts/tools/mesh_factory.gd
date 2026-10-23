@@ -1,3 +1,4 @@
+@tool
 class_name MeshFactory
 extends RefCounted
 ## Génération de maillages simples et arrondis (boîtes biseautées, tubes, feuilles).

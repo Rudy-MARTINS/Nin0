@@ -40,6 +40,19 @@ func _run() -> void:
 	await _hold(["move_forward"], 1.0)
 	_check(start.distance_to(_nino.global_position) > 1.0, "NINO roule sur l'établi")
 
+	# Passages du sol : le tube en carton et le dessous du fauteuil.
+	_place(Vector3(-6.0, 0.05, -6.5), -PI / 2)
+	await _hold(["move_forward"], 3.6)
+	_check(_nino.global_position.x > 2.5, "NINO traverse le tube en carton (x = %.2f)" % _nino.global_position.x)
+	_place(Vector3(-5.0, 0.05, 5.5), PI / 2)
+	await _hold(["move_forward"], 2.5)
+	_check(_nino.global_position.x < -10.0, "NINO passe sous le fauteuil (x = %.2f)" % _nino.global_position.x)
+
+	# Les marches vers la fenêtre sont trop hautes pour les roues.
+	_place(Vector3(-10.2, 8.05, -9.8), PI / 2)
+	await _hold(["move_forward"], 2.0)
+	_check(_nino.global_position.y < 8.3, "les marches vers la fenêtre sont infranchissables sur roues")
+
 	# 2. Imprimante hors tension.
 	_place(Vector3(-1, 8.05, -8.9), 0.0)
 	await _wait(0.4)
@@ -150,9 +163,33 @@ func _run() -> void:
 	var end_line: Label = _level.end_screen.get_node("Content/VBox/Line")
 	_check(end_line.text == "Fin de la première démo", "texte de conclusion")
 
-	# 11. Réinitialisation de la progression.
+	# 11. Écran titre : « Continuer » reprend avec les jambes installées.
+	_level.queue_free()
+	await get_tree().process_frame
+	GameState.reset_progress()
+	_check(GameState.has_save(), "une sauvegarde existe au retour à l'écran titre")
+	_level = LEVEL.instantiate()
+	add_child(_level)
+	_nino = _level.get_node("Nino")
+	await _wait(0.5)
+	var title: TitleScreen = _level.title_screen
+	_check(title.visible and title.get_node("Panel/Margin/VBox/Buttons/ContinueButton").visible, "écran titre avec « Continuer »")
+	title.get_node("Panel/Margin/VBox/Buttons/ContinueButton").emit_signal("pressed")
+	await _wait(1.5)
+	_check(_nino.legs_available and _nino.controls_enabled and GameState.power_on, "reprise : jambes installées, NINO jouable")
+	_check(GameState.get_objective() == "Déployer les jambes", "reprise : objectif « Déployer les jambes »")
+
+	# 12. « Nouvelle partie » efface la progression.
+	_level.queue_free()
+	await get_tree().process_frame
+	_level = LEVEL.instantiate()
+	add_child(_level)
+	_nino = _level.get_node("Nino")
+	await _wait(0.5)
+	_level.title_screen.get_node("Panel/Margin/VBox/Buttons/StartButton").emit_signal("pressed")
+	await _wait(1.5)
+	_check(not GameState.has_save() and not _nino.legs_available and not GameState.woke_up, "nouvelle partie : progression effacée")
 	GameState.erase_save()
-	_check(not GameState.has_save(), "la progression peut être effacée")
 
 	Sfx.stop_all_loops()
 	print("\n%s : %d échec(s)" % ["SUCCÈS" if _failures == 0 else "ÉCHEC", _failures])

@@ -18,6 +18,9 @@ extends Node3D
 		if is_node_ready():
 			_spring_arm.spring_length = value
 
+## En dessous de cette distance, la cible est masquée (évite de voir l'intérieur du modèle).
+@export var hide_target_distance := 0.3
+
 ## Rotation à la souris autorisée (désactivée pendant les séquences).
 var input_enabled := true
 var pitch := 0.0:
@@ -60,6 +63,13 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	if target:
 		global_position = global_position.lerp(_get_focus_point(), 1.0 - exp(-follow_sharpness * delta))
+
+
+func _process(_delta: float) -> void:
+	if target:
+		var visual := target.get_node_or_null("Visual") as Node3D
+		if visual:
+			visual.visible = _spring_arm.get_hit_length() > hide_target_distance
 
 
 ## Recentre immédiatement la caméra sur la cible (après une réapparition).

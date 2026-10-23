@@ -20,6 +20,7 @@ var _hint_tween: Tween
 var _hint_serial := 0
 var _toast_tween: Tween
 var _objective_tween: Tween
+var _mode_known := false
 
 
 func _ready() -> void:
@@ -92,13 +93,15 @@ func show_toast(text: String, duration := 3.0) -> void:
 
 
 func set_mode(text: String) -> void:
+	_mode_known = true
 	_mode_box.visible = true
 	_mode_label.text = text
 
 
 func set_gameplay_visible(value: bool) -> void:
-	for node: CanvasItem in [_objective_box, _hint_label, _mode_box, _toast_label]:
+	for node: CanvasItem in [_objective_box, _hint_label, _toast_label]:
 		node.visible = value
+	_mode_box.visible = value and _mode_known
 	if not value:
 		hide_prompt()
 
