@@ -1,6 +1,6 @@
 class_name Examinable
 extends Interactable
-## Objet que NINO peut examiner : déclenche une pensée et enregistre une découverte.
+## Objet que Nin0 peut examiner : déclenche une pensée et enregistre une découverte.
 ## Le directeur de niveau écoute `examined` pour la mise en scène.
 
 signal examined(data: DiscoveryData)
@@ -15,7 +15,11 @@ func _ready() -> void:
 	if discovery and prompt == "Interagir":
 		prompt = "Prendre" if discovery.collectible else "Examiner"
 	interacted.connect(_on_interacted)
-	# Un objet déjà emporté (sauvegarde) n'apparaît plus.
+	refresh_from_save()
+
+
+## Un objet déjà emporté (sauvegarde) n'apparaît plus.
+func refresh_from_save() -> void:
 	if discovery and discovery.collectible and GameState.has_discovery(discovery.id):
 		_remove()
 

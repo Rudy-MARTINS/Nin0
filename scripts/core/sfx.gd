@@ -99,6 +99,17 @@ func _build_sounds() -> void:
 	_streams[&"focus_lock"] = _tone([[1200.0, 1200.0, 0.05], [1600.0, 1600.0, 0.09]], 0.14)
 	_streams[&"door_latch"] = _click()
 	_streams[&"door_creak"] = _creak(2.2)
+	# Lot 3 : blessure, réparation, vision, souvenirs, fragments.
+	_streams[&"spark"] = _crackle(0.25, 0.5)
+	_streams[&"impact"] = _impact()
+	_streams[&"grind"] = _grind(1.4)
+	_streams[&"static"] = _static_loop()
+	_streams[&"signal"] = _tone([[1900.0, 1900.0, 0.05], [1200.0, 1200.0, 0.03], [1900.0, 1900.0, 0.05], [2400.0, 2300.0, 0.12]], 0.1)
+	_streams[&"glitch"] = _crackle(0.35, 0.8)
+	_streams[&"optic"] = _tone([[400.0, 1600.0, 0.35], [1600.0, 1500.0, 0.05], [900.0, 2200.0, 0.2]], 0.1)
+	_streams[&"fragment"] = _tone([[1300.0, 1700.0, 0.06], [2000.0, 2000.0, 0.07]], 0.14)
+	_streams[&"repair_loop"] = _repair_loop()
+	_streams[&"repair_done"] = _tone([[523.0, 523.0, 0.1], [784.0, 784.0, 0.1], [1046.0, 1046.0, 0.1], [1568.0, 1568.0, 0.3]], 0.2)
 
 
 ## segments : liste de [fréquence début, fréquence fin, durée]. Enveloppe douce par segment.
@@ -243,6 +254,76 @@ func _ambience(duration: float) -> AudioStreamWAV:
 	return _to_wav(samples, true)
 
 
+## Grésillement électrique : impulsions aléatoires.
+func _crackle(duration: float, amplitude: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(duration * RATE)
+	var burst := 0.0
+	for i in count:
+		var t := float(i) / count
+		if randf() < 0.004:
+			burst = 1.0
+		burst *= 0.993
+		var envelope := minf(t * 20.0, 1.0) * (1.0 - t)
+		samples.append(randf_range(-1.0, 1.0) * burst * amplitude * envelope)
+	return _to_wav(samples)
+
+
+## Choc lourd de la chute : coup grave et cliquetis métalliques.
+func _impact() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(0.7 * RATE)
+	var low := 0.0
+	for i in count:
+		var t := float(i) / RATE
+		low = lerpf(low, randf_range(-1.0, 1.0), 0.05)
+		var thump := sin(TAU * (70.0 - t * 40.0) * t) * exp(-t * 9.0) * 0.7
+		var rattle := sin(TAU * 2100.0 * t) * sin(TAU * 1370.0 * t) * exp(-t * 7.0) * 0.12 * _step(0.06, t)
+		samples.append(thump + low * exp(-t * 14.0) * 1.4 + rattle)
+	return _to_wav(samples)
+
+
+## Grincement mécanique inquiétant (servomoteur abîmé).
+func _grind(duration: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(duration * RATE)
+	var phase := 0.0
+	for i in count:
+		var t := float(i) / count
+		var freq := 95.0 + sin(t * 23.0) * 25.0 + sin(t * 61.0) * 10.0
+		phase += TAU * freq / RATE
+		var saw := fmod(phase / TAU, 1.0) * 2.0 - 1.0
+		var stutter := 0.4 + 0.6 * _step(0.0, sin(t * 140.0 + sin(t * 9.0) * 4.0))
+		var envelope := minf(t * 6.0, 1.0) * minf((1.0 - t) * 3.0, 1.0)
+		samples.append((saw * 0.13 + randf_range(-0.03, 0.03)) * stutter * envelope)
+	return _to_wav(samples)
+
+
+## Neige de signal (souvenirs) : bruit filtré avec battements. Boucle.
+func _static_loop() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var low := 0.0
+	for i in RATE:
+		var t := float(i) / RATE
+		low = lerpf(low, randf_range(-1.0, 1.0), 0.6)
+		var beat := 0.7 + 0.3 * sin(TAU * 7.0 * t)
+		samples.append(low * 0.09 * beat)
+	return _to_wav(samples, true)
+
+
+## Réparation : moteurs, petites soudures. Boucle d'une seconde.
+func _repair_loop() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var phase := 0.0
+	for i in RATE:
+		var t := float(i) / RATE
+		var note := 247.0 if fmod(t, 0.25) < 0.125 else 330.0
+		phase += TAU * note / RATE
+		var weld := randf_range(-1.0, 1.0) * 0.05 * _step(0.8, sin(TAU * 3.0 * t))
+		samples.append(signf(sin(phase)) * 0.04 + sin(phase * 2.0) * 0.03 + weld)
+	return _to_wav(samples, true)
+
+
 func _to_wav(samples: PackedFloat32Array, loop := false) -> AudioStreamWAV:
 	var data := PackedByteArray()
 	data.resize(samples.size() * 2)
@@ -257,3 +338,7 @@ func _to_wav(samples: PackedFloat32Array, loop := false) -> AudioStreamWAV:
 		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 		wav.loop_end = samples.size()
 	return wav
+
+
+func _step(edge: float, x: float) -> float:
+	return 1.0 if x >= edge else 0.0

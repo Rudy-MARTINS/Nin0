@@ -1,17 +1,26 @@
 extends Node3D
 ## Directeur de la première démo (placard-hub).
 ##
-## Fil conducteur : NINO observe → comprend → agit. Ses pensées (bulles) disent ce
+## Fil conducteur : Nin0 observe → comprend → agit. Ses pensées (bulles) disent ce
 ## qu'il remarque ou déduit ; l'objectif (HUD) dit ce que le joueur cherche à faire.
 ##
 ## Déroulement : titre → réveil → mini-tutoriel → imprimante hors tension → câble →
 ## multiprise → retour par les bobines → compréhension de l'imprimante → impression →
 ## carnet renversé → installation sur le plateau → premiers pas → fenêtre → vision
-## focalisée sur la poignée → étagère → la porte s'ouvre → fin.
-## Rien de la suite (fourmis, combats, autres pièces) n'est présent.
+## focalisée sur la poignée → étagère → la porte s'ouvre, Nin0 chute et s'abîme →
+## retour à l'imprimante avec les jambes → réparation → la porte ouverte → fin.
+## Facultatif : souvenirs (vision focalisée), fragments de filament, renfort de châssis.
+## Rien de la suite (fourmis, combats, autres pièces, sas) n'est présent.
 
 const TITLE_CAMERA_YAW := deg_to_rad(65.0)
 const GAMEPLAY_ARM := 1.8
+## Dégâts de la chute scriptée (directs, sans bouclier) : visibles, jamais mortels.
+const DOOR_FALL_DAMAGE := 45.0
+## Fragments de filament nécessaires à une réparation.
+const REPAIR_COST := 3
+const FIRST_REPAIR_DURATION := 6.0
+const REPAIR_DURATION := 3.0
+const UPGRADE_DURATION := 4.0
 
 enum Tutorial { NONE, FORWARD, BACK, CAMERA, DONE }
 
@@ -43,6 +52,9 @@ var _last_print_percent := -1
 @onready var pause_menu: PauseMenu = $PauseMenu
 @onready var end_screen: EndScreen = $EndScreen
 @onready var title_screen: TitleScreen = $TitleScreen
+@onready var integrity: NinoIntegrity = $Integrity
+@onready var memory_player: MemoryPlayer = $MemoryPlayer
+@onready var drawing_focus: FocusTarget = $Geometry/DrawingFocus
 @onready var _interactor: Interactor = $Nino/Interactor
 @onready var _checkpoints: Node3D = $Checkpoints
 
@@ -56,6 +68,10 @@ func _ready() -> void:
 	printer.interactable.interacted.connect(_on_printer_interacted)
 	printer.print_progressed.connect(_on_print_progressed)
 	printer.print_finished.connect(_on_print_finished)
+	printer_panel.repair_requested.connect(_on_repair_requested)
+	printer_panel.upgrade_requested.connect(_on_upgrade_requested)
+	for pickup in $Pickups.get_children():
+		(pickup as FilamentPickup).collected.connect(_on_fragment_collected)
 	power_strip.switched_on.connect(_on_power_switched_on)
 	notebook.toppled.connect(_on_notebook_toppled)
 	door.interactable.interacted.connect(func(_by: Node3D) -> void: _open_door())
@@ -70,7 +86,8 @@ func _ready() -> void:
 	var examinables := $Discoveries.get_children()
 	for examinable in examinables:
 		(examinable as Examinable).examined.connect(_on_examined)
-	pause_menu.discovery_total = examinables.size()
+	for examinable in examinables:
+		pause_menu.discovery_ids.append((examinable as Examinable).discovery.id)
 	GameState.progress_changed.connect(_refresh_objective)
 
 	Sfx.stop_all_loops()
@@ -97,8 +114,10 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	# Installation des jambes : NINO doit se trouver sur le plateau d'impression.
-	if not _sequence_running and GameState.legs_printed and not GameState.legs_installed \
+	# Installation des jambes : Nin0 doit se trouver sur le plateau d'impression.
+	if _sequence_running:
+		return
+	if GameState.legs_printed and not GameState.legs_installed \
 			and nino.state == NinoController.State.FREE and nino.is_on_floor() and printer.is_rider_on_bed(nino):
 		_install_legs()
 
@@ -139,7 +158,7 @@ func _start_new_game() -> void:
 	await hud.fade_to(0.0, 1.2).finished
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	hud.set_gameplay_visible(true)
-	hud.show_hint("Appuyez sur %s pour réveiller NINO" % Hud.key("Z Q S D"))
+	hud.show_hint("Appuyez sur %s pour réveiller Nin0" % Hud.key("Z Q S D"))
 	_waiting_wake_input = true
 
 
@@ -147,14 +166,17 @@ func _start_from_save() -> void:
 	GameState.load_save()
 	power_strip.set_on_immediately()
 	printer.set_completed()
-	printer.interactable.enabled = false
 	notebook.set_toppled_immediately()
 	spool_slot.fill_immediately(spools[0])
 	nino.legs_available = true
 	nino.get_visual().set_power(1.0)
-	nino.global_transform = _checkpoint("Printer")
-	nino.set_checkpoint(_checkpoint("Printer"))
-	camera.rotation.y = 0.0
+	_refresh_saved_world()
+	var spot := "Printer"
+	if GameState.injured and not GameState.repaired:
+		spot = "FallSpot"
+	nino.global_transform = _checkpoint(spot)
+	nino.set_checkpoint(_checkpoint(spot))
+	camera.rotation.y = nino.rotation.y
 	camera.pitch = deg_to_rad(-18.0)
 	camera.arm_length = GAMEPLAY_ARM
 	camera.snap_to_target()
@@ -167,6 +189,26 @@ func _start_from_save() -> void:
 	hud.show_hint("%s : déployer les jambes (à l'arrêt)" % Hud.key("F"), 6.0)
 
 
+## Remet le monde dans l'état sauvegardé (porte, vision, souvenirs, objets emportés).
+func _refresh_saved_world() -> void:
+	focus_vision.unlocked = GameState.reached_window
+	for node in get_tree().get_nodes_in_group(&"focus_targets"):
+		var target := node as FocusTarget
+		var known := (target.id == &"door_handle" and GameState.handle_identified) \
+				or (target.memory != null and GameState.has_memory(target.memory.id))
+		if known:
+			target.mark_identified(true)
+	if GameState.door_opened:
+		door.set_open_immediately()
+	else:
+		door.interactable.enabled = GameState.handle_identified
+	for examinable in $Discoveries.get_children():
+		(examinable as Examinable).refresh_from_save()
+	for pickup in $Pickups.get_children():
+		(pickup as FilamentPickup).refresh()
+	_update_printer_prompt()
+
+
 func _set_sleeping() -> void:
 	nino.controls_enabled = false
 	camera.input_enabled = false
@@ -174,7 +216,7 @@ func _set_sleeping() -> void:
 	nino.get_visual().set_power(0.0)
 
 
-## Réveil : l'écran vacille, NINO est d'abord confus, puis curieux.
+## Réveil : l'écran vacille, Nin0 est d'abord confus, puis curieux.
 func _boot_nino() -> void:
 	_sequence_running = true
 	hud.clear_hint()
@@ -243,7 +285,7 @@ func _start_tutorial_step(step: Tutorial) -> void:
 		Tutorial.DONE:
 			hud.clear_hint()
 			GameState.set_flag(&"tutorial_done")
-			# NINO remarque la machine au bout de la table : un premier but visuel.
+			# Nin0 remarque la machine au bout de la table : un premier but visuel.
 			nino.get_visual().look_target = printer.global_position + Vector3.UP * 1.5
 			thoughts.think([&"eye", &"printer"], "", 2.4)
 			await _wait(2.0)
@@ -335,7 +377,10 @@ func _on_printer_interacted(_by: Node3D) -> void:
 		await _wait(2.3)
 		visual.look_target = null
 		GameState.set_flag(&"printer_understood")
-	printer_panel.open(printer.is_powered(), GameState.legs_printed)
+	if GameState.injured:
+		printer_panel.open(true, true, REPAIR_COST, _printer_upgrade())
+	else:
+		printer_panel.open(printer.is_powered(), GameState.legs_printed)
 
 
 func _on_panel_closed() -> void:
@@ -343,8 +388,14 @@ func _on_panel_closed() -> void:
 	if not GameState.power_on:
 		# Observer → comprendre : pas d'énergie, d'où vient-elle ?
 		nino.get_visual().show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
-		thoughts.think([&"printer", &"cross", &"energy"], "", 2.2, true)
-		thoughts.think([&"plug", &"question"], "D'où vient l'énergie ?", 2.6)
+		thoughts.think([&"printer", &"cross", &"energy"], "Pas d'énergie…", 2.2, true)
+		# Le regard suit le câble qui part de la machine.
+		_glance(Vector3(1.6, 8.3, -14.3), 2.4)
+		thoughts.think([&"plug", &"question"], "Le câble…", 2.4)
+	elif GameState.injured and not GameState.repaired and GameState.fragments < REPAIR_COST:
+		# Pas assez de filament : Nin0 regarde autour de lui.
+		nino.get_visual().show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+		thoughts.think([&"filament", &"question"], "", 2.4, true)
 	_update_printer_prompt()
 
 
@@ -382,7 +433,7 @@ func _on_notebook_toppled() -> void:
 	thoughts.think([&"idea"], "", 2.0, true)
 
 
-## NINO est sur le plateau : la machine le détecte et installe les jambes.
+## Nin0 est sur le plateau : la machine le détecte et installe les jambes.
 func _install_legs() -> void:
 	_disable_play()
 	thoughts.think([&"printer", &"robot", &"question"], "", 1.8, true)
@@ -412,7 +463,7 @@ func _on_power_switched_on() -> void:
 	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.0)
 	thoughts.think([&"question"], "", 1.2, true)
 	await _wait(0.6)
-	# L'imprimante, là-haut, s'éveille : NINO fait le lien entre les deux appareils.
+	# L'imprimante, là-haut, s'éveille : Nin0 fait le lien entre les deux appareils.
 	printer.set_powered(true)
 	visual.look_target = printer.global_position + Vector3.UP
 	await _wait(1.0)
@@ -422,7 +473,9 @@ func _on_power_switched_on() -> void:
 	await _wait(1.6)
 	visual.look_target = null
 	_update_printer_prompt()
-	_hint_once(&"way_up", "Pour remonter sur la table, cherchez un passage le long du mur de droite.", 6.0)
+	# Remonter : un regard vers la planche à repasser, sans indication écrite.
+	_glance(Vector3(13.5, 4.0, -3.0), 2.0)
+	thoughts.think([&"up", &"question"], "", 2.2)
 
 
 func _on_spool_slotted(_spool: PushableSpool) -> void:
@@ -431,13 +484,16 @@ func _on_spool_slotted(_spool: PushableSpool) -> void:
 
 
 func _on_nino_respawned() -> void:
-	# Une bobine mal placée revient à sa place quand NINO revient au point sûr.
+	# Une bobine mal placée revient à sa place quand Nin0 revient au point sûr.
 	for spool in spools:
 		(spool as PushableSpool).reset()
 	camera.snap_to_target()
 
 
 func _update_printer_prompt() -> void:
+	# Après l'installation des jambes, la machine sert de nouveau une fois Nin0 abîmé.
+	if GameState.legs_installed:
+		printer.interactable.enabled = GameState.injured
 	if GameState.power_on:
 		printer.interactable.prompt = "Utiliser l'imprimante"
 	else:
@@ -445,7 +501,7 @@ func _update_printer_prompt() -> void:
 	_interactor.refresh()
 
 
-# --- NINO ------------------------------------------------------------------------
+# --- Nin0 ------------------------------------------------------------------------
 
 func _on_nino_state_changed(state: NinoController.State) -> void:
 	if state == NinoController.State.CLIMBING:
@@ -459,7 +515,7 @@ func _on_mode_changed(mode: NinoController.Mode) -> void:
 		_first_steps_reaction()
 
 
-## Premiers pas : NINO découvre ses jambes (surprise, regard vers le bas, curiosité).
+## Premiers pas : Nin0 découvre ses jambes (surprise, regard vers le bas, curiosité).
 func _first_steps_reaction() -> void:
 	var visual := nino.get_visual()
 	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.2)
@@ -486,7 +542,7 @@ func _on_zone_entered(zone: TriggerZone) -> void:
 				nino.set_checkpoint(_checkpoint("Floor"))
 		&"cable_hint":
 			if GameState.printer_seen and not GameState.power_on:
-				_think_once(&"cable", [&"plug", &"down"], "Le câble descend…", 2.6)
+				_think_once(&"cable", [&"plug", &"down"], "Où va-t-il ? Plus bas ?", 2.6)
 		&"under_bench":
 			if not GameState.power_on:
 				_think_once(&"strip", [&"plug", &"exclamation"], "", 2.2)
@@ -494,8 +550,8 @@ func _on_zone_entered(zone: TriggerZone) -> void:
 			if GameState.power_on and not spool_slot.is_filled():
 				_think_once(&"ramp", [&"up"], "", 1.8)
 		&"spools":
-			if not spool_slot.is_filled() and _think_once(&"spools", [&"spool", &"arrow", &"question"], "", 2.6):
-				_hint_once(&"push", "Roulez contre une bobine pour la pousser.", 5.0)
+			if not spool_slot.is_filled():
+				_think_once(&"spools", [&"spool", &"arrow", &"question"], "Légère ?", 2.6)
 		&"notch":
 			if not spool_slot.is_filled():
 				_hint_once(&"stuck", "%s : revenir au dernier point sûr" % Hud.key("R"), 5.0)
@@ -515,31 +571,93 @@ func _on_zone_entered(zone: TriggerZone) -> void:
 			if GameState.handle_identified:
 				_think_once(&"shelf_route", [&"up", &"handle"], "", 2.2)
 		&"shelf_top":
-			if GameState.handle_identified:
+			if GameState.handle_identified and not GameState.injured:
 				nino.set_checkpoint(_checkpoint("Shelf"))
+		&"drawing":
+			if GameState.has_memory(drawing_focus.id):
+				return
+			if not focus_vision.unlocked:
+				# Un dessin d'enfant : Nin0 le remarque, sans savoir pourquoi.
+				if _think_once(&"drawing_seen", [&"eye", &"question"], "", 2.2):
+					_glance(drawing_focus.global_position, 1.8)
+			elif not _thoughts_shown.has(&"drawing_signal"):
+				# Vision disponible : un faible signal, l'écran du visage grésille.
+				_thoughts_shown[&"drawing_signal"] = true
+				nino.get_visual().glitch_pulse(0.6, 0.4)
+				Sfx.play(&"signal", -16.0)
+				_glance(drawing_focus.global_position, 1.6)
+		&"chair_route":
+			if GameState.injured and not GameState.repaired and nino.mode == NinoController.Mode.LEGS:
+				if _think_once(&"chair_route", [&"book", &"up"], "", 2.2):
+					_glance(Vector3(-9.5, 7.0, -6.0), 1.8)
+		&"doorway":
+			if GameState.repaired:
+				_finish_demo()
+			elif GameState.injured:
+				_think_once(&"doorway_hurt", [&"robot", &"damage", &"printer"], "", 2.4)
 
 
-## Au rebord de la fenêtre, NINO remarque la grande porte du placard.
+## Au rebord de la fenêtre, Nin0 remarque quelque chose au loin : il plisse les yeux,
+## force sa vue, son système optique réagit et se calibre. Nouvelle capacité.
 func _reach_window() -> void:
 	GameState.set_flag(&"reached_window")
 	nino.set_checkpoint(_checkpoint("Window"))
-	focus_vision.unlocked = true
+	_disable_play()
 	var visual := nino.get_visual()
-	visual.look_target = door.get_grip_position()
-	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 3.0)
-	thoughts.think([&"door", &"question"], "", 2.6, true)
-	await _wait(2.0)
+	var target := door.get_grip_position()
+	var to_door := target - nino.global_position
+	var turn := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	turn.tween_property(camera, "rotation:y", atan2(-to_door.x, -to_door.z) + 0.25, 1.4)
+	turn.tween_property(camera, "pitch", deg_to_rad(-6.0), 1.4)
+	visual.look_target = target
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	thoughts.think([&"eye", &"question"], "", 1.8, true)
+	await _wait(1.6)
+	# Les yeux se plissent : il essaie de mieux voir.
+	for i in 2:
+		visual.show_emotion(NinoVisual.Emotion.FOCUSED, 0.7)
+		Sfx.play(&"servo", -18.0, 1.8)
+		await _wait(0.8)
+		visual.show_emotion(NinoVisual.Emotion.NEUTRAL, 0.25)
+		await _wait(0.3)
+	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 2.0)
+	visual.glitch_pulse(0.5, 0.3)
+	Sfx.play(&"optic", -6.0)
+	await focus_vision.overlay.play_calibration()
 	visual.look_target = null
-	hud.show_hint("Maintenez %s (ou %s) pour observer la porte" % [Hud.key("clic droit"), Hud.key("Maj")])
+	focus_vision.unlocked = true
+	visual.show_emotion(NinoVisual.Emotion.HAPPY, 1.2)
+	hud.show_toast("Nouvelle capacité : vision focalisée", 2.5)
+	_enable_play()
+	hud.show_hint("Maintenez %s ou %s : vision focalisée" % [Hud.key("clic droit"), Hud.key("Maj")], 7.0)
 
 
 func _on_focus_target_identified(target: FocusTarget) -> void:
-	if target.id == &"door_handle" and not GameState.handle_identified:
+	if target.memory != null:
+		_acquire_memory(target.memory)
+	elif target.id == &"door_handle" and not GameState.handle_identified:
 		GameState.set_flag(&"handle_identified")
-		door.interactable.enabled = true
+		door.interactable.enabled = not GameState.door_opened
 		hud.show_toast("Poignée repérée", 2.0)
 		hud.clear_hint()
 		_pending_handle_thought = true
+
+
+## Souvenir : signal, parasites, fragments de mots, Nin0 cherche à comprendre.
+func _acquire_memory(memory: MemoryData) -> void:
+	if not GameState.add_memory(memory.id):
+		return
+	_disable_play()
+	var visual := nino.get_visual()
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.0)
+	visual.glitch_pulse(1.0, 1.0)
+	await _wait(0.6)
+	await memory_player.play(memory, GameState.memory_count(), GameState.ARCHIVE.total, GameState.memory_corruption())
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.4)
+	visual.glitch_pulse(0.4, 0.3)
+	thoughts.think([&"question"], "…", 2.2, true)
+	await _wait(1.8)
+	_enable_play()
 
 
 func _on_focus_changed_mode(active: bool) -> void:
@@ -548,40 +666,177 @@ func _on_focus_changed_mode(active: bool) -> void:
 		nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 1.5)
 		thoughts.think([&"handle", &"exclamation"], "", 2.0, true)
 		thoughts.think([&"robot", &"up", &"handle"], "Je peux l'atteindre ?", 2.8)
-		await _wait(2.5)
-		_hint_once(&"shelf_hint", "Les boîtes, au bout gauche de la table, mènent à l'étagère.", 6.0)
+		await _wait(1.0)
+		# Le regard passe des boîtes à l'étagère : le chemin se devine.
+		_glance(Vector3(-13.8, 9.2, -10.0), 1.2)
+		await _wait(1.2)
+		_glance(Vector3(-13.8, 10.2, -3.0), 1.4)
 
 
-## NINO saisit le levier ; son poids l'abaisse, puis il se laisse retomber sur
-## l'étagère pendant que la porte, déverrouillée, s'ouvre sur le sas.
+## Nin0 saisit le levier ; son poids l'abaisse et le pêne se libère. La porte
+## s'ouvre d'un coup : Nin0 lâche prise, chute réellement jusqu'au sol et s'abîme.
 func _open_door() -> void:
 	_disable_play()
 	GameState.set_flag(&"door_opened")
+	integrity.enabled = false
 	nino.begin_scripted()
 	var visual := nino.get_visual()
 	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 1.0)
-	var perch := nino.global_position
 	var shot := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	shot.tween_property(camera, "rotation:y", deg_to_rad(127.0), 1.2)
 	shot.tween_property(camera, "pitch", deg_to_rad(-10.0), 1.2)
 	shot.tween_property(camera, "arm_length", 4.0, 1.2)
 	await _leap(nino.global_position, door.get_grip_position() + Vector3.DOWN * 0.55, 0.55)
 	await door.pull_lever(nino)
-	visual.react_to_jump()
-	await _leap(nino.global_position, perch, 0.45)
+	# La porte s'ouvre : secousse, Nin0 perd l'équilibre.
+	door.swing_open()
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.5)
+	await _wait(0.45)
+	Sfx.play(&"surprised", -4.0)
+	visual.glitch_pulse(0.4, 0.3)
+	var follow := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	follow.tween_property(camera, "pitch", deg_to_rad(-32.0), 0.9)
+	follow.tween_property(camera, "arm_length", 3.0, 0.9)
+	nino.end_scripted()
+	nino.velocity = Vector3(1.7, 0.8, 0.3)
+	var landed := [false]
+	var on_land := func(_speed: float) -> void: landed[0] = true
+	nino.landed.connect(on_land, CONNECT_ONE_SHOT)
+	await _wait(0.2)
+	await _wait_until(3.0, func() -> bool: return landed[0] or (nino.is_on_floor() and nino.global_position.y < 1.0))
+	if nino.landed.is_connected(on_land):
+		nino.landed.disconnect(on_land)
+	await _injury_reaction()
+
+
+## Blessure : choc, étincelles, écran parasité, yeux étourdis, relevé difficile ;
+## Nin0 comprend qu'il est abîmé et pense à l'imprimante. Empathie, pas punition.
+func _injury_reaction() -> void:
+	nino.begin_scripted()
+	var visual := nino.get_visual()
+	Sfx.play(&"impact", -2.0)
+	integrity.take_damage(DOOR_FALL_DAMAGE, true)
+	GameState.set_flag(&"injured")
+	nino.set_checkpoint(_checkpoint("FallSpot"))
+	visual.set_tilt(75.0)
+	visual.emit_sparks(22)
+	visual.glitch_pulse(1.0, 1.4)
+	visual.show_emotion(NinoVisual.Emotion.DIZZY, 3.2)
+	await _wait(1.0)
+	Sfx.play(&"grind", -6.0)
+	await _wait(2.0)
+	# Relevé difficile : un premier essai échoue.
+	visual.set_tilt(35.0)
+	Sfx.play(&"servo", -10.0, 0.6)
+	await _wait(0.5)
+	visual.set_tilt(65.0)
+	Sfx.play(&"thud", -10.0)
+	visual.glitch_pulse(0.7, 0.4)
+	await _wait(0.9)
+	visual.set_tilt(0.0)
+	Sfx.play(&"servo", -8.0, 0.8)
 	visual.react_to_landing(5.0)
-	visual.look_target = door.global_position + Vector3(-6.0, 6.0, -5.0)
-	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.2)
-	await door.swing_open()
+	await _wait(0.8)
+	var settle := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	settle.tween_property(camera, "pitch", deg_to_rad(-18.0), 1.0)
+	settle.tween_property(camera, "arm_length", GAMEPLAY_ARM, 1.0)
+	visual.show_emotion(NinoVisual.Emotion.HURT, 1.6)
+	visual.look_target = nino.global_position + nino.global_basis * Vector3(0.0, -0.5, -0.4)
+	thoughts.think([&"robot", &"damage"], "…", 2.4, true)
+	await _wait(2.4)
+	# Il se souvient de la machine qui l'a assemblé.
+	visual.look_target = printer.global_position + Vector3.UP
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	thoughts.think([&"printer", &"wrench"], "", 2.4)
+	await _wait(2.0)
+	visual.look_target = null
+	_update_printer_prompt()
+	nino.end_scripted()
+	integrity.enabled = true
+	_enable_play()
+
+
+## Arrivée sur le seuil, réparé : Nin0 regarde le sas, la démo se termine.
+func _finish_demo() -> void:
+	_disable_play()
+	nino.begin_scripted()
+	var visual := nino.get_visual()
+	var threshold := Vector3(-14.9, nino.global_position.y, clampf(nino.global_position.z, 3.0, 8.0))
+	var shot := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	shot.tween_property(camera, "rotation:y", PI / 2.0 - 0.35, 1.6)
+	shot.tween_property(camera, "pitch", deg_to_rad(-8.0), 1.6)
+	shot.tween_property(camera, "arm_length", 2.6, 1.6)
+	shot.tween_property(nino, "global_position", threshold, 1.6)
+	shot.tween_property(nino, "rotation:y", PI / 2.0, 0.8)
+	await shot.finished
+	visual.look_target = threshold + Vector3(-6.0, 1.5, 0.0)
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
 	hud.set_gameplay_visible(false)
-	thoughts.think([&"eye", &"exclamation"], "", 2.0, true)
-	await _wait(1.6)
+	thoughts.think([&"door", &"eye"], "", 2.0, true)
+	await _wait(2.2)
 	visual.show_emotion(NinoVisual.Emotion.HAPPY, 3.0)
 	Sfx.play(&"happy", -6.0)
 	await _wait(1.4)
 	GameState.set_flag(&"demo_completed")
 	Sfx.stop_loop(&"wheels")
 	end_screen.show_end()
+
+
+# --- Réparation et améliorations (imprimante) ------------------------------------------
+
+func _printer_upgrade() -> UpgradeData:
+	for upgrade in UpgradeCatalog.all():
+		if GameState.has_discovery(upgrade.required_discovery):
+			return upgrade
+	return null
+
+
+func _on_repair_requested() -> void:
+	if not GameState.spend_fragments(REPAIR_COST):
+		_enable_play()
+		return
+	_disable_play()
+	var start := GameState.integrity
+	var duration := FIRST_REPAIR_DURATION if GameState.repairs_done == 0 else REPAIR_DURATION
+	var on_progress := func(p: float) -> void:
+		GameState.restore_integrity(lerpf(start, GameState.integrity_max, p))
+	printer.service_progressed.connect(on_progress)
+	thoughts.think([&"printer", &"robot", &"wrench"], "", 1.8, true)
+	await printer.service(nino, duration)
+	printer.service_progressed.disconnect(on_progress)
+	GameState.complete_repair()
+	var visual := nino.get_visual()
+	visual.show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
+	Sfx.play(&"happy", -4.0)
+	hud.show_toast("Intégrité restaurée", 2.5)
+	thoughts.think([&"robot", &"check"], "", 2.0)
+	await _wait(1.6)
+	thoughts.think([&"door", &"question"], "", 2.2)
+	_update_printer_prompt()
+	_enable_play()
+
+
+func _on_upgrade_requested(id: StringName) -> void:
+	var upgrade := UpgradeCatalog.find(id)
+	if upgrade == null or not GameState.repaired or GameState.has_upgrade(id) \
+			or not GameState.spend_fragments(upgrade.cost_fragments):
+		_enable_play()
+		return
+	_disable_play()
+	thoughts.think([&"printer", &"gear", &"robot"], "", 1.8, true)
+	await printer.service(nino, UPGRADE_DURATION)
+	GameState.add_upgrade(id)
+	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
+	Sfx.play(&"happy", -4.0)
+	hud.show_toast("%s installé" % upgrade.title, 2.5)
+	_enable_play()
+
+
+func _on_fragment_collected(_pickup: FilamentPickup) -> void:
+	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 0.8)
+	if GameState.collected_pickups.size() == 1:
+		hud.show_toast("Fragment de filament", 1.8)
+		thoughts.think([&"filament", &"question"], "", 2.0, true)
 
 
 ## Petit bond scripté en arc (séquences).
@@ -607,3 +862,22 @@ func _checkpoint(marker_name: String) -> Transform3D:
 
 func _wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
+
+
+func _wait_until(timeout: float, condition: Callable) -> bool:
+	var elapsed := 0.0
+	while elapsed < timeout:
+		await get_tree().physics_frame
+		elapsed += get_physics_process_delta_time()
+		if condition.call():
+			return true
+	return false
+
+
+## Bref regard de Nin0 vers un point (indice visuel plutôt qu'écrit).
+func _glance(point: Vector3, duration: float) -> void:
+	var visual := nino.get_visual()
+	visual.look_target = point
+	await _wait(duration)
+	if visual.look_target == point:
+		visual.look_target = null

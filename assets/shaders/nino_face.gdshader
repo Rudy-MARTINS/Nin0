@@ -1,5 +1,5 @@
 shader_type spatial;
-// Visage numérique de NINO : yeux dessinés par fonctions de distance (SDF).
+// Visage numérique de Nin0 : yeux dessinés par fonctions de distance (SDF).
 // Les expressions se mélangent par interpolation des formes ; pilotées par nino_visual.gd.
 render_mode unshaded, cull_back;
 
@@ -13,11 +13,18 @@ uniform float surprise : hint_range(0.0, 1.0) = 0.0;
 uniform float hurt : hint_range(0.0, 1.0) = 0.0;
 uniform float focus : hint_range(0.0, 1.0) = 0.0;
 uniform float curious : hint_range(0.0, 1.0) = 0.0;
+// Étourdissement (yeux en spirale) et parasites d'écran (dommages, souvenirs).
+uniform float dizzy : hint_range(0.0, 1.0) = 0.0;
+uniform float glitch : hint_range(0.0, 1.0) = 0.0;
 uniform vec2 look = vec2(0.0);
 
 float sd_round_box(vec2 p, vec2 half_size, float r) {
 	vec2 q = abs(p) - half_size + r;
 	return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+}
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
 float sd_segment(vec2 p, vec2 a, vec2 b) {
@@ -46,15 +53,27 @@ float eye(vec2 p, float side) {
 	vec2 tip = vec2(0.08 * dir, 0.0);
 	float hurt_eye = min(sd_segment(p, vec2(-0.08 * dir, 0.12), tip), sd_segment(p, vec2(-0.08 * dir, -0.12), tip)) - 0.035;
 
+	// Spirale (étourdi) : distance approchée au bras de la spirale.
+	float r = length(p);
+	float turns = r / 0.05 - atan(p.y, p.x) / 6.2831 * side + TIME * 1.6 * side;
+	float dizzy_eye = max(abs(fract(turns) - 0.5) * 0.05 - 0.011, r - 0.17);
+
 	float d = mix(neutral, focused, focus);
 	d = mix(d, surprised, surprise);
 	d = mix(d, happy_eye, happy);
 	d = mix(d, hurt_eye, hurt);
+	d = mix(d, dizzy_eye, dizzy);
 	return d * scale;
 }
 
 void fragment() {
-	vec2 p = (UV - 0.5) * vec2(aspect, -1.0) / 1.2;
+	vec2 uv = UV;
+	// Parasites : bandes horizontales décalées, par saccades.
+	float band = floor(uv.y * 18.0);
+	float tick = floor(TIME * 14.0);
+	float shift = step(0.78, hash(vec2(band, tick))) * (hash(vec2(tick, band)) - 0.5) * 0.35 * glitch;
+	uv.x += shift;
+	vec2 p = (uv - 0.5) * vec2(aspect, -1.0) / 1.2;
 	vec2 offset = look * vec2(0.12, 0.07) * (1.0 - hurt);
 	float d = min(eye(p - vec2(-0.34, 0.02) - offset, -1.0), eye(p - vec2(0.34, 0.02) - offset, 1.0));
 
@@ -65,7 +84,12 @@ void fragment() {
 	// Reflet discret de l'écran.
 	float sheen = smoothstep(0.35, 0.0, abs(UV.x + UV.y * 0.6 - 0.45)) * 0.04;
 
+	float flicker = 1.0 - glitch * 0.6 * step(0.7, hash(vec2(tick, 3.0)));
 	vec3 col = screen_color + vec3(sheen);
-	col += eye_color * (fill * 1.15 + glow) * scan * power;
+	col += eye_color * (fill * 1.15 + glow) * scan * power * flicker;
+	// Neige numérique et léger décalage de teinte.
+	float snow = hash(floor(UV * vec2(90.0, 48.0)) + vec2(tick * 1.7, tick));
+	col += vec3(snow) * 0.22 * glitch * power;
+	col.r += abs(shift) * 0.8 * power;
 	ALBEDO = col;
 }

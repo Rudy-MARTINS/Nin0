@@ -2,6 +2,8 @@
 
 [ext_resource type="Theme" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="2_hud"]
+[ext_resource type="Script" path="res://scripts/ui/integrity_gauge.gd" id="3_integrity_ga"]
+[ext_resource type="Script" path="res://scripts/ui/fragment_icon.gd" id="4_fragment_ico"]
 
 [sub_resource type="StyleBoxFlat" id="Style_key"]
 content_margin_left = 10.0
@@ -130,6 +132,60 @@ theme_override_constants/outline_size = 4
 layout_mode = 2
 text = "Roues"
 theme_override_font_sizes/font_size = 20
+theme_override_constants/outline_size = 6
+
+[node name="Status" type="VBoxContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -330.0
+offset_top = 24.0
+offset_right = -28.0
+offset_bottom = 110.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Status"]
+layout_mode = 2
+text = "INTÉGRITÉ"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.85)
+theme_override_constants/outline_size = 4
+horizontal_alignment = 2
+
+[node name="Gauge" type="Control" parent="Status"]
+custom_minimum_size = Vector2(154, 22)
+layout_mode = 2
+size_flags_horizontal = 8
+mouse_filter = 2
+script = ExtResource("3_integrity_ga")
+
+[node name="Fragments" type="HBoxContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 92.0
+offset_right = -28.0
+offset_bottom = 124.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="Icon" type="Control" parent="Fragments"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("4_fragment_ico")
+
+[node name="Count" type="Label" parent="Fragments"]
+layout_mode = 2
+text = "0"
+theme_override_font_sizes/font_size = 19
 theme_override_constants/outline_size = 6
 
 [node name="Toast" type="Label" parent="."]

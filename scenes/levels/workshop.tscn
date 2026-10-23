@@ -23,43 +23,50 @@
 [ext_resource type="Script" path="res://scripts/props/pushable_spool.gd" id="21_pushable_spo"]
 [ext_resource type="Script" path="res://scripts/props/spool_slot.gd" id="22_spool_slot"]
 [ext_resource type="Script" path="res://scripts/props/topple_ramp.gd" id="23_topple_ramp"]
-[ext_resource type="Shader" path="res://assets/shaders/wood_floor.gdshader" id="24_wood_floor"]
-[ext_resource type="Shader" path="res://assets/shaders/plaster.gdshader" id="25_plaster"]
-[ext_resource type="Shader" path="res://assets/shaders/wood.gdshader" id="26_wood"]
-[ext_resource type="Shader" path="res://assets/shaders/rug.gdshader" id="27_rug"]
-[ext_resource type="Shader" path="res://assets/shaders/light_shaft.gdshader" id="28_light_shaft"]
-[ext_resource type="Texture2D" path="res://assets/textures/child_drawing.png" id="29_child_drawin"]
-[ext_resource type="Texture2D" path="res://assets/textures/leg_blueprint.png" id="30_leg_blueprin"]
-[ext_resource type="Texture2D" path="res://assets/textures/photo_landscape.png" id="31_photo_landsc"]
-[ext_resource type="Texture2D" path="res://assets/textures/photo_flowers.png" id="32_photo_flower"]
-[ext_resource type="Texture2D" path="res://assets/textures/printer_card.png" id="33_printer_card"]
-[ext_resource type="Script" path="res://scripts/props/leaf_cluster.gd" id="34_leaf_cluster"]
-[ext_resource type="Script" path="res://scripts/props/lathe_mesh.gd" id="35_lathe_mesh"]
-[ext_resource type="Resource" path="res://assets/discoveries/leg_sketch.tres" id="36_leg_sketch"]
-[ext_resource type="Resource" path="res://assets/discoveries/printer_card.tres" id="37_printer_card"]
-[ext_resource type="Resource" path="res://assets/discoveries/spare_servo.tres" id="38_spare_servo"]
-[ext_resource type="Resource" path="res://assets/discoveries/turned_frame.tres" id="39_turned_frame"]
-[ext_resource type="Resource" path="res://assets/discoveries/child_drawing.tres" id="40_child_drawin"]
+[ext_resource type="Script" path="res://scripts/focus/focus_target.gd" id="24_focus_target"]
+[ext_resource type="Script" path="res://scripts/props/filament_pickup.gd" id="25_filament_pic"]
+[ext_resource type="Script" path="res://scripts/player/nino_integrity.gd" id="26_nino_integri"]
+[ext_resource type="PackedScene" path="res://scenes/ui/memory_player.tscn" id="27_memory_playe"]
+[ext_resource type="Shader" path="res://assets/shaders/wood_floor.gdshader" id="28_wood_floor"]
+[ext_resource type="Shader" path="res://assets/shaders/plaster.gdshader" id="29_plaster"]
+[ext_resource type="Shader" path="res://assets/shaders/wood.gdshader" id="30_wood"]
+[ext_resource type="Shader" path="res://assets/shaders/rug.gdshader" id="31_rug"]
+[ext_resource type="Shader" path="res://assets/shaders/light_shaft.gdshader" id="32_light_shaft"]
+[ext_resource type="Texture2D" path="res://assets/textures/child_drawing.png" id="33_child_drawin"]
+[ext_resource type="Texture2D" path="res://assets/textures/leg_blueprint.png" id="34_leg_blueprin"]
+[ext_resource type="Texture2D" path="res://assets/textures/photo_landscape.png" id="35_photo_landsc"]
+[ext_resource type="Texture2D" path="res://assets/textures/photo_flowers.png" id="36_photo_flower"]
+[ext_resource type="Texture2D" path="res://assets/textures/printer_card.png" id="37_printer_card"]
+[ext_resource type="Resource" path="res://assets/observation/memory_detail.tres" id="38_memory_detai"]
+[ext_resource type="Resource" path="res://assets/memories/memory_01.tres" id="39_memory_01"]
+[ext_resource type="Script" path="res://scripts/props/leaf_cluster.gd" id="40_leaf_cluster"]
+[ext_resource type="Script" path="res://scripts/props/lathe_mesh.gd" id="41_lathe_mesh"]
+[ext_resource type="Resource" path="res://assets/discoveries/leg_sketch.tres" id="42_leg_sketch"]
+[ext_resource type="Resource" path="res://assets/discoveries/printer_card.tres" id="43_printer_card"]
+[ext_resource type="Resource" path="res://assets/discoveries/spare_servo.tres" id="44_spare_servo"]
+[ext_resource type="Resource" path="res://assets/discoveries/turned_frame.tres" id="45_turned_frame"]
+[ext_resource type="Resource" path="res://assets/discoveries/plan_chassis.tres" id="46_plan_chassis"]
+[ext_resource type="Resource" path="res://assets/observation/landmark.tres" id="47_landmark"]
 
 [sub_resource type="ShaderMaterial" id="Mat_floor"]
-shader = ExtResource("24_wood_floor")
+shader = ExtResource("28_wood_floor")
 
 [sub_resource type="ShaderMaterial" id="Mat_plaster"]
-shader = ExtResource("25_plaster")
+shader = ExtResource("29_plaster")
 
 [sub_resource type="ShaderMaterial" id="Mat_bench"]
-shader = ExtResource("26_wood")
+shader = ExtResource("30_wood")
 
 [sub_resource type="ShaderMaterial" id="Mat_wood_dark"]
-shader = ExtResource("26_wood")
+shader = ExtResource("30_wood")
 shader_parameter/color_light = Color(0.36, 0.24, 0.15, 1)
 shader_parameter/color_dark = Color(0.22, 0.14, 0.09, 1)
 
 [sub_resource type="ShaderMaterial" id="Mat_rug"]
-shader = ExtResource("27_rug")
+shader = ExtResource("31_rug")
 
 [sub_resource type="ShaderMaterial" id="Mat_shaft"]
-shader = ExtResource("28_light_shaft")
+shader = ExtResource("32_light_shaft")
 
 [sub_resource type="FastNoiseLite" id="Noise_card"]
 frequency = 0.09
@@ -317,6 +324,40 @@ roughness = 0.7
 albedo_color = Color(0.5, 0.34, 0.2, 1)
 roughness = 0.6
 
+[sub_resource type="StandardMaterial3D" id="Mat_servo_body"]
+albedo_color = Color(0.13, 0.17, 0.27, 1)
+roughness = 0.4
+metallic = 0.05
+
+[sub_resource type="StandardMaterial3D" id="Mat_servo_cap"]
+albedo_color = Color(0.1, 0.12, 0.18, 1)
+roughness = 0.45
+metallic = 0.05
+
+[sub_resource type="StandardMaterial3D" id="Mat_servo_horn"]
+albedo_color = Color(0.93, 0.92, 0.88, 1)
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_wire_brown"]
+albedo_color = Color(0.36, 0.22, 0.13, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_wire_red"]
+albedo_color = Color(0.75, 0.15, 0.12, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_wire_orange"]
+albedo_color = Color(0.95, 0.6, 0.15, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_scorch"]
+albedo_color = Color(0.36, 0.25, 0.16, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rubber"]
+albedo_color = Color(0.12, 0.12, 0.12, 1)
+roughness = 0.9
+
 [sub_resource type="StandardMaterial3D" id="Mat_jar"]
 albedo_color = Color(0.7, 0.78, 0.74, 1)
 roughness = 0.15
@@ -376,23 +417,23 @@ particles_anim_h_frames = 1
 particles_anim_v_frames = 1
 
 [sub_resource type="StandardMaterial3D" id="Mat_child_drawing"]
-albedo_texture = ExtResource("29_child_drawin")
+albedo_texture = ExtResource("33_child_drawin")
 roughness = 0.95
 
 [sub_resource type="StandardMaterial3D" id="Mat_leg_blueprint"]
-albedo_texture = ExtResource("30_leg_blueprin")
+albedo_texture = ExtResource("34_leg_blueprin")
 roughness = 0.95
 
 [sub_resource type="StandardMaterial3D" id="Mat_photo_landscape"]
-albedo_texture = ExtResource("31_photo_landsc")
+albedo_texture = ExtResource("35_photo_landsc")
 roughness = 0.95
 
 [sub_resource type="StandardMaterial3D" id="Mat_photo_flowers"]
-albedo_texture = ExtResource("32_photo_flower")
+albedo_texture = ExtResource("36_photo_flower")
 roughness = 0.95
 
 [sub_resource type="StandardMaterial3D" id="Mat_printer_card"]
-albedo_texture = ExtResource("33_printer_card")
+albedo_texture = ExtResource("37_printer_card")
 roughness = 0.95
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
@@ -542,6 +583,9 @@ height = 0.1
 [sub_resource type="BoxShape3D" id="Shape_tube_seg"]
 size = Vector3(0.3514, 0.06, 7.0)
 
+[sub_resource type="BoxShape3D" id="BoxShape_0p3_20_9p2"]
+size = Vector3(0.3, 20, 9.2)
+
 [sub_resource type="SphereMesh" id="SphereMesh_9"]
 radius = 9
 height = 18
@@ -579,8 +623,8 @@ size = Vector3(1.6, 1.2, 1.6)
 [sub_resource type="BoxShape3D" id="Shape_ExamineTurnedFrame"]
 size = Vector3(1.6, 1.2, 1.6)
 
-[sub_resource type="BoxShape3D" id="Shape_ExamineDrawing"]
-size = Vector3(1.6, 1.2, 2.2)
+[sub_resource type="BoxShape3D" id="Shape_ExaminePlan"]
+size = Vector3(1.4, 0.8, 0.9)
 
 [sub_resource type="BoxShape3D" id="ZoneShape_ZoneFloor"]
 size = Vector3(30, 2, 27)
@@ -617,6 +661,15 @@ size = Vector3(8, 1.4, 1)
 
 [sub_resource type="BoxShape3D" id="ZoneShape_ZoneShelfSteps"]
 size = Vector3(2.6, 2, 3.2)
+
+[sub_resource type="BoxShape3D" id="ZoneShape_ZoneDrawing"]
+size = Vector3(3.4, 2, 4)
+
+[sub_resource type="BoxShape3D" id="ZoneShape_ZoneChairRoute"]
+size = Vector3(4, 2, 2.6)
+
+[sub_resource type="BoxShape3D" id="ZoneShape_ZoneDoorway"]
+size = Vector3(2.4, 2, 8.4)
 
 [sub_resource type="BoxShape3D" id="ZoneShape_ZoneShelfTop"]
 size = Vector3(2.4, 1.4, 8)
@@ -1322,6 +1375,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.92, 12.95, -11.5)
 material_override = SubResource("Mat_toy_red")
 mesh = SubResource("SphereMesh_0_07")
 
+[node name="DrawingFocus" type="Marker3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.9, 12, -11.5)
+script = ExtResource("24_focus_target")
+id = &"memory_01"
+radius = 1.2
+profile = ExtResource("38_memory_detai")
+facing = Vector3(1, 0, 0)
+memory = ExtResource("39_memory_01")
+thought_icons = Array[StringName]([&"eye"])
+
 [node name="Printer3D" parent="." instance=ExtResource("7_printer_3d")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 8, -12.9)
 
@@ -1363,23 +1426,133 @@ material_override = SubResource("Mat_metal")
 mesh = SubResource("SphereMesh_0_04")
 
 [node name="SpareServo" type="Node3D" parent="Geometry"]
-transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -6.1, 8.27, -13.05)
+transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -6.05, 8.2, -13.05)
 
 [node name="ServoBody" type="StaticBody3D" parent="Geometry/SpareServo"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
 script = ExtResource("1_prop_block")
-size = Vector3(0.34, 0.18, 0.2)
-bevel = 0.03
-material = SubResource("Mat_metal_dark")
+size = Vector3(0.4, 0.36, 0.2)
+bevel = 0.025
+material = SubResource("Mat_servo_body")
 collide = false
 
-[node name="ServoHorn" type="StaticBody3D" parent="Geometry/SpareServo"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.11, 0)
+[node name="ServoTabs" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(0.62, 0.035, 0.2)
+bevel = 0.01
+material = SubResource("Mat_servo_body")
+collide = false
+
+[node name="ServoTabHole0" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27, 0.272, 0)
 script = ExtResource("1_prop_block")
 shape = 1
-size = Vector3(0.16, 0.04, 0.16)
-bevel = 0.01
+size = Vector3(0.05, 0.04, 0.05)
+bevel = 0.005
+material = SubResource("Mat_black")
+collide = false
+
+[node name="ServoTabHole1" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.27, 0.272, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.05, 0.04, 0.05)
+bevel = 0.005
+material = SubResource("Mat_black")
+collide = false
+
+[node name="ServoCap" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.385, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 0.05, 0.2)
+bevel = 0.015
+material = SubResource("Mat_servo_cap")
+collide = false
+
+[node name="ServoTower" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.435, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.17, 0.06, 0.17)
+bevel = 0.015
+material = SubResource("Mat_servo_cap")
+collide = false
+
+[node name="ServoSpline" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.48, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.06, 0.04, 0.06)
+bevel = 0.005
+material = SubResource("Mat_metal")
+collide = false
+
+[node name="ServoHornA" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(0.906308, 0, 0.422618, 0, 1, 0, -0.422618, 0, 0.906308, 0.1, 0.505, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(0.42, 0.025, 0.065)
+bevel = 0.012
+material = SubResource("Mat_servo_horn")
+collide = false
+
+[node name="ServoHornB" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(0.906308, 0, 0.422618, 0, 1, 0, -0.422618, 0, 0.906308, 0.1, 0.505, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(0.065, 0.025, 0.3)
+bevel = 0.012
+material = SubResource("Mat_servo_horn")
+collide = false
+
+[node name="ServoHornScrew" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.522, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.035, 0.012, 0.035)
+bevel = 0.004
+material = SubResource("Mat_metal")
+collide = false
+
+[node name="ServoLabel" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01, 0.15, 0.103)
+script = ExtResource("1_prop_block")
+size = Vector3(0.28, 0.13, 0.012)
+bevel = 0.004
 material = SubResource("Mat_accent")
+collide = false
+
+[node name="ServoLabelStripe" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01, 0.105, 0.104)
+script = ExtResource("1_prop_block")
+size = Vector3(0.28, 0.025, 0.014)
+bevel = 0.003
+material = SubResource("Mat_black")
+collide = false
+
+[node name="ServoWire0" type="MeshInstance3D" parent="Geometry/SpareServo"]
+material_override = SubResource("Mat_wire_brown")
+script = ExtResource("2_cable")
+points = PackedVector3Array(-0.2, 0.05, -0.035, -0.32, 0.025, -0.049, -0.5, 0.02, 0.015, -0.62, 0.02, 0.125)
+radius = 0.012
+
+[node name="ServoWire1" type="MeshInstance3D" parent="Geometry/SpareServo"]
+material_override = SubResource("Mat_wire_red")
+script = ExtResource("2_cable")
+points = PackedVector3Array(-0.2, 0.05, 0, -0.32, 0.025, 0, -0.5, 0.02, 0.05, -0.62, 0.02, 0.16)
+radius = 0.012
+
+[node name="ServoWire2" type="MeshInstance3D" parent="Geometry/SpareServo"]
+material_override = SubResource("Mat_wire_orange")
+script = ExtResource("2_cable")
+points = PackedVector3Array(-0.2, 0.05, 0.035, -0.32, 0.025, 0.049, -0.5, 0.02, 0.085, -0.62, 0.02, 0.195)
+radius = 0.012
+
+[node name="ServoPlug" type="StaticBody3D" parent="Geometry/SpareServo"]
+transform = Transform3D(0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693, -0.66, 0.03, 0.17)
+script = ExtResource("1_prop_block")
+size = Vector3(0.09, 0.05, 0.12)
+bevel = 0.01
+material = SubResource("Mat_black")
 collide = false
 
 [node name="TurnedFrame" type="StaticBody3D" parent="Geometry"]
@@ -1444,36 +1617,156 @@ radius = 0.05
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -13.9)
 
 [node name="IroningBoard" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 2.686, 0.5)
+transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 2.95433, -0.0366563)
 script = ExtResource("1_prop_block")
-size = Vector3(2.5, 0.15, 12.2984)
+size = Vector3(2.5, 0.15, 11.0984)
 bevel = 0.06
 material = SubResource("Mat_ironing")
 
 [node name="IroningCover" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 2.78103, 0.5)
+transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 3.09744, -0.132807)
 script = ExtResource("1_prop_block")
-size = Vector3(2.3, 0.02, 11.8984)
+size = Vector3(2.3, 0.02, 10.7984)
 bevel = 0.01
 material = SubResource("Mat_ironing_cover")
 collide = false
 
-[node name="IroningLegA" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 0.819152, -0.573576, 0, 0.573576, 0.819152, 12.6, 3, -0.5)
+[node name="IroningNose" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 0.472656, 4.92669)
 script = ExtResource("1_prop_block")
 shape = 1
-size = Vector3(0.12, 6.6, 0.12)
-bevel = 0.03
+size = Vector3(2.5, 0.15, 2.4)
+bevel = 0.06
+material = SubResource("Mat_ironing")
+collide = false
+
+[node name="IroningNoseCover" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 0.548683, 4.9647)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.3, 0.02, 2.2)
+bevel = 0.01
+material = SubResource("Mat_ironing_cover")
+collide = false
+
+[node name="IroningNoseStep" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 0.204328, 5.46334)
+script = ExtResource("1_prop_block")
+size = Vector3(1.7, 0.15, 1.2)
+bevel = 0.04
+material = SubResource("Mat_ironing")
+cast_shadow = false
+
+[node name="IroningScorch" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.951057, 0, 0.309017, 0.138197, 0.894427, -0.425325, -0.276393, 0.447214, 0.850651, 13.5, 2.32823, 1.43915)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 0.012, 1.4)
+bevel = 0.005
+material = SubResource("Mat_scorch")
+collide = false
+
+[node name="IroningLegAL" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, -0.640127, -0.768269, 0, 0.768269, -0.640127, 12.75, 2.278, -0.85)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 6.89863, 0.12)
+bevel = 0.02
+material = SubResource("Mat_metal")
+
+[node name="IroningLegAR" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, -0.640127, -0.768269, 0, 0.768269, -0.640127, 14.25, 2.278, -0.85)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 6.89863, 0.12)
+bevel = 0.02
+material = SubResource("Mat_metal")
+
+[node name="IroningLegBL" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, -0.535913, 0.844273, 0, -0.844273, -0.535913, 12.95, 1.403, -2.1)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 4.97469, 0.12)
+bevel = 0.02
+material = SubResource("Mat_metal")
+
+[node name="IroningLegBR" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, -0.535913, 0.844273, 0, -0.844273, -0.535913, 14.05, 1.403, -2.1)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 4.97469, 0.12)
+bevel = 0.02
+material = SubResource("Mat_metal")
+
+[node name="IroningFoot0" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 13.5, 0.07, 1.8)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 1.7, 0.12)
+bevel = 0.02
 material = SubResource("Mat_metal")
 collide = false
 
-[node name="IroningLegB" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573576, 0, -0.573576, 0.819152, 14.4, 3, -0.5)
+[node name="IroningFootCap0_0" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 12.65, 0.09, 1.8)
 script = ExtResource("1_prop_block")
 shape = 1
-size = Vector3(0.12, 6.6, 0.12)
+size = Vector3(0.18, 0.22, 0.18)
 bevel = 0.03
+material = SubResource("Mat_rubber")
+collide = false
+
+[node name="IroningFootCap0_1" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 14.35, 0.09, 1.8)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.18, 0.22, 0.18)
+bevel = 0.03
+material = SubResource("Mat_rubber")
+collide = false
+
+[node name="IroningFoot1" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 13.5, 0.07, -4.2)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 1.3, 0.12)
+bevel = 0.02
 material = SubResource("Mat_metal")
+collide = false
+
+[node name="IroningFootCap1_0" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 12.85, 0.09, -4.2)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.18, 0.22, 0.18)
+bevel = 0.03
+material = SubResource("Mat_rubber")
+collide = false
+
+[node name="IroningFootCap1_1" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 14.15, 0.09, -4.2)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.18, 0.22, 0.18)
+bevel = 0.03
+material = SubResource("Mat_rubber")
+collide = false
+
+[node name="IroningPivotBolt" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 13.5, 2.26, -0.81)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.1, 1.6, 0.1)
+bevel = 0.02
+material = SubResource("Mat_metal_dark")
+collide = false
+
+[node name="IroningRail" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0.894427, -0.447214, 0, 0.447214, 0.894427, 13.5, 3.686, -1.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.1, 0.08, 3.6)
+bevel = 0.02
+material = SubResource("Mat_metal_dark")
 collide = false
 
 [node name="FilamentBoxP1_0" type="StaticBody3D" parent="Geometry"]
@@ -1881,6 +2174,105 @@ script = ExtResource("1_prop_block")
 size = Vector3(4, 0.6, 0.25)
 bevel = 0.05
 material = SubResource("Mat_chair_wood")
+
+[node name="StorageBox" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 2, -1.8)
+script = ExtResource("1_prop_block")
+size = Vector3(2.4, 4, 1.8)
+bevel = 0.06
+material = SubResource("Mat_card")
+climbable = true
+
+[node name="StorageBoxTape" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 4, -1.8)
+script = ExtResource("1_prop_block")
+size = Vector3(2.42, 0.02, 0.4)
+bevel = 0.01
+material = SubResource("Mat_tape")
+collide = false
+
+[node name="StorageBoxFlap" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0.573576, 0.819152, 0, -0.819152, 0.573576, -9.5, 4.3, -0.75)
+script = ExtResource("1_prop_block")
+size = Vector3(2.3, 0.05, 0.7)
+bevel = 0.02
+material = SubResource("Mat_card_dark")
+collide = false
+
+[node name="ChairBook0" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -9.5, 4.975, -5.55)
+script = ExtResource("1_prop_block")
+size = Vector3(2.3, 0.6, 3.1)
+bevel = 0.05
+material = SubResource("Mat_book_red")
+
+[node name="ChairBookPages0" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -9.45, 4.975, -5.55)
+script = ExtResource("1_prop_block")
+size = Vector3(2.22, 0.5, 3)
+bevel = 0.02
+material = SubResource("Mat_pages")
+collide = false
+
+[node name="ChairBook1" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.99863, 0, 0.052336, 0, 1, 0, -0.052336, 0, 0.99863, -9.55, 5.575, -5.925)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 0.6, 2.65)
+bevel = 0.05
+material = SubResource("Mat_book_green")
+
+[node name="ChairBookPages1" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.99863, 0, 0.052336, 0, 1, 0, -0.052336, 0, 0.99863, -9.5, 5.575, -5.925)
+script = ExtResource("1_prop_block")
+size = Vector3(2.12, 0.5, 2.55)
+bevel = 0.02
+material = SubResource("Mat_pages")
+collide = false
+
+[node name="ChairBook2" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.997564, 0, -0.0697565, 0, 1, 0, 0.0697565, 0, 0.997564, -9.5, 6.175, -6.3)
+script = ExtResource("1_prop_block")
+size = Vector3(2.1, 0.6, 2.2)
+bevel = 0.05
+material = SubResource("Mat_book_ochre")
+
+[node name="ChairBookPages2" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.997564, 0, -0.0697565, 0, 1, 0, 0.0697565, 0, 0.997564, -9.45, 6.175, -6.3)
+script = ExtResource("1_prop_block")
+size = Vector3(2.02, 0.5, 2.1)
+bevel = 0.02
+material = SubResource("Mat_pages")
+collide = false
+
+[node name="ChairBook3" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.999391, 0, 0.0348995, 0, 1, 0, -0.0348995, 0, 0.999391, -9.55, 6.775, -6.7)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 0.6, 1.8)
+bevel = 0.05
+material = SubResource("Mat_book_blue")
+
+[node name="ChairBookPages3" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.999391, 0, 0.0348995, 0, 1, 0, -0.0348995, 0, 0.999391, -9.5, 6.775, -6.7)
+script = ExtResource("1_prop_block")
+size = Vector3(1.92, 0.5, 1.7)
+bevel = 0.02
+material = SubResource("Mat_pages")
+collide = false
+
+[node name="ChairBook4" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.999391, 0, -0.0348995, 0, 1, 0, 0.0348995, 0, 0.999391, -9.5, 7.375, -7.175)
+script = ExtResource("1_prop_block")
+size = Vector3(1.8, 0.6, 1.55)
+bevel = 0.05
+material = SubResource("Mat_book_red")
+
+[node name="ChairBookPages4" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(0.999391, 0, -0.0348995, 0, 1, 0, 0.0348995, 0, 0.999391, -9.45, 7.375, -7.175)
+script = ExtResource("1_prop_block")
+size = Vector3(1.72, 0.5, 1.45)
+bevel = 0.02
+material = SubResource("Mat_pages")
+collide = false
 
 [node name="Rug" type="MeshInstance3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 2)
@@ -2370,7 +2762,7 @@ material = SubResource("Mat_book_green")
 collide = false
 
 [node name="PlantPot" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.8, 0, 3.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0, 10.2)
 collision_mask = 0
 
 [node name="Pot" type="MeshInstance3D" parent="Geometry/PlantPot"]
@@ -2389,7 +2781,7 @@ mesh = SubResource("Mesh_soil")
 
 [node name="PlantLeaves" type="MeshInstance3D" parent="Geometry/PlantPot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, 0)
-script = ExtResource("34_leaf_cluster")
+script = ExtResource("40_leaf_cluster")
 count = 26
 height = 6.0
 spread = 2.6
@@ -2400,7 +2792,7 @@ random_seed = 4
 
 [node name="GrassTuftA" type="MeshInstance3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.9, 0, -8)
-script = ExtResource("34_leaf_cluster")
+script = ExtResource("40_leaf_cluster")
 count = 14
 height = 0.4
 spread = 0.5
@@ -2410,21 +2802,9 @@ upright = true
 material = SubResource("Mat_leaf")
 random_seed = 9
 
-[node name="GrassTuftB" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 0, -7.7)
-script = ExtResource("34_leaf_cluster")
-count = 10
-height = 0.3
-spread = 0.4
-leaf_length = 0.8
-leaf_width = 0.12
-upright = true
-material = SubResource("Mat_leaf_dark")
-random_seed = 11
-
 [node name="SillPlant" type="MeshInstance3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.7, 10, -14.5)
-script = ExtResource("34_leaf_cluster")
+script = ExtResource("40_leaf_cluster")
 count = 9
 height = 1.2
 spread = 0.5
@@ -2442,10 +2822,10 @@ bevel = 0.06
 material = SubResource("Mat_terracotta")
 
 [node name="FallenLeaves" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 0.03, 2.5)
-script = ExtResource("34_leaf_cluster")
-count = 9
-spread = 5.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.03, 7.6)
+script = ExtResource("40_leaf_cluster")
+count = 7
+spread = 3.0
 leaf_length = 1.6
 leaf_width = 0.7
 lying = true
@@ -2460,7 +2840,7 @@ radius = 0.05
 
 [node name="IvyLeaves" type="MeshInstance3D" parent="Geometry"]
 transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -12.6, 8, -14.82)
-script = ExtResource("34_leaf_cluster")
+script = ExtResource("40_leaf_cluster")
 count = 18
 height = 10.0
 spread = 0.4
@@ -2523,7 +2903,7 @@ collision_mask = 0
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/PosterTube"]
 transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0)
 material_override = SubResource("Mat_card")
-script = ExtResource("35_lathe_mesh")
+script = ExtResource("41_lathe_mesh")
 profile = PackedVector2Array(0.53, -3.5, 0.53, 3.5, 0.48, 3.5, 0.48, -3.5, 0.53, -3.5)
 segments = 24
 
@@ -2566,6 +2946,85 @@ shape = SubResource("Shape_tube_seg")
 [node name="Seg9" type="CollisionShape3D" parent="Geometry/PosterTube"]
 transform = Transform3D(0.809017, -0.587785, 0, 0.587785, 0.809017, 0, 0, 0, 1, 0.29977, -0.412599, 0)
 shape = SubResource("Shape_tube_seg")
+
+[node name="RolledPlan" type="Node3D" parent="Geometry"]
+transform = Transform3D(0.990268, 0, 0.139173, 0, 1, 0, -0.139173, 0, 0.990268, -1.6, 0.17, -6.62)
+
+[node name="RolledPlanPaper" type="StaticBody3D" parent="Geometry/RolledPlan"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.26, 1.1, 0.26)
+bevel = 0.05
+material = SubResource("Mat_paper_old")
+collide = false
+
+[node name="RolledPlanBand" type="StaticBody3D" parent="Geometry/RolledPlan"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 0.1, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.28, 0.08, 0.28)
+bevel = 0.02
+material = SubResource("Mat_accent")
+collide = false
+
+[node name="SasBlocker" type="StaticBody3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.75, 10, 5.5)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Geometry/SasBlocker"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("BoxShape_0p3_20_9p2")
+
+[node name="Pickups" type="Node3D" parent="."]
+
+[node name="Fragment_under_bench" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.6, 0.05, -12.6)
+script = ExtResource("25_filament_pic")
+id = &"frag_under_bench"
+color = Color(0.93, 0.55, 0.2, 1)
+
+[node name="Fragment_filament_corner" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.3, 5.55, -14.3)
+script = ExtResource("25_filament_pic")
+id = &"frag_filament_corner"
+color = Color(0.2, 0.6, 0.6, 1)
+
+[node name="Fragment_toybox" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.7, 2.65, 7.1)
+script = ExtResource("25_filament_pic")
+id = &"frag_toybox"
+color = Color(0.85, 0.3, 0.3, 1)
+
+[node name="Fragment_sill" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 10.05, -14.65)
+script = ExtResource("25_filament_pic")
+id = &"frag_sill"
+color = Color(0.93, 0.55, 0.2, 1)
+
+[node name="Fragment_shelf" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.3, 9.85, -0.2)
+script = ExtResource("25_filament_pic")
+id = &"frag_shelf"
+color = Color(0.93, 0.89, 0.8, 1)
+
+[node name="Fragment_chair_box" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 4.05, -1.8)
+script = ExtResource("25_filament_pic")
+id = &"frag_chair_box"
+color = Color(0.2, 0.6, 0.6, 1)
+
+[node name="Fragment_chair_seat" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 4.72, -3.5)
+script = ExtResource("25_filament_pic")
+id = &"frag_chair_seat"
+color = Color(0.93, 0.55, 0.2, 1)
+
+[node name="Fragment_chair_books" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 6.495, -5.5)
+script = ExtResource("25_filament_pic")
+id = &"frag_chair_books"
+color = Color(0.85, 0.3, 0.3, 1)
 
 [node name="OutsideFacade" type="StaticBody3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 10, -75)
@@ -2815,7 +3274,7 @@ collision_layer = 8
 collision_mask = 0
 monitoring = false
 script = ExtResource("19_examinable")
-discovery = ExtResource("36_leg_sketch")
+discovery = ExtResource("42_leg_sketch")
 look_point = NodePath("../../Geometry/LegBlueprint")
 
 [node name="Shape" type="CollisionShape3D" parent="Discoveries/ExamineLegSketch"]
@@ -2827,7 +3286,7 @@ collision_layer = 8
 collision_mask = 0
 monitoring = false
 script = ExtResource("19_examinable")
-discovery = ExtResource("37_printer_card")
+discovery = ExtResource("43_printer_card")
 look_point = NodePath("../../Geometry/PrinterCard")
 
 [node name="Shape" type="CollisionShape3D" parent="Discoveries/ExaminePrinterCard"]
@@ -2839,7 +3298,7 @@ collision_layer = 8
 collision_mask = 0
 monitoring = false
 script = ExtResource("19_examinable")
-discovery = ExtResource("38_spare_servo")
+discovery = ExtResource("44_spare_servo")
 look_point = NodePath("../../Geometry/SpareServo")
 visual = NodePath("../../Geometry/SpareServo")
 
@@ -2852,23 +3311,24 @@ collision_layer = 8
 collision_mask = 0
 monitoring = false
 script = ExtResource("19_examinable")
-discovery = ExtResource("39_turned_frame")
+discovery = ExtResource("45_turned_frame")
 look_point = NodePath("../../Geometry/TurnedFrame")
 
 [node name="Shape" type="CollisionShape3D" parent="Discoveries/ExamineTurnedFrame"]
 shape = SubResource("Shape_ExamineTurnedFrame")
 
-[node name="ExamineDrawing" type="Area3D" parent="Discoveries" node_paths=PackedStringArray("look_point")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 8.6, -11.5)
+[node name="ExaminePlan" type="Area3D" parent="Discoveries" node_paths=PackedStringArray("look_point", "visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.35, -6.6)
 collision_layer = 8
 collision_mask = 0
 monitoring = false
 script = ExtResource("19_examinable")
-discovery = ExtResource("40_child_drawin")
-look_point = NodePath("../../Geometry/ChildDrawing")
+discovery = ExtResource("46_plan_chassis")
+look_point = NodePath("../../Geometry/RolledPlan")
+visual = NodePath("../../Geometry/RolledPlan")
 
-[node name="Shape" type="CollisionShape3D" parent="Discoveries/ExamineDrawing"]
-shape = SubResource("Shape_ExamineDrawing")
+[node name="Shape" type="CollisionShape3D" parent="Discoveries/ExaminePlan"]
+shape = SubResource("Shape_ExaminePlan")
 
 [node name="Zones" type="Node3D" parent="."]
 
@@ -3004,6 +3464,39 @@ id = &"shelf_steps"
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneShelfSteps"]
 shape = SubResource("ZoneShape_ZoneShelfSteps")
 
+[node name="ZoneDrawing" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.6, 9, -11.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+script = ExtResource("3_trigger_zone")
+id = &"drawing"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneDrawing"]
+shape = SubResource("ZoneShape_ZoneDrawing")
+
+[node name="ZoneChairRoute" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 1, 0.4)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+script = ExtResource("3_trigger_zone")
+id = &"chair_route"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneChairRoute"]
+shape = SubResource("ZoneShape_ZoneChairRoute")
+
+[node name="ZoneDoorway" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.1, 1, 5.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+script = ExtResource("3_trigger_zone")
+id = &"doorway"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneDoorway"]
+shape = SubResource("ZoneShape_ZoneDoorway")
+
 [node name="ZoneShelfTop" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.8, 10.5, -3.7)
 collision_layer = 0
@@ -3029,6 +3522,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 8.05, -8.6)
 [node name="Window" type="Marker3D" parent="Checkpoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 10.05, -14.5)
 
+[node name="FallSpot" type="Marker3D" parent="Checkpoints"]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -12.6, 0.05, 3.4)
+
 [node name="Shelf" type="Marker3D" parent="Checkpoints"]
 transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -13.8, 9.85, -6.6)
 
@@ -3045,8 +3541,15 @@ anchor = NodePath("../Nino")
 
 [node name="FocusOverlay" parent="." instance=ExtResource("17_focus_overla")]
 
+[node name="Integrity" type="Node" parent="." node_paths=PackedStringArray("nino")]
+script = ExtResource("26_nino_integri")
+nino = NodePath("../Nino")
+
+[node name="MemoryPlayer" parent="." instance=ExtResource("27_memory_playe")]
+
 [node name="FocusVision" type="Node" parent="." node_paths=PackedStringArray("player", "camera", "overlay")]
 script = ExtResource("18_focus_vision")
+default_profile = ExtResource("47_landmark")
 player = NodePath("../Nino")
 camera = NodePath("../ThirdPersonCamera")
 overlay = NodePath("../FocusOverlay/Overlay")

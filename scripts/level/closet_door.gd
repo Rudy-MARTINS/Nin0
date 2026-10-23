@@ -1,7 +1,7 @@
 class_name ClosetDoor
 extends Node3D
 ## Grande porte du placard (vers le sas). Poignée à levier (bec-de-cane) :
-## NINO, trop léger pour tourner un bouton, s'y suspend et l'abaisse de son poids.
+## Nin0, trop léger pour tourner un bouton, s'y suspend et l'abaisse de son poids.
 ## Ce nœud est placé sur l'axe des gonds ; la porte s'ouvre vers l'extérieur.
 
 signal opened
@@ -22,12 +22,12 @@ func _ready() -> void:
 	interactable.enabled = false
 
 
-## Position où NINO se suspend (suit le levier et la porte).
+## Position où Nin0 se suspend (suit le levier et la porte).
 func get_grip_position() -> Vector3:
 	return _grip_point.global_position
 
 
-## NINO, suspendu au levier, l'abaisse de son poids : le pêne se libère.
+## Nin0, suspendu au levier, l'abaisse de son poids : le pêne se libère.
 func pull_lever(rider: Node3D = null) -> void:
 	if is_open:
 		return
@@ -40,6 +40,14 @@ func pull_lever(rider: Node3D = null) -> void:
 			rider.global_position = get_grip_position() + Vector3.DOWN * 0.55, 0.0, 1.0, 0.6)
 	await lever.finished
 	Sfx.play(&"door_latch", 0.0, 0.6)
+
+
+## État après chargement : porte déjà ouverte (elle reste ouverte).
+func set_open_immediately() -> void:
+	is_open = true
+	interactable.enabled = false
+	_hinge.rotation.y = deg_to_rad(open_angle)
+	_lever_pivot.rotation.x = 0.0
 
 
 ## La porte, déverrouillée, pivote lentement vers l'extérieur ; le levier remonte.

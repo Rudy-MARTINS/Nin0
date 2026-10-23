@@ -97,6 +97,31 @@ text = "Découvertes : 0 / 0"
 theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.9)
 
+[node name="Archives" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Center/Panel/Margin/VBox/Archives"]
+layout_mode = 2
+text = "Archives fragmentées — 0/7"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.55, 0.95, 1, 0.9)
+size_flags_horizontal = 3
+
+[node name="ArchivesButton" type="Button" parent="Center/Panel/Margin/VBox/Archives"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "Consulter"
+
+[node name="ArchivesText" type="RichTextLabel" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 15
+theme_override_colors/default_color = Color(0.55, 0.95, 1, 0.85)
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
 [node name="Note" type="Label" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
 text = "« Recommencer » efface la progression sauvegardée."

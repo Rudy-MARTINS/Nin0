@@ -4,16 +4,20 @@ extends Node3D
 ##
 ## - Impression : chauffe, déplacements de la tête et du plateau, pièces révélées
 ##   couche par couche (shader print_reveal), progression sur l'écran.
-## - Installation : NINO monte sur le plateau ; le plateau le transporte sous la
+## - Installation : Nin0 monte sur le plateau ; le plateau le transporte sous la
 ##   tête, qui saisit chaque jambe imprimée et l'emboîte sur ses fixations.
+## - Entretien (lot 3) : réparation ou renfort de châssis. Nin0 se place sur le
+##   plateau et la tête travaille directement sur son corps (même mécanique).
 ## La progression (alimentation, objectifs) est gérée par le directeur de niveau.
 
 signal print_progressed(progress: float)
 signal print_finished
 signal leg_attached(index: int)
 signal installation_finished
+signal service_progressed(progress: float)
+signal service_finished
 
-enum State { OFF, READY, HEATING, PRINTING, DONE, INSTALLING, EMPTY }
+enum State { OFF, READY, HEATING, PRINTING, DONE, INSTALLING, EMPTY, SERVICING }
 
 ## Durée de l'impression des jambes (secondes).
 @export var print_duration := 10.0
@@ -22,7 +26,7 @@ enum State { OFF, READY, HEATING, PRINTING, DONE, INSTALLING, EMPTY }
 @export var part_height := 0.47
 ## Position du plateau quand il présente les pièces (vers l'avant).
 @export var bed_presented_z := 1.0
-## Emplacement de NINO sur le plateau (coordonnée z locale au plateau).
+## Emplacement de Nin0 sur le plateau (coordonnée z locale au plateau).
 @export var rider_spot_z := 0.75
 
 const BED_TOP := 0.12
@@ -109,12 +113,12 @@ func start_print() -> void:
 	Sfx.set_loop(&"printer", &"print_motor", -14.0)
 
 
-## Vrai si NINO peut être installé (pièces prêtes) et se trouve sur la zone du plateau.
+## Vrai si Nin0 peut être installé (pièces prêtes) et se trouve sur la zone du plateau.
 func is_rider_on_bed(body: Node3D) -> bool:
 	return state == State.DONE and install_zone.overlaps_body(body)
 
 
-## Installation assistée des jambes sur NINO (posé sur le plateau).
+## Installation assistée des jambes sur Nin0 (posé sur le plateau).
 func install_legs(nino: NinoController) -> void:
 	if state != State.DONE:
 		return
@@ -123,7 +127,7 @@ func install_legs(nino: NinoController) -> void:
 	_rider = nino
 	var visual := nino.get_visual()
 	_screen_material.set_shader_parameter("mode", 1)
-	# 1. NINO se place sur le plateau, face à la machine.
+	# 1. Nin0 se place sur le plateau, face à la machine.
 	var spot := _bed.to_global(Vector3(0.0, BED_TOP + 0.01, rider_spot_z))
 	var settle := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
 	settle.tween_property(nino, "global_position", spot, 0.5)
@@ -139,7 +143,7 @@ func install_legs(nino: NinoController) -> void:
 		_carried = leg
 		Sfx.play(&"click", -10.0, 1.4)
 		await _move_head(_nozzle_tip() + Vector3.UP * 0.35, 0.4)
-		# 3. Le plateau avance NINO ; la tête amène la jambe sur sa fixation, repliée sur le côté.
+		# 3. Le plateau avance Nin0 ; la tête amène la jambe sur sa fixation, repliée sur le côté.
 		await _move_bed(-rider_spot_z, 0.6)
 		var side := -1.0 if i == 0 else 1.0
 		var fold := create_tween()
@@ -157,7 +161,7 @@ func install_legs(nino: NinoController) -> void:
 		_flash()
 		leg_attached.emit(i)
 		await _move_head(_nozzle_tip() + Vector3.UP * 0.5, 0.4)
-	# 5. La tête se range, le plateau ramène NINO à l'avant.
+	# 5. La tête se range, le plateau ramène Nin0 à l'avant.
 	var park := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
 	park.tween_property(_gantry, "position:y", _gantry_rest_y, 0.8)
 	park.tween_property(_head, "position:x", 1.4, 0.8)
@@ -168,6 +172,70 @@ func install_legs(nino: NinoController) -> void:
 	state = State.EMPTY
 	nino.end_scripted()
 	installation_finished.emit()
+
+
+## Entretien de Nin0 (réparation, renfort) : il saute sur le plateau, le plateau le
+## glisse sous la tête, qui balaie son corps en déposant du filament (étincelles).
+func service(nino: NinoController, duration: float) -> void:
+	if state != State.EMPTY:
+		return
+	state = State.SERVICING
+	nino.begin_scripted()
+	var visual := nino.get_visual()
+	_screen_material.set_shader_parameter("mode", 1)
+	_screen_material.set_shader_parameter("progress", 0.0)
+	# 1. Nin0 se hisse sur le plateau présenté à l'avant.
+	await _move_bed(bed_presented_z, 0.4)
+	var spot := _bed.to_global(Vector3(0.0, BED_TOP + 0.01, rider_spot_z))
+	var from := nino.global_position
+	var apex := (from + spot) * 0.5 + Vector3.UP * 0.6
+	var hop := create_tween().set_trans(Tween.TRANS_SINE)
+	hop.tween_method(func(t: float) -> void:
+		nino.global_position = from.lerp(apex, t).lerp(apex.lerp(spot, t), t)
+	, 0.0, 1.0, 0.5)
+	hop.parallel().tween_property(nino, "rotation:y", global_rotation.y, 0.5)
+	Sfx.play(&"jump", -8.0)
+	await hop.finished
+	visual.react_to_landing(4.0)
+	_rider = nino
+	Sfx.play(&"blip", -6.0)
+	# 2. Le plateau l'amène sous la tête.
+	await _move_bed(-rider_spot_z, 0.8)
+	_nozzle_material.emission_energy_multiplier = 2.5
+	Sfx.set_loop(&"printer", &"repair_loop", -12.0)
+	var elapsed := 0.0
+	var next_spark := 0.0
+	var body_top := nino.global_position + Vector3.UP * 0.62
+	while elapsed < duration:
+		var t := elapsed / duration
+		# Balayage : allers-retours latéraux, de haut en bas puis remontée.
+		var sweep := Vector3(sin(elapsed * 5.0) * 0.17, -0.3 * sin(t * PI), 0.0)
+		_move_head_now(body_top + global_basis * sweep)
+		_screen_material.set_shader_parameter("progress", t)
+		service_progressed.emit(t)
+		if elapsed >= next_spark:
+			next_spark = elapsed + randf_range(0.25, 0.6)
+			_flash()
+			visual.emit_sparks(5)
+			visual.glitch_pulse(0.3, 0.15)
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+	service_progressed.emit(1.0)
+	Sfx.stop_loop(&"printer")
+	Sfx.play(&"repair_done", -6.0)
+	_nozzle_material.emission_energy_multiplier = 0.0
+	_flash()
+	# 3. La tête se range, le plateau ramène Nin0 à l'avant.
+	var park := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	park.tween_property(_gantry, "position:y", _gantry_rest_y, 0.7)
+	park.tween_property(_head, "position:x", 1.4, 0.7)
+	await park.finished
+	await _move_bed(bed_presented_z, 0.8)
+	_screen_material.set_shader_parameter("mode", 0)
+	_rider = null
+	state = State.EMPTY
+	nino.end_scripted()
+	service_finished.emit()
 
 
 ## État après chargement d'une sauvegarde : sous tension, jambes déjà installées.
@@ -209,7 +277,7 @@ func _finish_print() -> void:
 	print_finished.emit()
 
 
-## Déplace le plateau (et NINO s'il est dessus pendant l'installation).
+## Déplace le plateau (et Nin0 s'il est dessus pendant l'installation).
 func _move_bed(z: float, duration: float) -> void:
 	var start := _bed.position.z
 	var rider_start := _rider.global_position if _rider else Vector3.ZERO
@@ -232,6 +300,13 @@ func _move_head(world: Vector3, duration: float) -> void:
 	tween.tween_property(_head, "position:x", local.x, duration)
 	tween.tween_property(_gantry, "position:y", local.y, duration)
 	await tween.finished
+
+
+## Place immédiatement la buse (suivi image par image pendant l'entretien).
+func _move_head_now(world: Vector3) -> void:
+	var local := to_local(world)
+	_head.position.x = lerpf(_head.position.x, local.x, 0.35)
+	_gantry.position.y = lerpf(_gantry.position.y, local.y, 0.35)
 
 
 func _nozzle_tip() -> Vector3:

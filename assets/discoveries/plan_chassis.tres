@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DiscoveryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/discovery/discovery_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"plan_chassis"
+title = "Plan roulé"
+collectible = true
+thought_icons = Array[StringName]([&"book", &"question"])
+conclusion_icons = Array[StringName]([&"printer", &"gear"])
+conclusion_text = "Un plan…"

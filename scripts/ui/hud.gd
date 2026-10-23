@@ -1,6 +1,7 @@
 class_name Hud
 extends CanvasLayer
-## Interface de jeu discrète : objectif, action contextuelle, indice, mode, annonces.
+## Interface de jeu discrète : objectif, action contextuelle, indice, mode, annonces,
+## intégrité (après le premier choc) et fragments de filament (après le premier).
 ## Rien n'est affiché en permanence sauf l'objectif (petit) et le mode (une fois réveillé).
 
 const KEY_COLOR := "#ffd08a"
@@ -15,12 +16,18 @@ const KEY_COLOR := "#ffd08a"
 @onready var _mode_label: Label = $Mode/Value
 @onready var _toast_label: Label = $Toast
 @onready var _fader: ColorRect = $Fader
+@onready var _status_box: Control = $Status
+@onready var _gauge: IntegrityGauge = $Status/Gauge
+@onready var _fragments_box: Control = $Fragments
+@onready var _fragments_label: Label = $Fragments/Count
 
 var _hint_tween: Tween
 var _hint_serial := 0
 var _toast_tween: Tween
 var _objective_tween: Tween
 var _mode_known := false
+var _gameplay_visible := true
+var _last_fragments := -1
 
 
 func _ready() -> void:
@@ -29,6 +36,23 @@ func _ready() -> void:
 	_hint_label.modulate.a = 0.0
 	_mode_box.visible = false
 	_toast_label.modulate.a = 0.0
+	GameState.stats_changed.connect(refresh_stats)
+	refresh_stats()
+
+
+## Intégrité, bouclier et fragments (affichés seulement une fois connus).
+func refresh_stats() -> void:
+	_gauge.set_values(GameState.integrity, GameState.integrity_max, GameState.shield, GameState.shield_max)
+	_status_box.visible = _gameplay_visible and GameState.integrity_known
+	_fragments_box.visible = _gameplay_visible and (GameState.fragments > 0 or not GameState.collected_pickups.is_empty())
+	if GameState.fragments != _last_fragments:
+		if _last_fragments >= 0 and GameState.fragments > _last_fragments:
+			var pop := create_tween()
+			_fragments_box.scale = Vector2.ONE * 1.25
+			_fragments_box.pivot_offset = _fragments_box.size * Vector2(1.0, 0.5)
+			pop.tween_property(_fragments_box, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK)
+		_last_fragments = GameState.fragments
+		_fragments_label.text = str(GameState.fragments)
 
 
 ## Met en forme une touche dans un texte d'indice : « [E] ».
@@ -104,9 +128,11 @@ func set_mode(text: String) -> void:
 
 
 func set_gameplay_visible(value: bool) -> void:
+	_gameplay_visible = value
 	for node: CanvasItem in [_objective_box, _hint_label, _toast_label]:
 		node.visible = value
 	_mode_box.visible = value and _mode_known
+	refresh_stats()
 	if not value:
 		hide_prompt()
 

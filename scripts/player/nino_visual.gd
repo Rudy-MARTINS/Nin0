@@ -1,10 +1,10 @@
 class_name NinoVisual
 extends Node3D
-## Apparence animée de NINO : roues, jambes (IK procédurale à deux segments),
+## Apparence animée de Nin0 : roues, jambes (IK procédurale à deux segments),
 ## transformation, tête qui regarde, visage expressif et réactions.
 ## Aucune logique de gameplay ici : uniquement de l'affichage.
 
-enum Emotion { NEUTRAL, CURIOUS, HAPPY, SURPRISED, HURT, FOCUSED }
+enum Emotion { NEUTRAL, CURIOUS, HAPPY, SURPRISED, HURT, FOCUSED, DIZZY }
 
 const EMOTION_VALUES := {
 	Emotion.NEUTRAL: {},
@@ -13,8 +13,9 @@ const EMOTION_VALUES := {
 	Emotion.SURPRISED: {"surprise": 1.0},
 	Emotion.HURT: {"hurt": 1.0},
 	Emotion.FOCUSED: {"focus": 1.0},
+	Emotion.DIZZY: {"dizzy": 1.0},
 }
-const FACE_PARAMS := ["happy", "surprise", "hurt", "focus", "curious"]
+const FACE_PARAMS := ["happy", "surprise", "hurt", "focus", "curious", "dizzy"]
 
 @export var wheel_radius := 0.065
 @export var max_lean_degrees := 5.0
@@ -26,7 +27,7 @@ const FACE_PARAMS := ["happy", "surprise", "hurt", "focus", "curious"]
 @export var stride_length := 0.2
 @export var blink_interval := Vector2(2.5, 5.5)
 
-## Position globale que NINO regarde (null = regard libre).
+## Position globale que Nin0 regarde (null = regard libre).
 var look_target: Variant = null
 
 var _mode_blend := 0.0
@@ -49,6 +50,13 @@ var _glance_timer := 2.0
 var _squash := 0.0
 var _squash_velocity := 0.0
 var _step_side := 1.0
+## Dommages visibles (0 = intact, 1 = très abîmé) : parasites et étincelles.
+var _damage := 0.0
+var _glitch := 0.0
+var _glitch_pulse := 0.0
+var _spark_timer := 2.0
+var _tilt := 0.0
+var _sparks: CPUParticles3D
 
 @onready var _rig: Node3D = $Rig
 @onready var _head: Node3D = $Rig/Head
@@ -70,9 +78,11 @@ func _ready() -> void:
 	_blink_timer = randf_range(blink_interval.x, blink_interval.y)
 	set_legs_installed(false)
 	_apply_mode_blend()
+	_sparks = _create_sparks()
 
 
 func _process(delta: float) -> void:
+	_update_damage(delta)
 	_update_face(delta)
 	_update_head(delta)
 	_update_squash(delta)
@@ -148,6 +158,74 @@ func react_to_jump() -> void:
 	_squash_velocity = 1.2
 
 
+## Niveau de dommages visibles (0..1) : parasites occasionnels, étincelles, son inquiétant.
+func set_damage_level(value: float) -> void:
+	_damage = clampf(value, 0.0, 1.0)
+
+
+## Brève salve de parasites sur l'écran du visage.
+func glitch_pulse(strength := 1.0, duration := 0.4) -> void:
+	_glitch_pulse = maxf(_glitch_pulse, duration)
+	_glitch = maxf(_glitch, strength)
+
+
+## Gerbe d'étincelles (choc, réparation).
+func emit_sparks(amount := 14) -> void:
+	_sparks.amount = amount
+	_sparks.restart()
+	_sparks.emitting = true
+
+
+## Inclinaison du corps sur le côté (chute, relevé difficile), en degrés.
+func set_tilt(degrees: float) -> void:
+	_tilt = deg_to_rad(degrees)
+
+
+func _update_damage(delta: float) -> void:
+	_glitch_pulse = maxf(_glitch_pulse - delta, 0.0)
+	var resting := _damage * 0.08
+	_glitch = lerpf(_glitch, resting if _glitch_pulse <= 0.0 else _glitch, 1.0 - exp(-6.0 * delta))
+	_face_material.set_shader_parameter("glitch", _glitch)
+	_rig.rotation.z = lerpf(_rig.rotation.z, _tilt, 1.0 - exp(-10.0 * delta))
+	if _damage <= 0.05:
+		return
+	_spark_timer -= delta
+	if _spark_timer <= 0.0:
+		_spark_timer = randf_range(2.5, 6.0) / (0.4 + _damage)
+		glitch_pulse(0.5 + _damage * 0.5, 0.25)
+		if randf() < _damage:
+			emit_sparks(6)
+			Sfx.play(&"spark", -14.0, randf_range(0.9, 1.2))
+
+
+func _create_sparks() -> CPUParticles3D:
+	var sparks := CPUParticles3D.new()
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(1.0, 0.8, 0.35)
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.7, 0.3)
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.018, 0.018)
+	quad.material = material
+	sparks.mesh = quad
+	sparks.emitting = false
+	sparks.one_shot = true
+	sparks.explosiveness = 0.9
+	sparks.lifetime = 0.5
+	sparks.direction = Vector3.UP
+	sparks.spread = 70.0
+	sparks.initial_velocity_min = 0.6
+	sparks.initial_velocity_max = 1.4
+	sparks.gravity = Vector3(0.0, -6.0, 0.0)
+	sparks.scale_amount_min = 0.6
+	sparks.scale_amount_max = 1.2
+	sparks.position = Vector3(0.0, 0.32, 0.0)
+	_rig.add_child(sparks)
+	return sparks
+
+
 # --- Visage et tête ------------------------------------------------------------
 
 func _update_face(delta: float) -> void:
@@ -178,7 +256,7 @@ func _update_head(delta: float) -> void:
 		target_yaw = clampf(atan2(-local.x, -local.z), -0.7, 0.7)
 		target_pitch = clampf(atan2(local.y, Vector2(local.x, local.z).length()), -0.4, 0.35)
 	elif absf(_speed) < 0.1 and not _climbing:
-		# Regards occasionnels quand NINO est immobile.
+		# Regards occasionnels quand Nin0 est immobile.
 		_glance_timer -= delta
 		if _glance_timer <= 0.0:
 			_glance = Vector2(randf_range(-0.5, 0.5), randf_range(-0.1, 0.25)) if randf() < 0.7 else Vector2.ZERO

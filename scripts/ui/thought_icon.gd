@@ -1,7 +1,7 @@
 @tool
 class_name ThoughtIcon
 extends Control
-## Pictogramme des pensées de NINO, dessiné en vectoriel (aucune image externe).
+## Pictogramme des pensées de Nin0, dessiné en vectoriel (aucune image externe).
 ## Le langage des pensées repose sur ces symboles : ajouter un cas dans `_draw_icon`
 ## suffit pour en créer un nouveau.
 
@@ -13,7 +13,7 @@ const COOL := Color(0.25, 0.6, 0.85)
 const ICONS := [
 	&"question", &"exclamation", &"ellipsis", &"idea", &"happy", &"eye", &"printer", &"legs",
 	&"plug", &"energy", &"arrow", &"up", &"down", &"gear", &"door", &"handle", &"spool", &"robot",
-	&"check", &"cross", &"frame", &"house", &"book", &"sun",
+	&"check", &"cross", &"frame", &"house", &"book", &"sun", &"wrench", &"damage", &"filament",
 ]
 
 @export var icon: StringName = &"question":
@@ -54,7 +54,7 @@ func _draw_icon(name: StringName, area: Vector2) -> void:
 				var d := Vector2(cos(a), sin(a))
 				draw_line(c + Vector2(0, -8) * s + d * 31.0 * s, c + Vector2(0, -8) * s + d * 43.0 * s, ENERGY, w * 0.7, true)
 		&"happy":
-			# Les yeux « contents » de NINO : deux arcs.
+			# Les yeux « contents » de Nin0 : deux arcs.
 			for side in [-1.0, 1.0]:
 				draw_arc(c + Vector2(side * 20.0, 8.0) * s, 14.0 * s, PI, TAU, 12, COOL, w, true)
 		&"eye":
@@ -146,5 +146,21 @@ func _draw_icon(name: StringName, area: Vector2) -> void:
 			for k in 8:
 				var d := Vector2.from_angle(TAU * k / 8.0)
 				draw_line(c + d * 26.0 * s, c + d * 38.0 * s, ENERGY, w * 0.7, true)
+		&"wrench":
+			draw_line(c + Vector2(-26, 26) * s, c + Vector2(14, -14) * s, INK, w * 1.4, true)
+			draw_arc(c + Vector2(18, -18) * s, 14.0 * s, PI * 0.1, PI * 1.6, 16, INK, w * 1.2, true)
+			draw_circle(c + Vector2(-26, 26) * s, 6.0 * s, ACCENT)
+		&"damage":
+			# Éclair de choc (étincelle brisée).
+			draw_polyline(PackedVector2Array([c + Vector2(6, -38) * s, c + Vector2(-14, 2) * s, c + Vector2(6, 2) * s,
+					c + Vector2(-8, 38) * s]), ENERGY, w * 1.2, true)
+			draw_line(c + Vector2(16, -10) * s, c + Vector2(30, -18) * s, ACCENT, w * 0.7, true)
+			draw_line(c + Vector2(-24, 16) * s, c + Vector2(-34, 24) * s, ACCENT, w * 0.7, true)
+		&"filament":
+			var coil := PackedVector2Array()
+			for k in 40:
+				var t := float(k) / 39.0
+				coil.append(c + Vector2.from_angle(t * TAU * 2.2) * (8.0 + t * 24.0) * s)
+			draw_polyline(coil, ACCENT, w * 0.8, true)
 		_:
 			draw_circle(c, 10.0 * s, INK)
