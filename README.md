@@ -1,8 +1,4 @@
-# NINO 🤖
 
-Jeu 3D indépendant en préparation avec **Godot 4** et **GDScript**.
-
-Un minuscule robot éducatif explore un appartement abandonné où la nature et les insectes ont repris leurs droits. Exploration, plateformes, améliorations imprimées en 3D et écosystème autonome.
 
 ## État du projet
 
