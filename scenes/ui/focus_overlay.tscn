@@ -1,7 +1,7 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://xpue9n6dte4o"]
 
-[ext_resource type="Script" path="res://scripts/ui/focus_overlay.gd" id="1_overlay"]
-[ext_resource type="Shader" path="res://assets/shaders/focus_mask.gdshader" id="2_mask"]
+[ext_resource type="Script" uid="uid://b8dgrdmtee155" path="res://scripts/ui/focus_overlay.gd" id="1_overlay"]
+[ext_resource type="Shader" uid="uid://colrpnlqocd7m" path="res://assets/shaders/focus_mask.gdshader" id="2_mask"]
 
 [sub_resource type="ShaderMaterial" id="Mat_mask"]
 shader = ExtResource("2_mask")

@@ -1,10 +1,10 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://vsmevydsa2o1"]
 
-[ext_resource type="Script" path="res://scripts/level/closet_door.gd" id="1_closet_door"]
-[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
-[ext_resource type="Script" path="res://scripts/focus/focus_target.gd" id="3_focus_target"]
-[ext_resource type="Resource" path="res://assets/observation/landmark.tres" id="4_landmark"]
-[ext_resource type="Script" path="res://scripts/tools/procedural_mesh.gd" id="5_procedural_m"]
+[ext_resource type="Script" uid="uid://c5u1hmxospgfk" path="res://scripts/level/closet_door.gd" id="1_closet_door"]
+[ext_resource type="Script" uid="uid://ism7yuwslbf4" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" uid="uid://6sib5oj4021u" path="res://scripts/focus/focus_target.gd" id="3_focus_target"]
+[ext_resource type="Resource" uid="uid://7qu7ojxuq9n1" path="res://assets/observation/landmark.tres" id="4_landmark"]
+[ext_resource type="Script" uid="uid://byyw6fy2uvul7" path="res://scripts/tools/procedural_mesh.gd" id="5_procedural_m"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_paint"]
 albedo_color = Color(0.8, 0.78, 0.72, 1)

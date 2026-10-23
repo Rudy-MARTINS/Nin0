@@ -1,8 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bv3cvtke34ay3"]
 
-[ext_resource type="Script" path="res://scripts/level/power_strip.gd" id="1_power_strip"]
-[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
-[ext_resource type="Script" path="res://scripts/tools/procedural_mesh.gd" id="3_procedural_m"]
+[ext_resource type="Script" uid="uid://dgwiobun1l3rk" path="res://scripts/level/power_strip.gd" id="1_power_strip"]
+[ext_resource type="Script" uid="uid://ism7yuwslbf4" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" uid="uid://byyw6fy2uvul7" path="res://scripts/tools/procedural_mesh.gd" id="3_procedural_m"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_plastic"]
 albedo_color = Color(0.84, 0.8, 0.7, 1)

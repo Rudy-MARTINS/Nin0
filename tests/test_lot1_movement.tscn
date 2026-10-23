@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dz1sdcbtmv0u"]
 
-[ext_resource type="Script" path="res://tests/test_lot1_movement.gd" id="1_test"]
+[ext_resource type="Script" uid="uid://uksbekbsqvdb" path="res://tests/test_lot1_movement.gd" id="1_test"]
 
 [node name="TestLot1Movement" type="Node"]
 script = ExtResource("1_test")

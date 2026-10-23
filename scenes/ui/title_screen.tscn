@@ -1,7 +1,7 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bembffinhzh73"]
 
-[ext_resource type="Theme" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
-[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="2_title_screen"]
+[ext_resource type="Theme" uid="uid://yd1jwxm3yn2b" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" uid="uid://bmnxmqv0ame6" path="res://scripts/ui/title_screen.gd" id="2_title_screen"]
 
 [sub_resource type="Gradient" id="Grad_shade"]
 colors = PackedColorArray(0.03, 0.025, 0.02, 0.88, 0.03, 0.025, 0.02, 0)

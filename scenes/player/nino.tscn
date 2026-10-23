@@ -1,11 +1,11 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bdhh0ydq0a4hi"]
 
-[ext_resource type="Script" path="res://scripts/player/nino_controller.gd" id="1_ctrl"]
-[ext_resource type="Script" path="res://scripts/player/nino_visual.gd" id="2_visual"]
-[ext_resource type="Script" path="res://scripts/tools/procedural_mesh.gd" id="3_pmesh"]
-[ext_resource type="Shader" path="res://assets/shaders/nino_face.gdshader" id="4_face"]
-[ext_resource type="Script" path="res://scripts/props/cable.gd" id="5_cable"]
-[ext_resource type="Script" path="res://scripts/interaction/interactor.gd" id="6_interactor"]
+[ext_resource type="Script" uid="uid://bomap7snjnj1u" path="res://scripts/player/nino_controller.gd" id="1_ctrl"]
+[ext_resource type="Script" uid="uid://08sra2kgljra" path="res://scripts/player/nino_visual.gd" id="2_visual"]
+[ext_resource type="Script" uid="uid://byyw6fy2uvul7" path="res://scripts/tools/procedural_mesh.gd" id="3_pmesh"]
+[ext_resource type="Shader" uid="uid://d3lg0ri3uaw8s" path="res://assets/shaders/nino_face.gdshader" id="4_face"]
+[ext_resource type="Script" uid="uid://bc0f4etneuo5y" path="res://scripts/props/cable.gd" id="5_cable"]
+[ext_resource type="Script" uid="uid://bsfhy4or3bq1w" path="res://scripts/interaction/interactor.gd" id="6_interactor"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_shell"]
 albedo_color = Color(0.93, 0.89, 0.8, 1)

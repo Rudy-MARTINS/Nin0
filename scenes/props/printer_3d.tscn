@@ -1,11 +1,11 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://7onx9q6nfrk6"]
 
-[ext_resource type="Script" path="res://scripts/level/printer_3d.gd" id="1_printer_3d"]
-[ext_resource type="Shader" path="res://assets/shaders/print_reveal.gdshader" id="2_print_reveal"]
-[ext_resource type="Shader" path="res://assets/shaders/printer_screen.gdshader" id="3_printer_scre"]
-[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="4_interactable"]
-[ext_resource type="Script" path="res://scripts/props/cable.gd" id="5_cable"]
-[ext_resource type="Script" path="res://scripts/tools/procedural_mesh.gd" id="6_procedural_m"]
+[ext_resource type="Script" uid="uid://bocjk6f077nrk" path="res://scripts/level/printer_3d.gd" id="1_printer_3d"]
+[ext_resource type="Shader" uid="uid://bjp1gc32cuu1d" path="res://assets/shaders/print_reveal.gdshader" id="2_print_reveal"]
+[ext_resource type="Shader" uid="uid://b3dhjald3dhvd" path="res://assets/shaders/printer_screen.gdshader" id="3_printer_scre"]
+[ext_resource type="Script" uid="uid://ism7yuwslbf4" path="res://scripts/interaction/interactable.gd" id="4_interactable"]
+[ext_resource type="Script" uid="uid://bc0f4etneuo5y" path="res://scripts/props/cable.gd" id="5_cable"]
+[ext_resource type="Script" uid="uid://byyw6fy2uvul7" path="res://scripts/tools/procedural_mesh.gd" id="6_procedural_m"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_body"]
 albedo_color = Color(0.16, 0.17, 0.19, 1)

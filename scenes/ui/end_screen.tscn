@@ -1,7 +1,7 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://19t8lokqq8gn"]
 
-[ext_resource type="Theme" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
-[ext_resource type="Script" path="res://scripts/ui/end_screen.gd" id="2_end_screen"]
+[ext_resource type="Theme" uid="uid://yd1jwxm3yn2b" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" uid="uid://cb55lvkp6pwej" path="res://scripts/ui/end_screen.gd" id="2_end_screen"]
 
 [sub_resource type="FontVariation" id="Font_title"]
 spacing_glyph = 22

@@ -1,7 +1,7 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bfkcopexd3n4x"]
 
-[ext_resource type="Theme" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
-[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="2_pause_menu"]
+[ext_resource type="Theme" uid="uid://yd1jwxm3yn2b" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" uid="uid://bkw07nod26lij" path="res://scripts/ui/pause_menu.gd" id="2_pause_menu"]
 
 
 

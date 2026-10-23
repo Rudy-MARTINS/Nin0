@@ -1,9 +1,9 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://4cueqe4lfzlt"]
 
-[ext_resource type="Theme" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
-[ext_resource type="Script" path="res://scripts/ui/printer_panel.gd" id="2_printer_pane"]
-[ext_resource type="Script" path="res://scripts/ui/leg_icon.gd" id="3_leg_icon"]
-[ext_resource type="Script" path="res://scripts/ui/service_icon.gd" id="4_service_icon"]
+[ext_resource type="Theme" uid="uid://yd1jwxm3yn2b" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" uid="uid://cotr6fsxpu2n4" path="res://scripts/ui/printer_panel.gd" id="2_printer_pane"]
+[ext_resource type="Script" uid="uid://b374td7jp875m" path="res://scripts/ui/leg_icon.gd" id="3_leg_icon"]
+[ext_resource type="Script" uid="uid://hl2nj6v1r3uw" path="res://scripts/ui/service_icon.gd" id="4_service_icon"]
 
 
 

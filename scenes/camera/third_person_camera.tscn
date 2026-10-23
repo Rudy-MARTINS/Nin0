@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://bx0mvavtw6c40"]
 
-[ext_resource type="Script" path="res://scripts/camera/third_person_camera.gd" id="1_cam"]
+[ext_resource type="Script" uid="uid://bjyvhssbodbar" path="res://scripts/camera/third_person_camera.gd" id="1_cam"]
 
 [sub_resource type="SphereShape3D" id="Shape_probe"]
 radius = 0.08

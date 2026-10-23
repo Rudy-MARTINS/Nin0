@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="ObservationProfile" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ObservationProfile" load_steps=2 format=3 uid="uid://7qu7ojxuq9n1"]
 
-[ext_resource type="Script" path="res://scripts/focus/observation_profile.gd" id="1"]
+[ext_resource type="Script" uid="uid://d21kdohnlvyp3" path="res://scripts/focus/observation_profile.gd" id="1"]
 
 [resource]
 script = ExtResource("1")
