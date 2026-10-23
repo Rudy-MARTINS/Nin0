@@ -84,6 +84,12 @@ height = 0.1
 radial_segments = 16
 rings = 8
 
+[sub_resource type="BoxShape3D" id="Shape_bed"]
+size = Vector3(3.2, 0.12, 3.0)
+
+[sub_resource type="BoxShape3D" id="Shape_install"]
+size = Vector3(2.4, 0.8, 1.6)
+
 [sub_resource type="SphereMesh" id="Sphere_0_022"]
 radius = 0.022
 height = 0.044
@@ -235,6 +241,22 @@ kind = 0
 size = Vector3(3.2, 0.06, 3)
 bevel = 0.03
 
+[node name="BedBody" type="AnimatableBody3D" parent="Bed"]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Bed/BedBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+shape = SubResource("Shape_bed")
+
+[node name="InstallZone" type="Area3D" parent="Bed"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.75)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Bed/InstallZone"]
+shape = SubResource("Shape_install")
+
 [node name="PrintedLegs" type="Node3D" parent="Bed"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
 
@@ -385,6 +407,11 @@ kind = 1
 size = Vector3(0.08, 0.14, 0.08)
 bevel = 0.02
 segments = 10
+
+[node name="Spark" type="OmniLight3D" parent="Gantry/Head"]
+light_color = Color(0.6, 0.9, 1, 1)
+light_energy = 0.0
+omni_range = 1.5
 
 [node name="Spool" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.05, -1.2)

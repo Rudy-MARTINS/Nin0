@@ -103,6 +103,18 @@ func set_mode_blend(value: float) -> void:
 func set_legs_installed(installed: bool) -> void:
 	_legs_installed = installed
 	_legs.visible = installed
+	_leg_left.visible = true
+	_leg_right.visible = true
+
+
+## Affiche une seule jambe (installation pièce par pièce). 0 = gauche, 1 = droite.
+func set_leg_visible(index: int, value: bool) -> void:
+	if not _legs_installed:
+		_legs_installed = true
+		_leg_left.visible = false
+		_leg_right.visible = false
+		_legs.visible = true
+	(_leg_left if index == 0 else _leg_right).visible = value
 
 
 func get_leg_mount_positions() -> Array[Vector3]:

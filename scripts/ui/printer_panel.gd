@@ -6,7 +6,7 @@ extends CanvasLayer
 signal print_requested
 signal closed
 
-@onready var _status: Label = $Center/Panel/Margin/VBox/Status
+@onready var _status: Label = $Center/Panel/Margin/VBox/PowerRow/Status
 @onready var _requirement: Label = $Center/Panel/Margin/VBox/Card/Info/Requirement
 @onready var _print_button: Button = $Center/Panel/Margin/VBox/Buttons/PrintButton
 @onready var _close_button: Button = $Center/Panel/Margin/VBox/Buttons/CloseButton
@@ -20,18 +20,18 @@ func _ready() -> void:
 
 ## powered : imprimante alimentée ; already_printed : jambes déjà fabriquées.
 func open(powered: bool, already_printed: bool) -> void:
-	if already_printed:
-		_status.text = "Impression terminée"
+	if powered:
+		_status.text = "● Sous tension"
 		_status.modulate = Color(0.55, 1.0, 0.6)
-		_requirement.text = "✔ Fabriquées"
-	elif powered:
-		_status.text = "Prête"
-		_status.modulate = Color(0.55, 0.85, 1.0)
-		_requirement.text = "✔ Alimentation électrique"
 	else:
-		_status.text = "Hors tension"
+		_status.text = "● Coupée"
 		_status.modulate = Color(1.0, 0.5, 0.4)
-		_requirement.text = "✖ Alimentation électrique requise"
+	if already_printed:
+		_requirement.text = "✔ Déjà fabriquées"
+	elif powered:
+		_requirement.text = "Prête à imprimer"
+	else:
+		_requirement.text = "✖ Nécessite l'alimentation électrique"
 	_print_button.disabled = not powered or already_printed
 	visible = true
 	GameState.modal_open = true

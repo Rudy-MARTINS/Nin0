@@ -4,11 +4,15 @@ extends CanvasLayer
 
 ## Désactivé pendant l'écran titre, les séquences et l'écran de fin.
 var allowed := false
+## Nombre total de découvertes de la pièce (renseigné par le niveau).
+var discovery_total := 0
 
 @onready var _resume_button: Button = $Center/Panel/Margin/VBox/Buttons/ResumeButton
 @onready var _restart_button: Button = $Center/Panel/Margin/VBox/Buttons/RestartButton
 @onready var _quit_button: Button = $Center/Panel/Margin/VBox/Buttons/QuitButton
 @onready var _legs_controls: Control = $Center/Panel/Margin/VBox/LegsControls
+@onready var _focus_controls: Control = $Center/Panel/Margin/VBox/FocusControls
+@onready var _discoveries: Label = $Center/Panel/Margin/VBox/Discoveries
 
 
 func _ready() -> void:
@@ -32,6 +36,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func open() -> void:
 	_legs_controls.visible = GameState.legs_installed
+	_focus_controls.visible = GameState.reached_window
+	_discoveries.text = "Découvertes : %d / %d" % [GameState.discoveries.size(), discovery_total]
+	_discoveries.visible = discovery_total > 0
 	visible = true
 	get_tree().paused = true
 	GameState.modal_open = true

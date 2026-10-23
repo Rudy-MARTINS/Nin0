@@ -78,12 +78,24 @@ R : revenir au dernier point sûr"
 theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.75)
 
+[node name="FocusControls" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Clic droit / Maj (maintenir) : observer"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.75)
+
 [node name="LegsControls" type="Label" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
 text = "F : changer de mode (à l'arrêt, au sol)
 Espace : sauter (mode jambes)"
 theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.75)
+
+[node name="Discoveries" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Découvertes : 0 / 0"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.9)
 
 [node name="Note" type="Label" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2

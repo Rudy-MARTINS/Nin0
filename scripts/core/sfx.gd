@@ -84,6 +84,21 @@ func _build_sounds() -> void:
 	_streams[&"print_motor"] = _print_motor()
 	_streams[&"wheels"] = _wheel_hum()
 	_streams[&"ambience"] = _ambience(6.0)
+	# Lot 2
+	_streams[&"thought"] = _tone([[900.0, 1300.0, 0.05], [1300.0, 1250.0, 0.04]], 0.12)
+	_streams[&"tutorial_ok"] = _tone([[880.0, 880.0, 0.05], [1320.0, 1320.0, 0.08]], 0.12)
+	_streams[&"discovery"] = _tone([[660.0, 660.0, 0.08], [990.0, 990.0, 0.08], [1320.0, 1480.0, 0.2]], 0.16)
+	_streams[&"pickup"] = _tone([[500.0, 1100.0, 0.12], [1100.0, 1100.0, 0.06]], 0.18)
+	_streams[&"power_up"] = _power_up()
+	_streams[&"printer_wake"] = _tone([[523.0, 523.0, 0.1], [659.0, 659.0, 0.1], [784.0, 784.0, 0.18]], 0.2)
+	_streams[&"spool_slide"] = _scrape()
+	_streams[&"spool_drop"] = _noise_burst(0.3, 0.9, 0.005)
+	_streams[&"book_fall"] = _noise_burst(0.4, 1.0, 0.004)
+	_streams[&"focus_in"] = _tone([[300.0, 700.0, 0.18]], 0.1)
+	_streams[&"focus_out"] = _tone([[700.0, 300.0, 0.15]], 0.08)
+	_streams[&"focus_lock"] = _tone([[1200.0, 1200.0, 0.05], [1600.0, 1600.0, 0.09]], 0.14)
+	_streams[&"door_latch"] = _click()
+	_streams[&"door_creak"] = _creak(2.2)
 
 
 ## segments : liste de [fréquence début, fréquence fin, durée]. Enveloppe douce par segment.
@@ -121,6 +136,50 @@ func _click() -> AudioStreamWAV:
 	for i in int(0.05 * RATE):
 		var t := float(i) / RATE
 		samples.append((randf_range(-1.0, 1.0) * 0.4 + sin(TAU * 1800.0 * t) * 0.5) * exp(-t * 90.0))
+	return _to_wav(samples)
+
+
+## Mise sous tension : clac grave puis bourdonnement qui monte.
+func _power_up() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(0.9 * RATE)
+	var phase := 0.0
+	for i in count:
+		var t := float(i) / RATE
+		var freq := 50.0 + minf(t / 0.6, 1.0) * 70.0
+		phase += TAU * freq / RATE
+		var hum := (sin(phase) + sin(phase * 2.0) * 0.5 + sin(phase * 3.0) * 0.25) * 0.18
+		var envelope := minf(t / 0.05, 1.0) * clampf((0.9 - t) / 0.3, 0.0, 1.0)
+		var thump := randf_range(-1.0, 1.0) * exp(-t * 60.0) * 0.6
+		samples.append(hum * envelope + thump)
+	return _to_wav(samples)
+
+
+## Frottement de plastique sur carton (bobine poussée). Boucle.
+func _scrape() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var low := 0.0
+	for i in RATE:
+		var t := float(i) / RATE
+		low = lerpf(low, randf_range(-1.0, 1.0), 0.25)
+		var grain := 0.6 + 0.4 * sin(TAU * 13.0 * t)
+		samples.append(low * 0.22 * grain)
+	return _to_wav(samples, true)
+
+
+## Grincement de porte : fréquence qui glisse lentement avec trémolo.
+func _creak(duration: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(duration * RATE)
+	var phase := 0.0
+	for i in count:
+		var t := float(i) / count
+		var freq := 180.0 + sin(t * 5.0) * 40.0 + t * 60.0
+		phase += TAU * freq / RATE
+		var saw := fmod(phase / TAU, 1.0) * 2.0 - 1.0
+		var stutter := 0.5 + 0.5 * signf(sin(t * 90.0 + sin(t * 7.0) * 3.0))
+		var envelope := minf(t * 8.0, 1.0) * minf((1.0 - t) * 4.0, 1.0)
+		samples.append(saw * 0.08 * stutter * envelope)
 	return _to_wav(samples)
 
 

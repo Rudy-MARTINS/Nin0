@@ -21,8 +21,9 @@ signal mode_changed(new_mode: Mode)
 signal transform_refused(reason: String)
 signal landed(impact_speed: float)
 signal jumped
+signal respawned
 
-enum State { FREE, CLIMBING, MOUNTING, TRANSFORMING }
+enum State { FREE, CLIMBING, MOUNTING, TRANSFORMING, SCRIPTED }
 enum Mode { WHEELS, LEGS }
 
 const WORLD_MASK := 1 << 0      # couche 1 « monde »
@@ -67,8 +68,14 @@ const CLIMBABLE_MASK := 1 << 1  # couche 2 « escaladable »
 @export var release_push := 0.8
 ## Délai avant de pouvoir se raccrocher.
 @export var reattach_cooldown := 0.4
+## Descente : en roulant au-delà du bord d'une surface escaladable, NINO s'y accroche.
+@export var grab_edge_when_leaving := true
 ## Durée du hissage en haut d'une paroi.
 @export var mount_duration := 0.4
+
+@export_group("Poussée")
+## Vitesse d'un objet poussé, relative à celle de NINO.
+@export_range(0.1, 1.0) var push_speed_ratio := 0.75
 
 @export_group("Chute")
 ## Gravité adaptée à l'échelle de jeu (la vraie gravité serait 98 u/s²).
@@ -83,6 +90,8 @@ var state: State = State.FREE
 var mode: Mode = Mode.WHEELS
 ## Désactivé pendant l'introduction, les interfaces et les séquences.
 var controls_enabled := true
+## Vrai pendant la vision focalisée : NINO reste immobile.
+var focus_lock := false
 ## Vrai quand les jambes sont installées (le mode jambes devient accessible).
 var legs_available := false:
 	set(value):
@@ -118,7 +127,7 @@ func _physics_process(delta: float) -> void:
 		respawn()
 		return
 
-	if controls_enabled:
+	if controls_enabled and not focus_lock:
 		if Input.is_action_just_pressed("jump"):
 			_jump_buffer = jump_buffer_time
 		if Input.is_action_just_pressed("switch_mode"):
@@ -131,8 +140,8 @@ func _physics_process(delta: float) -> void:
 			_process_climbing(delta)
 		State.TRANSFORMING:
 			_process_transforming(delta)
-		State.MOUNTING:
-			pass # Le hissage est piloté par un Tween.
+		State.MOUNTING, State.SCRIPTED:
+			pass # Hissage ou séquence : position pilotée de l'extérieur.
 
 	_update_visual(delta)
 	_update_audio()
@@ -150,6 +159,24 @@ func respawn() -> void:
 	velocity = Vector3.ZERO
 	_climb_velocity = Vector3.ZERO
 	_set_state(State.FREE)
+	respawned.emit()
+
+
+## Séquence scriptée : NINO ne bouge plus de lui-même (la position est pilotée).
+func begin_scripted() -> void:
+	velocity = Vector3.ZERO
+	_climb_velocity = Vector3.ZERO
+	_set_state(State.SCRIPTED)
+
+
+func end_scripted() -> void:
+	if state == State.SCRIPTED:
+		_set_state(State.FREE)
+
+
+## Vrai si la vision focalisée peut être utilisée (au sol, libre, contrôlable).
+func can_focus() -> bool:
+	return controls_enabled and (state == State.FREE and is_on_floor())
 
 
 ## Vrai si NINO peut interagir avec un objet (au sol, libre, contrôlable).
@@ -255,13 +282,48 @@ func _process_free(delta: float) -> void:
 
 	var fall_speed := -velocity.y
 	var was_on_floor := is_on_floor()
+	var moving_direction := Vector3(velocity.x, 0.0, velocity.z)
 	move_and_slide()
+	_push_bodies(moving_direction)
 	if is_on_floor() and not was_on_floor and fall_speed > 0.5:
 		landed.emit(fall_speed)
 		_visual.react_to_landing(fall_speed)
 
 	if is_on_floor() and _attach_cooldown <= 0.0 and has_input:
 		_try_attach_from_collisions(desired.normalized())
+	elif was_on_floor and not is_on_floor() and velocity.y <= 0.0 and has_input and grab_edge_when_leaving:
+		_try_grab_edge_below(moving_direction)
+
+
+func _push_bodies(moving: Vector3) -> void:
+	for i in get_slide_collision_count():
+		var collision := get_slide_collision(i)
+		var body := collision.get_collider() as PushableSpool
+		# On ne pousse que de face (pas en frôlant la bobine).
+		if body and moving.length() > 0.1 and moving.normalized().dot(-collision.get_normal()) > 0.3:
+			body.push(moving, maxf(moving.length(), 1.0) * push_speed_ratio)
+
+
+## En quittant le bord d'une surface escaladable, NINO se retourne et s'y accroche
+## (permet de redescendre une paroi au lieu de tomber).
+func _try_grab_edge_below(moving: Vector3) -> void:
+	if moving.length_squared() < 0.01 or _attach_cooldown > 0.0:
+		return
+	var direction := moving.normalized()
+	var space := get_world_3d().direct_space_state
+	var origin := global_position + Vector3.DOWN * 0.3 + direction * (_get_radius() + 0.2)
+	var query := PhysicsRayQueryParameters3D.create(origin, origin - direction * 1.0, CLIMBABLE_MASK, [get_rid()])
+	var hit := space.intersect_ray(query)
+	if hit.is_empty() or absf(hit.normal.y) > 0.35 or hit.normal.dot(direction) < 0.6:
+		return
+	var normal: Vector3 = hit.normal
+	var target: Vector3 = hit.position + normal * (_get_radius() + 0.02)
+	target.y = global_position.y - _collision_shape.position.y - 0.05
+	if not _is_space_free(target):
+		return
+	global_position = target
+	rotation.y = atan2(normal.x, normal.z)
+	_start_climbing(normal)
 
 
 func _try_attach_from_collisions(desired: Vector3) -> void:
@@ -379,9 +441,23 @@ func _process_climbing(delta: float) -> void:
 		velocity = _wall_normal * release_push
 		return
 
+	# Angle rentrant : une autre paroi escaladable bloque le déplacement latéral.
+	for i in get_slide_collision_count():
+		var collision := get_slide_collision(i)
+		var collider := collision.get_collider() as CollisionObject3D
+		var n := collision.get_normal()
+		if collider and (collider.collision_layer & CLIMBABLE_MASK) != 0 and absf(n.y) < 0.35 \
+				and n.dot(_wall_normal) < 0.3 and absf(input.x) > 0.3:
+			_wall_normal = n
+			return
+
 	var hit := _cast_wall_ray()
 	if not hit.is_empty():
 		_wall_normal = hit.normal
+		return
+
+	# Angle sortant : contourner l'arête quand on se déplace latéralement.
+	if absf(_climb_velocity.dot(wall_right)) > 0.05 and _try_outer_corner(signf(_climb_velocity.dot(wall_right)) * wall_right, previous_position):
 		return
 
 	# Plus de surface escaladable devant Nino.
@@ -390,6 +466,25 @@ func _process_climbing(delta: float) -> void:
 	# Sinon on reste sur la surface : on annule le dernier déplacement.
 	global_position = previous_position
 	_climb_velocity = Vector3.ZERO
+
+
+## Contourne une arête sortante : NINO passe sur la face adjacente.
+func _try_outer_corner(side: Vector3, previous_position: Vector3) -> bool:
+	var space := get_world_3d().direct_space_state
+	var radius := _get_radius()
+	var origin := previous_position + Vector3.UP * _collision_shape.position.y + side * (radius + 0.3) - _wall_normal * (radius + 0.3)
+	var query := PhysicsRayQueryParameters3D.create(origin, origin - side * 0.8, CLIMBABLE_MASK, [get_rid()])
+	var hit := space.intersect_ray(query)
+	if hit.is_empty() or absf(hit.normal.y) > 0.35 or hit.normal.dot(side) < 0.7:
+		return false
+	var target: Vector3 = hit.position + hit.normal * (radius + 0.02)
+	target.y = previous_position.y
+	if not _is_space_free(target):
+		return false
+	global_position = target
+	_wall_normal = hit.normal
+	rotation.y = atan2(_wall_normal.x, _wall_normal.z)
+	return true
 
 
 func _release_wall(push_away: bool) -> void:
@@ -450,7 +545,7 @@ func _is_space_free(feet_position: Vector3) -> bool:
 # --- Utilitaires ---------------------------------------------------------------
 
 func _get_input_vector() -> Vector2:
-	if not controls_enabled:
+	if not controls_enabled or focus_lock:
 		return Vector2.ZERO
 	return Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 

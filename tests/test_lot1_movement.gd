@@ -76,6 +76,32 @@ func _run() -> void:
 	await _hold(["move_back"], 2.0)
 	_check(_nino.state == NinoController.State.FREE and _nino.global_position.y < 0.1, "Nino redescend au sol")
 
+	# 6b. Angle sortant : en se décalant au-delà de l'arête, NINO passe sur la face voisine.
+	_place(Vector3(4.8, 0.02, 0.2), 0.0)
+	await _hold(["move_forward"], 1.2)
+	await _hold(["move_right"], 2.2)
+	_check(_nino.state == NinoController.State.CLIMBING and _nino.global_position.x > 5.55,
+			"NINO contourne l'angle du carton (x = %.2f)" % _nino.global_position.x)
+	Input.action_press("release_grip")
+	await _wait(1.0 / 60.0)
+	Input.action_release("release_grip")
+	await _wait(1.0)
+
+	# 6c. Descente : depuis le dessus du carton, rouler au-delà du bord accroche NINO à la paroi.
+	_place(Vector3(4, 1.62, -2.0), PI)
+	await _wait(0.3)
+	var grabbed := false
+	Input.action_press("move_forward")
+	for i in 90:
+		await get_tree().physics_frame
+		if _nino.state == NinoController.State.CLIMBING:
+			grabbed = true
+			break
+	Input.action_release("move_forward")
+	_check(grabbed, "NINO s'accroche en quittant le bord du carton")
+	await _hold(["move_back"], 2.5)
+	_check(_nino.state == NinoController.State.FREE and _nino.global_position.y < 0.1, "NINO redescend la paroi jusqu'au sol")
+
 	# 7. Escalade latérale limitée à la surface : impossible de dépasser le bord.
 	_place(Vector3(5, 0.02, -8.5), 0.0)
 	await _hold(["move_forward"], 2.0)

@@ -39,6 +39,11 @@ static func key(name: String) -> String:
 func set_objective(text: String) -> void:
 	if text == _objective_label.text and _objective_box.modulate.a > 0.5:
 		return
+	# Même objectif dont seul le détail change (ex. pourcentage) : pas de fondu.
+	if _objective_box.modulate.a > 0.9 and text != "" \
+			and text.get_slice("…", 0) == _objective_label.text.get_slice("…", 0):
+		_objective_label.text = text
+		return
 	if _objective_tween:
 		_objective_tween.kill()
 	_objective_tween = create_tween()

@@ -46,10 +46,26 @@ layout_mode = 2
 text = "Imprimante 3D"
 theme_override_font_sizes/font_size = 28
 
-[node name="Status" type="Label" parent="Center/Panel/Margin/VBox"]
+[node name="PowerRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
-text = "Hors tension"
+theme_override_constants/separation = 8
+
+[node name="PowerLabel" type="Label" parent="Center/Panel/Margin/VBox/PowerRow"]
+layout_mode = 2
+text = "Alimentation :"
 theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.7)
+
+[node name="Status" type="Label" parent="Center/Panel/Margin/VBox/PowerRow"]
+layout_mode = 2
+text = "Coupée"
+theme_override_font_sizes/font_size = 16
+
+[node name="Plans" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Plans disponibles : 1"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.6)
 
 [node name="Separator" type="HSeparator" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
