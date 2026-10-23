@@ -24,7 +24,7 @@ Champs : `id`, `title`, `description`, `category`, `family`, `tier`, `replaces`,
 
 - Cinq familles prévues : défense active, attaque, ailes / planage, défense passive, super saut.
 - 2 emplacements au départ (`GameState.module_slots = 2`), un 3ᵉ plus tard.
-- Échange libre hors combat ; fabrication uniquement à l'imprimante.
+- Échange libre hors combat, **sans retour obligatoire à l'imprimante** ; fabrication uniquement à l'imprimante.
 - Le **bouclier** de Nin0 (lot 3) est une capacité de base, distincte du futur module « défense active ».
 
 ### Micro-réservoir / pulvérisateur (capacité documentée uniquement)
@@ -50,4 +50,8 @@ Valeurs de départ (à équilibrer plus tard) : intégrité 100, bouclier 20 (re
 
 ## Hors périmètre (connu, non construit)
 
-Bestiaire, combats, autres pièces de l'appartement (sas, salle de bain, cuisine, porte-fenêtre, salon, chambre), fins du jeu. Le sas visible derrière la porte reste un simple décor bloqué.
+Bestiaire (référence dans le GDD §6.1), combats, contenu des autres pièces, fins du jeu. Les pièces existent désormais en **blockout** (lot 4, `docs/APPARTEMENT.md`), vides et explorables uniquement en mode développement ; dans la démo, le sas reste un décor bloqué.
+
+## Musique
+
+Autoload `Music` (bus « Music », distinct des effets « Sfx ») : `play_once` (introduction, une fois par lancement), `play` / `stop` avec fondu, table `ZONE_TRACKS` à compléter pour des musiques par zone. Le morceau d'introduction est un prototype interne (droits commerciaux non régularisés).

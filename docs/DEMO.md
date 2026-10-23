@@ -44,7 +44,7 @@ Ce document décrit la démo telle qu'elle est implémentée : déroulement, lev
 13. **La fenêtre.** Des marches (boîte d'allumettes, livres) mènent au rebord, au-dessus de la table. Courte mise en scène : la caméra se tourne vers la porte, Nin0 remarque quelque chose au loin (« œil ? »), plisse les yeux à deux reprises, force sa vue ; son système optique réagit (son, grésillement du visage) et se calibre à l'écran (balayage, réticule qui se resserre, « SYSTÈME OPTIQUE · CALIBRAGE » puis « VISION FOCALISÉE »). Annonce « Nouvelle capacité : vision focalisée » et rappel de la touche.
 14. **Observer.** En maintenant clic droit ou Maj, la vue passe « à travers ses yeux » : zoom, masque de jumelles, réticule et repère discret sur la poignée. Garder la poignée au centre quelques instants l'identifie (« Poignée repérée »). Nin0 comprend qu'il peut l'atteindre ; son regard passe des boîtes à l'étagère (aucun texte d'itinéraire).
 15. **Le parcours final, en jambes.** Une boîte et deux livres au bout gauche de la table mènent sur l'étagère de rangement. On la longe en sautant par-dessus un rouleau d'adhésif et une boîte, jusqu'à la poignée.
-16. **La porte et la chute.** « Saisir la poignée » : Nin0 bondit sur le levier, l'abaisse de son poids (clac du pêne). La porte se déverrouille et s'ouvre d'un coup : secousse, Nin0 lâche prise et **tombe réellement jusqu'au sol** (chute physique). Choc lourd, gerbe d'étincelles, écran du visage parasité, yeux en spirale, grincement mécanique ; il reste couché sur le flanc, rate un premier relevé puis se redresse. Il se regarde (« robot ⚡ … »), puis pense à la machine qui l'a assemblé (« imprimante 🔧 »). La jauge d'intégrité apparaît (55 / 100). Objectif : « Se faire réparer à l'imprimante ». La porte reste ouverte.
+16. **La porte et la chute.** « Saisir la poignée » : Nin0 s'élance (bulle « LEEEROOOY JENKINS ! »), bondit sur le levier, l'abaisse de son poids (clac du pêne). La porte se déverrouille et s'entrouvre (20°, juste assez pour Nin0) : secousse, Nin0 lâche prise et **tombe réellement jusqu'au sol** (chute physique, sifflet cartoon). Choc lourd, gerbe d'étincelles, écran du visage parasité, yeux en spirale, grincement mécanique ; il reste couché sur le flanc, rate un premier relevé puis se redresse. Il se regarde (« robot ⚡ … »), puis pense à la machine qui l'a assemblé (« imprimante 🔧 »). La jauge d'intégrité apparaît (55 / 100). Objectif : « Se faire réparer à l'imprimante ». La porte reste ouverte.
 17. **Retour avec les jambes.** Juste à côté, derrière la chaise : un carton de rangement (escaladable), puis une pile de livres posée sur l'assise, en escalier jusqu'à la table. Court, lisible, impossible en roues (sauts). Trois fragments de filament jalonnent ce chemin. Les anciennes énigmes restent résolues ; le chemin de la planche à repasser reste possible.
 18. **Réparation.** L'imprimante est de nouveau utilisable : sa carte « Réparation » indique l'intégrité et le coût (3 fragments). Nin0 saute sur le plateau, qui le glisse sous la tête ; la buse balaie son corps (étincelles, sons de soudure) pendant que la jauge remonte. Première réparation : 6 s ; les suivantes : 3 s. « Intégrité restaurée ».
 19. **Facultatif : Renfort de châssis I.** Avec le plan roulé trouvé dans le tube en carton et 4 fragments, l'imprimante le fabrique et l'installe de la même façon (+25 d'intégrité max., la jauge s'allonge).
@@ -154,7 +154,7 @@ Godot_v4.7-stable_win64_console.exe --headless --fixed-fps 60 --path . res://tes
 Godot_v4.7-stable_win64_console.exe --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
 ```
 
-- `test_demo_flow` (131 vérifications) couvre :
+- `test_demo_flow` (134 vérifications) couvre :
   - le réveil, les pensées, le tutoriel (chaque étape exige l'action, et tourner ne valide pas « avancer ») ;
   - les découvertes, les passages du sol, la visibilité de Nin0 sous le fauteuil ;
   - l'imprimante hors tension, le câble, la multiprise et le lien compris par Nin0 ;
@@ -170,6 +170,9 @@ Godot_v4.7-stable_win64_console.exe --headless --fixed-fps 60 --path . res://tes
 - Les tests utilisent leur propre fichier de sauvegarde (`user://nino_test.cfg`) : la sauvegarde du joueur (`user://nino_demo.cfg`) n'est jamais modifiée, et le test le vérifie.
 - `tests/fixtures/save_lot3_godot43.cfg` est une vraie sauvegarde du lot 3 écrite par la version 4.3 du jeu ; le test vérifie qu'elle est relue intégralement sous 4.7.
 - Sans affichage, la souris ne peut pas être capturée : pour l'étape « caméra » du tutoriel, le test fait tourner la caméra comme le ferait la souris.
+
+- `test_apartment` (51 vérifications) : blockout de l'appartement en mode développement (voir [APPARTEMENT.md](APPARTEMENT.md)).
+- Lot 4 dans `test_demo_flow` : musique d'introduction lancée une seule fois, commentaire après le souvenir, bulle avant le saut, porte réellement entrouverte.
 
 ### Manuels, à faire sur PC
 
@@ -191,5 +194,6 @@ Godot_v4.7-stable_win64_console.exe --headless --fixed-fps 60 --path . res://tes
 - Les bulles de pensée suivent la tête de Nin0 à l'écran et peuvent être partiellement cachées près des bords.
 - L'escalade reste simple (surfaces planes) ; les transitions d'angle et la descente fonctionnent sur des blocs rectangulaires.
 - Si Nin0 tombe dans l'encoche avant d'y avoir poussé la bobine, il peut en ressortir par le côté ouvert (chute sans dégât) ou utiliser R.
+- Correction (lot 4) : le battant de la porte du placard ne suivait pas la rotation de sa charnière (corps animé synchronisé à la physique) ; il tourne désormais réellement et laisse passer Nin0.
 - Les fichiers `.uid` (à côté des scripts et shaders) sont versionnés : ils font partie du projet Godot 4.7 et ne doivent pas être supprimés.
 - Message sans gravité en mode headless : `Parameter "m" is null` apparaît uniquement avec le pilote graphique factice.

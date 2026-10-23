@@ -6,6 +6,7 @@
 
 - Conception : [docs/GDD.md](docs/GDD.md)
 - Première démo (déroulement, commandes, architecture, limites) : [docs/DEMO.md](docs/DEMO.md)
+- Appartement complet en blockout, mode développement (lot 4) : [docs/APPARTEMENT.md](docs/APPARTEMENT.md)
 - Systèmes préparés pour la suite (améliorations, modules, souvenirs) : [docs/SYSTEMES_FUTURS.md](docs/SYSTEMES_FUTURS.md)
 - Prototype Lot 1 (déplacement, escalade) : [docs/PROTOTYPE_LOT1.md](docs/PROTOTYPE_LOT1.md)
 - Moteur : **Godot 4.7** (version officielle et unique du projet, voir [docs/MIGRATION_GODOT_4_7.md](docs/MIGRATION_GODOT_4_7.md))
@@ -33,8 +34,12 @@
 
 Bac à sable de déplacement (jambes disponibles d'emblée) : ouvrir `scenes/levels/test_level.tscn` puis **F6**.
 
+**Mode développement de l'appartement (lot 4)** : ouvrir `scenes/levels/apartment.tscn` puis **F6**. Exploration libre des sept zones (touches 1 à 7, carte F2, plafonds F3, caméra libre F4), sans aucune sauvegarde. Détails : [docs/APPARTEMENT.md](docs/APPARTEMENT.md).
+
+**Musique** : le morceau d'introduction (prototype interne, droits à régulariser) est joué une fois au lancement ; voir `assets/music/LISEZMOI.md`.
+
 ## Prochaines étapes
 
-Les fourmis, l'incident, les combats, les autres pièces et améliorations viendront par petits lots testables (voir GDD §10).
+Prochaine étape envisagée : le gameplay du sas et ses premières créatures (fourmis ouvrières). Les autres pièces existent en blockout ; leur contenu viendra par petits lots testables.
 
 > Le GDD contient des spoilers de conception : ne pas afficher son contenu narratif directement dans le jeu.
