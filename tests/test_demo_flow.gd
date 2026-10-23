@@ -15,6 +15,8 @@ var _level: Node3D
 var _nino: NinoController
 var _camera: ThirdPersonCamera
 var _thoughts: Array = []
+var _personal_save_existed := false
+var _personal_save := ""
 
 
 func _ready() -> void:
@@ -22,6 +24,10 @@ func _ready() -> void:
 
 
 func _run() -> void:
+	_personal_save_existed = FileAccess.file_exists(GameState.SAVE_PATH)
+	_personal_save = FileAccess.get_file_as_string(GameState.SAVE_PATH) if _personal_save_existed else ""
+	# Sauvegarde dédiée : la sauvegarde personnelle du joueur n'est jamais touchée.
+	GameState.save_path = GameState.TEST_SAVE_PATH
 	GameState.erase_save()
 	GameState.reset_progress()
 	GameState.skip_title_once = true
@@ -346,6 +352,8 @@ func _run() -> void:
 	title.get_node("Panel/Margin/VBox/Buttons/ContinueButton").emit_signal("pressed")
 	await _wait(1.5)
 	_check(_nino.legs_available and _nino.controls_enabled and GameState.power_on, "reprise : jambes installées, Nin0 jouable")
+	_check(_level.hud.get_node("Objective").visible and _level.hud.get_node("Status").visible and _level.hud.get_node("Fragments").visible,
+			"reprise : interface de jeu affichée (objectif, intégrité, fragments)")
 	_check(_level.spool_slot.is_filled() and _level.notebook.is_toppled, "reprise : bobine et carnet en place")
 	_check(GameState.has_discovery(&"spare_servo") and GameState.has_discovery(&"plan_chassis"), "reprise : découvertes conservées")
 	_check(_level.door.is_open and GameState.repaired and _level.focus_vision.unlocked, "reprise : porte ouverte, réparé, vision disponible")
@@ -379,11 +387,19 @@ func _run() -> void:
 	var old := ConfigFile.new()
 	old.set_value("progress", "legs_installed", true)
 	old.set_value("progress", "discoveries", ["leg_sketch", "child_drawing"])
-	old.save(GameState.SAVE_PATH)
+	old.save(GameState.save_path)
 	GameState.load_save()
 	_check(GameState.legs_installed and GameState.has_discovery(&"child_drawing"), "ancienne sauvegarde chargée")
 	_check(GameState.memory_count() == 0 and is_equal_approx(GameState.integrity, 100.0) and GameState.fragments == 0
 			and not GameState.door_opened, "ancienne sauvegarde : aucun souvenir automatique, valeurs par défaut")
+
+	# 16b. Sauvegarde du lot 3 écrite par Godot 4.3 (avant migration), relue sous 4.7.
+	DirAccess.copy_absolute(ProjectSettings.globalize_path("res://tests/fixtures/save_lot3_godot43.cfg"), ProjectSettings.globalize_path(GameState.save_path))
+	GameState.load_save()
+	_check(GameState.legs_installed and GameState.door_opened and GameState.injured and not GameState.repaired
+			and GameState.has_memory(&"memory_01") and GameState.fragments == 2 and GameState.collected_pickups.has(&"frag_shelf")
+			and is_equal_approx(GameState.integrity, 55.0) and GameState.has_discovery(&"plan_chassis"),
+			"sauvegarde du lot 3 écrite sous Godot 4.3 relue intégralement")
 
 	# 17. Dégradation des souvenirs selon la progression (données fictives, ordre libre).
 	var archive := MemoryArchive.new()
@@ -404,6 +420,10 @@ func _run() -> void:
 	_check(GameState.memory_count() == 7 and GameState.archive_state() == &"complete", "7/7 distinguable (aucune fin développée)")
 	GameState.reset_progress()
 	GameState.erase_save()
+	GameState.save_path = GameState.SAVE_PATH
+	var personal_now := FileAccess.get_file_as_string(GameState.SAVE_PATH) if FileAccess.file_exists(GameState.SAVE_PATH) else ""
+	_check(FileAccess.file_exists(GameState.SAVE_PATH) == _personal_save_existed and personal_now == _personal_save,
+			"la sauvegarde personnelle n'a pas été touchée")
 
 	Sfx.stop_all_loops()
 	print("\n%s : %d échec(s)" % ["SUCCÈS" if _failures == 0 else "ÉCHEC", _failures])

@@ -182,6 +182,7 @@ func _start_from_save() -> void:
 	camera.snap_to_target()
 	_tutorial = Tutorial.DONE
 	_enable_play()
+	hud.set_gameplay_visible(true)
 	hud.set_fade(1.0)
 	hud.fade_to(0.0, 1.0)
 	hud.set_mode("Roues")

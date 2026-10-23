@@ -14,7 +14,10 @@ signal stats_changed
 signal memory_added(id: StringName)
 signal upgrade_added(id: StringName)
 
+## Sauvegarde du joueur. Les tests automatiques utilisent TEST_SAVE_PATH (voir
+## `save_path`) pour ne jamais toucher à la sauvegarde personnelle.
 const SAVE_PATH := "user://nino_demo.cfg"
+const TEST_SAVE_PATH := "user://nino_test.cfg"
 ## 1 = lot 1-2 (jambes + découvertes) ; 3 = lot 3.
 const SAVE_VERSION := 3
 const BASE_INTEGRITY := 100.0
@@ -72,13 +75,16 @@ var modal_open := false:
 		modal_open = value
 		modal_changed.emit(value)
 
+## Fichier de sauvegarde utilisé (SAVE_PATH en jeu, TEST_SAVE_PATH pendant les tests).
+var save_path := SAVE_PATH
+
 ## Quand vrai, le prochain chargement du niveau saute l'écran titre.
 var skip_title_once := false
 
 
 func has_save() -> bool:
 	var config := ConfigFile.new()
-	return config.load(SAVE_PATH) == OK and bool(config.get_value("progress", "legs_installed", false))
+	return config.load(save_path) == OK and bool(config.get_value("progress", "legs_installed", false))
 
 
 func save() -> void:
@@ -97,7 +103,7 @@ func save() -> void:
 	config.set_value("collections", "pickups", _to_strings(collected_pickups))
 	config.set_value("collections", "memories", _to_strings(memories))
 	config.set_value("collections", "upgrades", _to_strings(upgrades))
-	config.save(SAVE_PATH)
+	config.save(save_path)
 
 
 ## Indicateurs sauvegardés en plus des jambes (lot 3).
@@ -107,7 +113,7 @@ const SAVED_FLAGS := [&"legs_deployed_once", &"reached_window", &"handle_identif
 func load_save() -> void:
 	reset_progress()
 	var config := ConfigFile.new()
-	if config.load(SAVE_PATH) != OK:
+	if config.load(save_path) != OK:
 		return
 	if bool(config.get_value("progress", "legs_installed", false)):
 		woke_up = true
@@ -171,8 +177,8 @@ func reset_progress() -> void:
 
 
 func erase_save() -> void:
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+	if FileAccess.file_exists(save_path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
 
 
 ## Modifie un indicateur de progression et prévient les observateurs.
