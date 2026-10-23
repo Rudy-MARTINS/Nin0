@@ -27,25 +27,27 @@ func get_grip_position() -> Vector3:
 	return _grip_point.global_position
 
 
-## Abaisse le levier puis ouvre la porte. `rider` (NINO) suit le levier pendant l'ouverture.
-func open(rider: Node3D = null) -> void:
+## NINO, suspendu au levier, l'abaisse de son poids : le pêne se libère.
+func pull_lever(rider: Node3D = null) -> void:
 	if is_open:
 		return
 	is_open = true
 	interactable.enabled = false
-	var follow := func(_v: float) -> void:
-		if rider:
-			rider.global_position = get_grip_position() + Vector3.DOWN * 0.55
 	var lever := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	lever.tween_property(_lever_pivot, "rotation:x", deg_to_rad(38.0), 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	lever.parallel().tween_method(follow, 0.0, 1.0, 0.6)
+	if rider:
+		lever.parallel().tween_method(func(_v: float) -> void:
+			rider.global_position = get_grip_position() + Vector3.DOWN * 0.55, 0.0, 1.0, 0.6)
 	await lever.finished
 	Sfx.play(&"door_latch", 0.0, 0.6)
-	await get_tree().create_timer(0.35).timeout
+
+
+## La porte, déverrouillée, pivote lentement vers l'extérieur ; le levier remonte.
+func swing_open() -> void:
 	Sfx.play(&"door_creak", -4.0)
 	var swing := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	swing.tween_property(_hinge, "rotation:y", deg_to_rad(open_angle), open_duration) \
+	swing.tween_property(_lever_pivot, "rotation:x", 0.0, 0.4)
+	swing.parallel().tween_property(_hinge, "rotation:y", deg_to_rad(open_angle), open_duration) \
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	swing.parallel().tween_method(follow, 0.0, 1.0, open_duration)
 	await swing.finished
 	opened.emit()

@@ -70,10 +70,15 @@ godot --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
 
 Il vérifie : aucun saut en mode roues, déplacement, décélération, rotation progressive, tasse non escaladable, escalade et hissage sur le carton, lâcher, descente, limite latérale sur le liège, accès à l'étagère, montée de la pente et réapparition. Sous Windows, utiliser `Godot_v4.x_win64_console.exe` pour voir le résultat dans le terminal.
 
+## Évolutions (lot 2)
+
+- Descente : en roulant ou marchant au-delà du bord d'une surface escaladable, NINO s'y accroche au lieu de tomber, puis peut redescendre.
+- Angles : en se décalant latéralement, NINO contourne une arête sortante et passe sur la face voisine ; une paroi escaladable rencontrée latéralement (angle rentrant) devient la nouvelle paroi.
+- La progression obligatoire de la démo n'utilise plus l'escalade.
+
 ## Limites connues
 
-- Nino ne peut pas redescendre d'une zone surélevée en marche arrière par l'escalade : il faut rouler hors du bord (chute sans dégâts).
-- Pas de passage d'une paroi à une autre dans les angles ; pas d'escalade de surfaces courbes ou inclinées (> 20°).
+- Pas d'escalade de surfaces courbes ou inclinées (> 20°).
 - Le hissage est un déplacement scripté simple (Tween), sans animation dédiée.
 - La caméra se rapproche instantanément face à un obstacle et ne se recentre pas automatiquement derrière Nino.
 - Pas de manette pour l'instant (clavier + souris uniquement).

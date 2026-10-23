@@ -66,6 +66,16 @@ func _run() -> void:
 	await _wait(0.3)
 	_check(GameState.has_discovery(&"child_drawing") and GameState.discoveries.size() == 2, "le dessin est examiné")
 
+	# 3b. Passages du sol et caméra dans les espaces bas.
+	_place(Vector3(-6.0, 0.05, -6.5), -PI / 2)
+	await _hold(["move_forward"], 3.6)
+	_check(_nino.global_position.x > 2.5, "NINO traverse le tube en carton (x = %.2f)" % _nino.global_position.x)
+	_place(Vector3(4.5, 0.05, 2.6), PI)
+	await _hold(["move_forward"], 1.6)
+	_check(_nino.global_position.z > 5.0, "NINO passe sous le fauteuil (z = %.2f)" % _nino.global_position.z)
+	await _wait(1.0)
+	_check(_nino.get_node("Visual").visible, "NINO reste visible sous le fauteuil (caméra aplatie)")
+
 	# 4. Imprimante hors tension → NINO comprend qu'il manque de l'énergie.
 	_place(Vector3(-1, 8.05, -8.9), 0.0)
 	await _wait(0.4)

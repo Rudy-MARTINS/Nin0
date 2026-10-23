@@ -552,37 +552,47 @@ func _on_focus_changed_mode(active: bool) -> void:
 		_hint_once(&"shelf_hint", "Les boîtes, au bout gauche de la table, mènent à l'étagère.", 6.0)
 
 
-## NINO saisit le levier ; son poids l'abaisse et la porte s'ouvre.
+## NINO saisit le levier ; son poids l'abaisse, puis il se laisse retomber sur
+## l'étagère pendant que la porte, déverrouillée, s'ouvre sur le sas.
 func _open_door() -> void:
 	_disable_play()
 	GameState.set_flag(&"door_opened")
 	nino.begin_scripted()
 	var visual := nino.get_visual()
 	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 1.0)
-	var start := nino.global_position
-	var grip := door.get_grip_position() + Vector3.DOWN * 0.55
-	var apex := (start + grip) * 0.5 + Vector3.UP * 0.8
-	var leap := create_tween().set_trans(Tween.TRANS_SINE)
-	leap.tween_method(func(t: float) -> void:
-		nino.global_position = start.lerp(apex, t).lerp(apex.lerp(grip, t), t)
-	, 0.0, 1.0, 0.55)
-	Sfx.play(&"jump", -8.0)
-	await leap.finished
+	var perch := nino.global_position
 	var shot := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	shot.tween_property(camera, "rotation:y", deg_to_rad(70.0), 3.0)
-	shot.tween_property(camera, "pitch", deg_to_rad(-8.0), 3.0)
-	shot.tween_property(camera, "arm_length", 3.2, 3.0)
-	await door.open(nino)
+	shot.tween_property(camera, "rotation:y", deg_to_rad(127.0), 1.2)
+	shot.tween_property(camera, "pitch", deg_to_rad(-10.0), 1.2)
+	shot.tween_property(camera, "arm_length", 4.0, 1.2)
+	await _leap(nino.global_position, door.get_grip_position() + Vector3.DOWN * 0.55, 0.55)
+	await door.pull_lever(nino)
+	visual.react_to_jump()
+	await _leap(nino.global_position, perch, 0.45)
+	visual.react_to_landing(5.0)
+	visual.look_target = door.global_position + Vector3(-6.0, 6.0, -5.0)
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.2)
+	await door.swing_open()
 	hud.set_gameplay_visible(false)
-	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.0)
-	visual.look_target = door.global_position + Vector3(-8.0, 3.0, -4.0)
 	thoughts.think([&"eye", &"exclamation"], "", 2.0, true)
-	await _wait(1.8)
+	await _wait(1.6)
 	visual.show_emotion(NinoVisual.Emotion.HAPPY, 3.0)
-	await _wait(1.2)
+	Sfx.play(&"happy", -6.0)
+	await _wait(1.4)
 	GameState.set_flag(&"demo_completed")
 	Sfx.stop_loop(&"wheels")
 	end_screen.show_end()
+
+
+## Petit bond scripté en arc (séquences).
+func _leap(from: Vector3, to: Vector3, duration: float) -> void:
+	var apex := (from + to) * 0.5 + Vector3.UP * 0.7
+	var tween := create_tween().set_trans(Tween.TRANS_SINE)
+	tween.tween_method(func(t: float) -> void:
+		nino.global_position = from.lerp(apex, t).lerp(apex.lerp(to, t), t)
+	, 0.0, 1.0, duration)
+	Sfx.play(&"jump", -8.0)
+	await tween.finished
 
 
 # --- Utilitaires ------------------------------------------------------------------
