@@ -2,10 +2,11 @@
 
 ## État du projet
 
-**Première démo jouable (lot 2).** NINO s'éveille dans le placard-hub, comprend son environnement à travers ses pensées, rallume l'imprimante 3D, construit son chemin de retour avec des bobines, reçoit ses deux jambes sur la plateforme d'impression, apprend à observer et ouvre la grande porte du placard.
+**Première démo jouable (lots 2 et 3).** Nin0 s'éveille dans le placard-hub, comprend son environnement à travers ses pensées, rallume l'imprimante 3D, construit son chemin de retour avec des bobines, reçoit ses deux jambes sur la plateforme d'impression, apprend à observer et ouvre la grande porte du placard. En l'ouvrant, il chute et s'abîme : il revient à l'imprimante avec ses jambes pour se faire réparer, puis franchit la porte. Facultatif : un premier fragment de souvenir, des fragments de filament et un renfort de châssis.
 
 - Conception : [docs/GDD.md](docs/GDD.md)
 - Première démo (déroulement, commandes, architecture, limites) : [docs/DEMO.md](docs/DEMO.md)
+- Systèmes préparés pour la suite (améliorations, modules, souvenirs) : [docs/SYSTEMES_FUTURS.md](docs/SYSTEMES_FUTURS.md)
 - Prototype Lot 1 (déplacement, escalade) : [docs/PROTOTYPE_LOT1.md](docs/PROTOTYPE_LOT1.md)
 - Moteur : Godot 4 (branche stable)
 - Plateforme initiale : Windows
@@ -22,8 +23,8 @@
 |---|---|
 | Z Q S D ou flèches | Se déplacer ; sur une paroi : monter / descendre |
 | Souris | Caméra |
-| E (ou Entrée) | Interagir, examiner |
-| Clic droit ou Maj (maintenir) | Observer (vision focalisée, débloquée en cours de démo) |
+| E (ou Entrée) | Interagir, examiner, valider dans l'interface de l'imprimante |
+| Clic droit ou Maj (maintenir) | Vision focalisée (débloquée en cours de démo) : repères, souvenirs |
 | C | Lâcher une paroi |
 | F | Roues ↔ jambes (à l'arrêt, au sol, une fois les jambes obtenues) |
 | Espace | Sauter (mode jambes uniquement) |
