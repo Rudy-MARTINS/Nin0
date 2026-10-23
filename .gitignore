@@ -1,0 +1,14 @@
+# Godot 4
+.godot/
+.import/
+*.translation
+
+# Editor/OS artifacts
+.DS_Store
+Thumbs.db
+.vscode/*.log
+
+# Local exports and builds
+build/
+dist/
+exports/
