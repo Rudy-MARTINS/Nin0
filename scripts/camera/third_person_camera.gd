@@ -5,8 +5,8 @@ extends Node3D
 ##
 ## Espaces étroits :
 ## - sous un meuble bas, la caméra s'aplatit (pitch proche de l'horizontale) pour
-##   rester derrière NINO au lieu de se coller à lui ;
-## - NINO n'est masqué qu'en dernier recours, si la caméra est quasiment en lui.
+##   rester derrière Nin0 au lieu de se coller à lui ;
+## - Nin0 n'est masqué qu'en dernier recours, si la caméra est quasiment en lui.
 
 @export var target: Node3D
 ## Hauteur du point visé au-dessus des pieds de la cible (si la cible ne la fournit pas).
@@ -24,7 +24,7 @@ extends Node3D
 			_spring_arm.spring_length = value
 ## En dessous de cette distance, la cible est masquée (évite de voir l'intérieur du modèle).
 @export var hide_target_distance := 0.16
-## Hauteur libre au-dessus de NINO en dessous de laquelle la caméra s'aplatit.
+## Hauteur libre au-dessus de Nin0 en dessous de laquelle la caméra s'aplatit.
 @export var low_ceiling_height := 1.6
 
 ## Rotation à la souris autorisée (désactivée pendant les séquences).
@@ -63,7 +63,7 @@ func capture_mouse() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
-## Vue « à travers les yeux » de NINO (vision focalisée).
+## Vue « à travers les yeux » de Nin0 (vision focalisée).
 func set_first_person(value: bool) -> void:
 	_first_person = value
 	var tween := create_tween()

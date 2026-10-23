@@ -1,11 +1,11 @@
 class_name ThoughtBubbleFrame
 extends MarginContainer
-## Fond de la bulle de pensée : forme arrondie et petits ronds menant à la tête de NINO.
+## Fond de la bulle de pensée : forme arrondie et petits ronds menant à la tête de Nin0.
 
 @export var fill := Color(0.98, 0.96, 0.92, 0.96)
 @export var outline := Color(0.17, 0.15, 0.14, 0.35)
 
-## Position de la tête de NINO, relative à la bulle (mise à jour chaque image).
+## Position de la tête de Nin0, relative à la bulle (mise à jour chaque image).
 var tail_target := Vector2(-20.0, 60.0)
 
 var _style := StyleBoxFlat.new()

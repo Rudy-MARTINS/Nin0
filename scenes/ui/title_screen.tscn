@@ -53,7 +53,7 @@ alignment = 1
 
 [node name="Title" type="Label" parent="Panel/Margin/VBox"]
 layout_mode = 2
-text = "NINO"
+text = "Nin0"
 theme_override_font_sizes/font_size = 112
 theme_override_fonts/font = SubResource("Font_title")
 theme_override_colors/font_color = Color(0.97, 0.94, 0.87, 1)

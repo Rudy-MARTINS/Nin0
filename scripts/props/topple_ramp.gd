@@ -1,6 +1,6 @@
 class_name ToppleRamp
 extends Node3D
-## Objet debout (ex. carnet) que NINO peut renverser : en tombant, il forme une rampe.
+## Objet debout (ex. carnet) que Nin0 peut renverser : en tombant, il forme une rampe.
 ## Ce nœud marque le pivot (arête inférieure) ; l'enfant « Body » (AnimatableBody3D),
 ## placé sur le pivot, porte le visuel et la collision et c'est lui qui pivote
 ## (la physique suit ainsi la chute image par image).

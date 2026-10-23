@@ -1,6 +1,6 @@
 class_name Interactor
 extends Area3D
-## Détecte l'objet interactif le plus proche de NINO et déclenche l'interaction (touche E).
+## Détecte l'objet interactif le plus proche de Nin0 et déclenche l'interaction (touche E).
 
 signal focus_changed(target: Interactable)
 
@@ -38,7 +38,7 @@ func _physics_process(_delta: float) -> void:
 	if best != focused:
 		focused = best
 		focus_changed.emit(focused)
-		# NINO regarde l'objet à portée (les séquences peuvent aussi piloter son regard).
+		# Nin0 regarde l'objet à portée (les séquences peuvent aussi piloter son regard).
 		player.get_visual().look_target = focused.get_look_position() if focused else null
 
 	if focused and _armed and Input.is_action_just_pressed("interact"):

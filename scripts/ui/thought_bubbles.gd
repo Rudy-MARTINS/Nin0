@@ -1,10 +1,10 @@
 class_name ThoughtBubbles
 extends CanvasLayer
-## Bulles de pensée de NINO : pictogrammes (et, si besoin, un texte très court)
+## Bulles de pensée de Nin0 : pictogrammes (et, si besoin, un texte très court)
 ## affichés au-dessus de sa tête. Une seule bulle à la fois ; une petite file
 ## d'attente évite les accumulations. Réutilisable dans toutes les pièces.
 ##
-## Pensées = ce que NINO observe, ressent ou comprend.
+## Pensées = ce que Nin0 observe, ressent ou comprend.
 ## (Ne pas y répéter l'objectif affiché dans le HUD.)
 
 signal thought_shown(icons: Array, text: String)
@@ -14,7 +14,7 @@ signal thought_requested(icons: Array, text: String)
 const MAX_QUEUE := 2
 const HEAD_OFFSET := Vector3(0.0, 0.85, 0.0)
 
-## Nœud au-dessus duquel la bulle apparaît (NINO).
+## Nœud au-dessus duquel la bulle apparaît (Nin0).
 @export var anchor: Node3D
 
 var _queue: Array[Dictionary] = []

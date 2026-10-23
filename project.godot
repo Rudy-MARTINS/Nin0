@@ -1,12 +1,12 @@
 ; Engine configuration file.
-; NINO — Godot 4 project
+; Nin0 — Godot 4 project
 ; Échelle du prototype : 1 unité Godot = 10 cm réels (Nino ≈ 0,5 unité).
 
 config_version=5
 
 [application]
 
-config/name="NINO"
+config/name="Nin0"
 config/description="Jeu d'exploration 3D miniature"
 run/main_scene="res://scenes/levels/workshop.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")

@@ -1,6 +1,6 @@
 class_name TriggerZone
 extends Area3D
-## Zone qui détecte NINO (couche physique 3 « joueur »). Le directeur de niveau
+## Zone qui détecte Nin0 (couche physique 3 « joueur »). Le directeur de niveau
 ## écoute `player_entered` pour les indices, points de réapparition et la fin.
 
 signal player_entered(zone: TriggerZone)

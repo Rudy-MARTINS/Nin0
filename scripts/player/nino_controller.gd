@@ -1,6 +1,6 @@
 class_name NinoController
 extends CharacterBody3D
-## Contrôleur de NINO : mode roues, mode jambes (après impression), escalade.
+## Contrôleur de Nin0 : mode roues, mode jambes (après impression), escalade.
 ##
 ## Échelle : 1 unité = 10 cm réels. L'origine du nœud est au niveau du sol.
 ##
@@ -42,7 +42,7 @@ const CLIMBABLE_MASK := 1 << 1  # couche 2 « escaladable »
 @export var legs_acceleration := 12.0
 @export var legs_deceleration := 14.0
 @export var legs_turn_speed := 12.0
-## Hauteur de saut (unités ; 1 = 10 cm, deux fois la taille de NINO sur roues).
+## Hauteur de saut (unités ; 1 = 10 cm, deux fois la taille de Nin0 sur roues).
 @export var jump_height := 1.0
 @export_range(0.0, 1.0) var legs_air_control := 0.7
 ## Tolérance après avoir quitté un rebord, et mémorisation d'un appui anticipé.
@@ -68,13 +68,13 @@ const CLIMBABLE_MASK := 1 << 1  # couche 2 « escaladable »
 @export var release_push := 0.8
 ## Délai avant de pouvoir se raccrocher.
 @export var reattach_cooldown := 0.4
-## Descente : en roulant au-delà du bord d'une surface escaladable, NINO s'y accroche.
+## Descente : en roulant au-delà du bord d'une surface escaladable, Nin0 s'y accroche.
 @export var grab_edge_when_leaving := true
 ## Durée du hissage en haut d'une paroi.
 @export var mount_duration := 0.4
 
 @export_group("Poussée")
-## Vitesse d'un objet poussé, relative à celle de NINO.
+## Vitesse d'un objet poussé, relative à celle de Nin0.
 @export_range(0.1, 1.0) var push_speed_ratio := 0.75
 
 @export_group("Chute")
@@ -90,7 +90,7 @@ var state: State = State.FREE
 var mode: Mode = Mode.WHEELS
 ## Désactivé pendant l'introduction, les interfaces et les séquences.
 var controls_enabled := true
-## Vrai pendant la vision focalisée : NINO reste immobile.
+## Vrai pendant la vision focalisée : Nin0 reste immobile.
 var focus_lock := false
 ## Vrai quand les jambes sont installées (le mode jambes devient accessible).
 var legs_available := false:
@@ -162,7 +162,7 @@ func respawn() -> void:
 	respawned.emit()
 
 
-## Séquence scriptée : NINO ne bouge plus de lui-même (la position est pilotée).
+## Séquence scriptée : Nin0 ne bouge plus de lui-même (la position est pilotée).
 func begin_scripted() -> void:
 	velocity = Vector3.ZERO
 	_climb_velocity = Vector3.ZERO
@@ -179,7 +179,7 @@ func can_focus() -> bool:
 	return controls_enabled and (state == State.FREE and is_on_floor())
 
 
-## Vrai si NINO peut interagir avec un objet (au sol, libre, contrôlable).
+## Vrai si Nin0 peut interagir avec un objet (au sol, libre, contrôlable).
 func can_interact() -> bool:
 	return controls_enabled and state == State.FREE and is_on_floor()
 
@@ -208,7 +208,7 @@ func request_mode_switch() -> void:
 	_start_transform(target)
 
 
-## Place NINO directement dans un mode (chargement de sauvegarde, tests).
+## Place Nin0 directement dans un mode (chargement de sauvegarde, tests).
 func force_mode(new_mode: Mode) -> void:
 	mode = new_mode
 	_mode_blend = 1.0 if new_mode == Mode.LEGS else 0.0
@@ -304,7 +304,7 @@ func _push_bodies(moving: Vector3) -> void:
 			body.push(moving, maxf(moving.length(), 1.0) * push_speed_ratio)
 
 
-## En quittant le bord d'une surface escaladable, NINO se retourne et s'y accroche
+## En quittant le bord d'une surface escaladable, Nin0 se retourne et s'y accroche
 ## (permet de redescendre une paroi au lieu de tomber).
 func _try_grab_edge_below(moving: Vector3) -> void:
 	if moving.length_squared() < 0.01 or _attach_cooldown > 0.0:
@@ -381,7 +381,7 @@ func _finish_transform(target: Mode) -> void:
 
 
 func _process_transforming(delta: float) -> void:
-	# NINO reste immobile ; seule la gravité s'applique.
+	# Nin0 reste immobile ; seule la gravité s'applique.
 	velocity.x = 0.0
 	velocity.z = 0.0
 	if not is_on_floor():
@@ -468,7 +468,7 @@ func _process_climbing(delta: float) -> void:
 	_climb_velocity = Vector3.ZERO
 
 
-## Contourne une arête sortante : NINO passe sur la face adjacente.
+## Contourne une arête sortante : Nin0 passe sur la face adjacente.
 func _try_outer_corner(side: Vector3, previous_position: Vector3) -> bool:
 	var space := get_world_3d().direct_space_state
 	var radius := _get_radius()

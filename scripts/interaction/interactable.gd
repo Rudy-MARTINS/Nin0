@@ -10,7 +10,7 @@ const LAYER := 1 << 3
 ## Texte affiché après la touche, ex. « Examiner l'imprimante ».
 @export var prompt := "Interagir"
 @export var enabled := true
-## Point regardé par NINO quand l'objet est à portée (sinon : position de la zone).
+## Point regardé par Nin0 quand l'objet est à portée (sinon : position de la zone).
 @export var look_point: Node3D
 
 

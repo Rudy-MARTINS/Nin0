@@ -72,8 +72,8 @@ Il vérifie : aucun saut en mode roues, déplacement, décélération, rotation 
 
 ## Évolutions (lot 2)
 
-- Descente : en roulant ou marchant au-delà du bord d'une surface escaladable, NINO s'y accroche au lieu de tomber, puis peut redescendre.
-- Angles : en se décalant latéralement, NINO contourne une arête sortante et passe sur la face voisine ; une paroi escaladable rencontrée latéralement (angle rentrant) devient la nouvelle paroi.
+- Descente : en roulant ou marchant au-delà du bord d'une surface escaladable, Nin0 s'y accroche au lieu de tomber, puis peut redescendre.
+- Angles : en se décalant latéralement, Nin0 contourne une arête sortante et passe sur la face voisine ; une paroi escaladable rencontrée latéralement (angle rentrant) devient la nouvelle paroi.
 - La progression obligatoire de la démo n'utilise plus l'escalade.
 
 ## Limites connues

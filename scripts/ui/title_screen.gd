@@ -1,6 +1,6 @@
 class_name TitleScreen
 extends CanvasLayer
-## Écran d'accueil minimal, superposé à la scène (NINO endormi sur son socle).
+## Écran d'accueil minimal, superposé à la scène (Nin0 endormi sur son socle).
 
 signal start_requested(resume: bool)
 

@@ -1,6 +1,6 @@
 class_name PushableSpool
 extends RigidBody3D
-## Bobine de filament vide (légère) que NINO peut pousser en roulant contre elle.
+## Bobine de filament vide (légère) que Nin0 peut pousser en roulant contre elle.
 ## Elle reste à plat (rotations bloquées) et glisse sur son support.
 ##
 ## Sécurité anti-blocage : une bobine tombée hors de son support, ou posée sur une
@@ -41,7 +41,7 @@ func _physics_process(delta: float) -> void:
 		reset()
 
 
-## Poussée appliquée par NINO : la bobine avance dans sa direction de déplacement,
+## Poussée appliquée par Nin0 : la bobine avance dans sa direction de déplacement,
 ## un peu moins vite que lui (elle frotte sur son support).
 func push(direction: Vector3, speed: float) -> void:
 	if is_slotted:
