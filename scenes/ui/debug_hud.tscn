@@ -37,8 +37,8 @@ text = "Mode : Roues"
 [node name="HelpLabel" type="Label" parent="Panel/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Z Q S D / flèches : rouler (et grimper sur une paroi)
+text = "Bac à sable (jambes disponibles)
+Z Q S D / flèches : se déplacer (et grimper sur une paroi)
 Souris : caméra
-C : lâcher la paroi
-R : réapparaître
-Échap : libérer la souris (clic pour reprendre)"
+F : roues / jambes (à l'arrêt) · Espace : sauter (jambes)
+C : lâcher la paroi · R : réapparaître"

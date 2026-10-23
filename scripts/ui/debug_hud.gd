@@ -1,5 +1,5 @@
 extends CanvasLayer
-## HUD de prototype : mode de déplacement courant + rappel des commandes.
+## HUD du bac à sable (test_level) : état courant + rappel des commandes.
 
 @export var player: NinoController
 

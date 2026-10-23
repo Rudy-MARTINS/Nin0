@@ -23,8 +23,11 @@ void fragment() {
 	float plank_id = hash12(vec2(row, column));
 	vec2 local = vec2(fract((p.x + offset) / plank_length), fract(p.y / plank_width));
 
-	float grain = value_noise(vec2(p.x * 0.6, p.y * 14.0 + plank_id * 40.0));
-	grain = grain * 0.6 + 0.4 * sin((p.y * 9.0 + value_noise(p * vec2(0.3, 2.0)) * 4.0) * 3.0) * 0.5 + 0.2;
+	// Veinage atténué au loin (anti-moiré).
+	float detail = clamp(1.0 - length(fwidth(p)) * 3.0, 0.0, 1.0);
+	float grain = value_noise(vec2(p.x * 0.5, p.y * 6.0 + plank_id * 40.0));
+	grain = grain * 0.6 + 0.4 * (sin((p.y * 4.0 + value_noise(p * vec2(0.3, 2.0)) * 4.0) * 3.0) * 0.5 + 0.5);
+	grain = mix(0.5, grain, detail);
 	vec3 col = mix(color_a, color_b, clamp(plank_id * 0.7 + grain * 0.4, 0.0, 1.0));
 
 	float seam = min(min(local.y, 1.0 - local.y) * plank_width, min(local.x, 1.0 - local.x) * plank_length);

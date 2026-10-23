@@ -1,0 +1,99 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="2_title_screen"]
+
+[sub_resource type="Gradient" id="Grad_shade"]
+colors = PackedColorArray(0.03, 0.025, 0.02, 0.88, 0.03, 0.025, 0.02, 0)
+
+[sub_resource type="GradientTexture2D" id="Tex_shade"]
+gradient = SubResource("Grad_shade")
+width = 256
+height = 4
+fill_to = Vector2(0.75, 0)
+
+[sub_resource type="FontVariation" id="Font_title"]
+spacing_glyph = 22
+variation_embolden = 0.6
+
+[node name="TitleScreen" type="CanvasLayer"]
+layer = 6
+script = ExtResource("2_title_screen")
+
+[node name="Shade" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("Tex_shade")
+expand_mode = 1
+
+[node name="Panel" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_nino_theme")
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 620.0
+grow_vertical = 2
+theme_override_constants/margin_left = 90
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Title" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "NINO"
+theme_override_font_sizes/font_size = 112
+theme_override_fonts/font = SubResource("Font_title")
+theme_override_colors/font_color = Color(0.97, 0.94, 0.87, 1)
+
+[node name="Subtitle" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Première démo"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.75, 0.45, 1)
+
+[node name="Spacer" type="Control" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 10
+
+[node name="StartButton" type="Button" parent="Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+text = "Commencer"
+
+[node name="ContinueButton" type="Button" parent="Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+text = "Continuer"
+
+[node name="QuitButton" type="Button" parent="Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+text = "Quitter"
+
+[node name="Spacer2" type="Control" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+
+[node name="Footer" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Clavier et souris recommandés"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.55)

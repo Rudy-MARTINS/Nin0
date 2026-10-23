@@ -520,6 +520,7 @@ shape = SubResource("Shape_23")
 
 [node name="Nino" parent="." instance=ExtResource("1_nino")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 5)
+legs_available = true
 
 [node name="ThirdPersonCamera" parent="." node_paths=PackedStringArray("target") instance=ExtResource("2_cam")]
 target = NodePath("../Nino")

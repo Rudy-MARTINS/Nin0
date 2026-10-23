@@ -18,9 +18,11 @@ void vertex() {
 void fragment() {
 	vec2 p = dominant_plane(world_pos, world_normal) * grain_scale;
 	float warp = fbm(p * vec2(0.25, 1.5)) * 3.0;
-	float rings = sin((p.y * 6.0 + warp) * 2.0) * 0.5 + 0.5;
-	float fine = value_noise(vec2(p.x * 0.5, p.y * 30.0));
-	vec3 col = mix(color_light, color_dark, rings * 0.55 + fine * 0.25);
+	// Atténue le veinage fin au loin pour éviter le moiré.
+	float detail = clamp(1.0 - length(fwidth(p)) * 4.0, 0.0, 1.0);
+	float rings = mix(0.5, sin((p.y * 5.0 + warp) * 2.0) * 0.5 + 0.5, detail * 0.8 + 0.2);
+	float fine = mix(0.5, value_noise(vec2(p.x * 0.4, p.y * 9.0)), detail);
+	vec3 col = mix(color_light, color_dark, rings * 0.45 + fine * 0.3);
 	float scuffs = smoothstep(0.55, 0.9, fbm(p * 0.6 + 13.0)) * wear;
 	col = mix(col, col * 1.25 + 0.05, scuffs);
 	ALBEDO = col;

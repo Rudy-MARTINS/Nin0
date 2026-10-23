@@ -8,7 +8,7 @@ config_version=5
 
 config/name="NINO"
 config/description="Jeu d'exploration 3D miniature"
-run/main_scene="res://scenes/levels/test_level.tscn"
+run/main_scene="res://scenes/levels/workshop.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 
 [autoload]

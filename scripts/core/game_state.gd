@@ -96,7 +96,7 @@ func get_objective() -> String:
 	if printing:
 		return "Impression en cours…"
 	if power_on:
-		return "Utiliser l'imprimante 3D" if printer_seen else "Explorer l'atelier"
+		return "Utiliser l'imprimante 3D" if printer_seen else "Examiner l'imprimante 3D"
 	if printer_seen:
 		return "Rétablir l'alimentation de l'imprimante"
 	return "Explorer l'établi"
