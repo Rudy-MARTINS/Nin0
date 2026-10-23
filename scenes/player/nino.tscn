@@ -1,87 +1,91 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/player/nino_controller.gd" id="1_ctrl"]
 [ext_resource type="Script" path="res://scripts/player/nino_visual.gd" id="2_visual"]
+[ext_resource type="Script" path="res://scripts/tools/procedural_mesh.gd" id="3_pmesh"]
+[ext_resource type="Shader" path="res://assets/shaders/nino_face.gdshader" id="4_face"]
+[ext_resource type="Script" path="res://scripts/props/cable.gd" id="5_cable"]
+[ext_resource type="Script" path="res://scripts/interaction/interactor.gd" id="6_interactor"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_shell"]
+albedo_color = Color(0.93, 0.89, 0.8, 1)
+roughness = 0.38
+
+[sub_resource type="StandardMaterial3D" id="Mat_accent"]
+albedo_color = Color(0.93, 0.48, 0.14, 1)
+roughness = 0.45
+
+[sub_resource type="StandardMaterial3D" id="Mat_metal"]
+albedo_color = Color(0.22, 0.23, 0.25, 1)
+metallic = 0.6
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_rubber"]
+albedo_color = Color(0.09, 0.09, 0.1, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_glass"]
+albedo_color = Color(0.02, 0.025, 0.03, 1)
+metallic = 0.3
+roughness = 0.06
+
+[sub_resource type="StandardMaterial3D" id="Mat_led"]
+albedo_color = Color(0.4, 1, 0.5, 1)
+emission_enabled = true
+emission = Color(0.3, 1, 0.45, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_tip"]
+albedo_color = Color(0.95, 0.55, 0.2, 1)
+roughness = 0.3
+emission_enabled = true
+emission = Color(1, 0.45, 0.1, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="ShaderMaterial" id="Mat_face"]
+render_priority = 1
+shader = ExtResource("4_face")
+shader_parameter/aspect = 1.89
+
+[sub_resource type="QuadMesh" id="Mesh_face"]
+size = Vector2(0.212, 0.112)
+
+[sub_resource type="SphereShape3D" id="Shape_reach"]
+radius = 0.9
 
 [sub_resource type="CapsuleShape3D" id="Shape_body"]
 radius = 0.2
 height = 0.5
 
-[sub_resource type="StandardMaterial3D" id="Mat_shell"]
-albedo_color = Color(0.94, 0.92, 0.86, 1)
-roughness = 0.45
+[sub_resource type="SphereMesh" id="Sphere_0_012"]
+radius = 0.012
+height = 0.024
+radial_segments = 16
+rings = 8
 
-[sub_resource type="StandardMaterial3D" id="Mat_metal"]
-albedo_color = Color(0.32, 0.34, 0.37, 1)
-metallic = 0.6
-roughness = 0.4
+[sub_resource type="SphereMesh" id="Sphere_0_006"]
+radius = 0.006
+height = 0.012
+radial_segments = 16
+rings = 8
 
-[sub_resource type="StandardMaterial3D" id="Mat_screen"]
-albedo_color = Color(0.06, 0.08, 0.1, 1)
-roughness = 0.15
-
-[sub_resource type="StandardMaterial3D" id="Mat_eye"]
-albedo_color = Color(0.55, 0.95, 1, 1)
-emission_enabled = true
-emission = Color(0.35, 0.9, 1, 1)
-emission_energy_multiplier = 2.0
-
-[sub_resource type="StandardMaterial3D" id="Mat_accent"]
-albedo_color = Color(0.95, 0.55, 0.18, 1)
-roughness = 0.5
-
-[sub_resource type="StandardMaterial3D" id="Mat_rubber"]
-albedo_color = Color(0.12, 0.12, 0.13, 1)
-roughness = 0.9
-
-[sub_resource type="SphereMesh" id="Mesh_shell"]
-material = SubResource("Mat_shell")
-radius = 0.19
-height = 0.34
-
-[sub_resource type="BoxMesh" id="Mesh_chassis"]
-material = SubResource("Mat_metal")
-size = Vector3(0.34, 0.07, 0.3)
-
-[sub_resource type="BoxMesh" id="Mesh_screen"]
-material = SubResource("Mat_screen")
-size = Vector3(0.22, 0.13, 0.03)
-
-[sub_resource type="BoxMesh" id="Mesh_eye"]
-material = SubResource("Mat_eye")
-size = Vector3(0.045, 0.065, 0.01)
-
-[sub_resource type="CylinderMesh" id="Mesh_antenna"]
-material = SubResource("Mat_metal")
-top_radius = 0.008
-bottom_radius = 0.008
-height = 0.08
-
-[sub_resource type="SphereMesh" id="Mesh_antenna_tip"]
-material = SubResource("Mat_accent")
+[sub_resource type="SphereMesh" id="Sphere_0_02"]
 radius = 0.02
 height = 0.04
+radial_segments = 16
+rings = 8
 
-[sub_resource type="CylinderMesh" id="Mesh_socket"]
-material = SubResource("Mat_accent")
-top_radius = 0.035
-bottom_radius = 0.035
-height = 0.02
+[sub_resource type="SphereMesh" id="Sphere_0_032"]
+radius = 0.032
+height = 0.064
+radial_segments = 16
+rings = 8
 
-[sub_resource type="SphereMesh" id="Mesh_screw"]
-material = SubResource("Mat_metal")
-radius = 0.008
-height = 0.016
-
-[sub_resource type="CylinderMesh" id="Mesh_tire"]
-material = SubResource("Mat_rubber")
-top_radius = 0.07
-bottom_radius = 0.07
-height = 0.05
-
-[sub_resource type="BoxMesh" id="Mesh_spoke"]
-material = SubResource("Mat_accent")
-size = Vector3(0.056, 0.1, 0.02)
+[sub_resource type="SphereMesh" id="Sphere_0_022"]
+radius = 0.022
+height = 0.044
+radial_segments = 16
+rings = 8
 
 [node name="Nino" type="CharacterBody3D"]
 collision_layer = 4
@@ -93,106 +97,444 @@ script = ExtResource("1_ctrl")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
 shape = SubResource("Shape_body")
 
+[node name="Interactor" type="Area3D" parent="." node_paths=PackedStringArray("player")]
+collision_layer = 0
+collision_mask = 8
+monitorable = false
+script = ExtResource("6_interactor")
+player = NodePath("..")
+
+[node name="ReachShape" type="CollisionShape3D" parent="Interactor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+shape = SubResource("Shape_reach")
+
 [node name="Visual" type="Node3D" parent="."]
 script = ExtResource("2_visual")
 
-[node name="Body" type="Node3D" parent="Visual"]
+[node name="Rig" type="Node3D" parent="Visual"]
 
-[node name="Shell" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26, 0)
-mesh = SubResource("Mesh_shell")
+[node name="Chassis" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175, 0)
+material_override = SubResource("Mat_shell")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.34, 0.15, 0.3)
+bevel = 0.055
 
-[node name="Chassis" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
-mesh = SubResource("Mesh_chassis")
+[node name="Belly" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.105, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.3, 0.05, 0.25)
+bevel = 0.02
 
-[node name="Screen" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 0.985, -0.174, 0, 0.174, 0.985, 0, 0.29, -0.166)
-mesh = SubResource("Mesh_screen")
+[node name="Bumper" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.125, -0.148)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.24, 0.035, 0.03)
+bevel = 0.012
 
-[node name="Eyes" type="Node3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 0.985, -0.174, 0, 0.174, 0.985, 0, 0.292, -0.19)
+[node name="VentTop" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0.205, -0.15)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.09, 0.008, 0.012)
+bevel = 0.003
 
-[node name="EyeLeft" type="MeshInstance3D" parent="Visual/Body/Eyes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0, 0)
-mesh = SubResource("Mesh_eye")
+[node name="VentBottom" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0.188, -0.15)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.09, 0.008, 0.012)
+bevel = 0.003
 
-[node name="EyeRight" type="MeshInstance3D" parent="Visual/Body/Eyes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0, 0)
-mesh = SubResource("Mesh_eye")
+[node name="StatusLed" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.198, -0.148)
+material_override = SubResource("Mat_led")
+mesh = SubResource("Sphere_0_012")
 
-[node name="Antenna" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.46, 0.02)
-mesh = SubResource("Mesh_antenna")
+[node name="AxleFront" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.065, -0.1)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.028, 0.36, 0.028)
+bevel = 0.005
+segments = 10
 
-[node name="AntennaTip" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.505, 0.02)
-mesh = SubResource("Mesh_antenna_tip")
+[node name="AxleRear" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.065, 0.1)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.028, 0.36, 0.028)
+bevel = 0.005
+segments = 10
 
-[node name="ScrewLeft" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.36, -0.12)
-mesh = SubResource("Mesh_screw")
+[node name="Wheels" type="Node3D" parent="Visual/Rig"]
 
-[node name="ScrewRight" type="MeshInstance3D" parent="Visual/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.36, -0.12)
-mesh = SubResource("Mesh_screw")
+[node name="WheelFrontLeft" type="Node3D" parent="Visual/Rig/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.065, -0.1)
 
-[node name="Modules" type="Node3D" parent="Visual/Body"]
+[node name="Tire" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelFrontLeft"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_rubber")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.13, 0.05, 0.13)
+bevel = 0.02
+segments = 24
 
-[node name="SocketLeft" type="MeshInstance3D" parent="Visual/Body/Modules"]
-transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.19, 0.24, 0)
-mesh = SubResource("Mesh_socket")
+[node name="Hub" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelFrontLeft"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.07, 0.054, 0.07)
+bevel = 0.008
+segments = 16
 
-[node name="SocketRight" type="MeshInstance3D" parent="Visual/Body/Modules"]
-transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.19, 0.24, 0)
-mesh = SubResource("Mesh_socket")
+[node name="Spoke" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelFrontLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.058, 0.085, 0.016)
+bevel = 0.005
 
-[node name="LegMountLeft" type="Marker3D" parent="Visual/Body/Modules"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.24, 0)
+[node name="WheelFrontRight" type="Node3D" parent="Visual/Rig/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.065, -0.1)
+
+[node name="Tire" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelFrontRight"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_rubber")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.13, 0.05, 0.13)
+bevel = 0.02
+segments = 24
+
+[node name="Hub" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelFrontRight"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.07, 0.054, 0.07)
+bevel = 0.008
+segments = 16
+
+[node name="Spoke" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelFrontRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.058, 0.085, 0.016)
+bevel = 0.005
+
+[node name="WheelRearLeft" type="Node3D" parent="Visual/Rig/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.065, 0.1)
+
+[node name="Tire" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelRearLeft"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_rubber")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.13, 0.05, 0.13)
+bevel = 0.02
+segments = 24
+
+[node name="Hub" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelRearLeft"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.07, 0.054, 0.07)
+bevel = 0.008
+segments = 16
+
+[node name="Spoke" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelRearLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.058, 0.085, 0.016)
+bevel = 0.005
+
+[node name="WheelRearRight" type="Node3D" parent="Visual/Rig/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.065, 0.1)
+
+[node name="Tire" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelRearRight"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_rubber")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.13, 0.05, 0.13)
+bevel = 0.02
+segments = 24
+
+[node name="Hub" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelRearRight"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.07, 0.054, 0.07)
+bevel = 0.008
+segments = 16
+
+[node name="Spoke" type="MeshInstance3D" parent="Visual/Rig/Wheels/WheelRearRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.058, 0.085, 0.016)
+bevel = 0.005
+
+[node name="Modules" type="Node3D" parent="Visual/Rig"]
+
+[node name="SocketLeft" type="MeshInstance3D" parent="Visual/Rig/Modules"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.175, 0.175, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.075, 0.03, 0.075)
+bevel = 0.008
+segments = 16
+
+[node name="SocketRight" type="MeshInstance3D" parent="Visual/Rig/Modules"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.175, 0.175, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.075, 0.03, 0.075)
+bevel = 0.008
+segments = 16
+
+[node name="LegMountLeft" type="Marker3D" parent="Visual/Rig/Modules"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.195, 0.175, 0)
 gizmo_extents = 0.05
 
-[node name="LegMountRight" type="Marker3D" parent="Visual/Body/Modules"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.24, 0)
+[node name="LegMountRight" type="Marker3D" parent="Visual/Rig/Modules"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.195, 0.175, 0)
 gizmo_extents = 0.05
 
-[node name="Wheels" type="Node3D" parent="Visual"]
+[node name="NeckRing" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.255, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.075, 0.015, 0.075)
+bevel = 0.005
+segments = 16
 
-[node name="WheelFrontLeft" type="Node3D" parent="Visual/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.07, -0.1)
+[node name="Neck" type="MeshInstance3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.05, 0.06, 0.05)
+bevel = 0.008
+segments = 12
 
-[node name="Tire" type="MeshInstance3D" parent="Visual/Wheels/WheelFrontLeft"]
+[node name="Head" type="Node3D" parent="Visual/Rig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, 0)
+
+[node name="HeadShell" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.105, 0)
+material_override = SubResource("Mat_shell")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.3, 0.21, 0.25)
+bevel = 0.085
+
+[node name="ScreenFrame" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.105, -0.118)
+material_override = SubResource("Mat_glass")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.24, 0.14, 0.03)
+bevel = 0.025
+
+[node name="Face" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.105, -0.1335)
+material_override = SubResource("Mat_face")
+cast_shadow = 0
+mesh = SubResource("Mesh_face")
+
+[node name="ScrewLB" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.106, 0.049, -0.134)
+material_override = SubResource("Mat_metal")
+mesh = SubResource("Sphere_0_006")
+
+[node name="ScrewLT" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.106, 0.161, -0.134)
+material_override = SubResource("Mat_metal")
+mesh = SubResource("Sphere_0_006")
+
+[node name="ScrewRB" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.106, 0.049, -0.134)
+material_override = SubResource("Mat_metal")
+mesh = SubResource("Sphere_0_006")
+
+[node name="ScrewRT" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.106, 0.161, -0.134)
+material_override = SubResource("Mat_metal")
+mesh = SubResource("Sphere_0_006")
+
+[node name="EarLeft" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.152, 0.105, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.085, 0.025, 0.085)
+bevel = 0.008
+segments = 18
+
+[node name="EarRight" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.152, 0.105, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.085, 0.025, 0.085)
+bevel = 0.008
+segments = 18
+
+[node name="EarCapLeft" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.163, 0.105, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.04, 0.03, 0.04)
+bevel = 0.006
+segments = 12
+
+[node name="EarCapRight" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.163, 0.105, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.04, 0.03, 0.04)
+bevel = 0.006
+segments = 12
+
+[node name="Antenna" type="MeshInstance3D" parent="Visual/Rig/Head"]
+material_override = SubResource("Mat_metal")
+script = ExtResource("5_cable")
+points = PackedVector3Array(0.07, 0.2, 0.03, 0.075, 0.25, 0.04, 0.095, 0.29, 0.065)
+radius = 0.006
+smoothness = 4
+
+[node name="AntennaTip" type="MeshInstance3D" parent="Visual/Rig/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.095, 0.29, 0.065)
+material_override = SubResource("Mat_tip")
+mesh = SubResource("Sphere_0_02")
+
+[node name="Legs" type="Node3D" parent="Visual"]
+
+[node name="LegLeft" type="Node3D" parent="Visual/Legs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.195, 0.175, 0)
+
+[node name="HipJoint" type="MeshInstance3D" parent="Visual/Legs/LegLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+mesh = SubResource("Sphere_0_032")
+
+[node name="Thigh" type="MeshInstance3D" parent="Visual/Legs/LegLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.095, 0)
+material_override = SubResource("Mat_shell")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.045, 0.19, 0.055)
+bevel = 0.02
+
+[node name="Knee" type="Node3D" parent="Visual/Legs/LegLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, 0)
+
+[node name="KneeJoint" type="MeshInstance3D" parent="Visual/Legs/LegLeft/Knee"]
 transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
-mesh = SubResource("Mesh_tire")
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.055, 0.06, 0.055)
+bevel = 0.01
+segments = 12
 
-[node name="Spoke" type="MeshInstance3D" parent="Visual/Wheels/WheelFrontLeft"]
-mesh = SubResource("Mesh_spoke")
+[node name="Shin" type="MeshInstance3D" parent="Visual/Legs/LegLeft/Knee"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.095, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.04, 0.19, 0.05)
+bevel = 0.017
 
-[node name="WheelFrontRight" type="Node3D" parent="Visual/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.07, -0.1)
+[node name="Ankle" type="Node3D" parent="Visual/Legs/LegLeft/Knee"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, 0)
 
-[node name="Tire" type="MeshInstance3D" parent="Visual/Wheels/WheelFrontRight"]
+[node name="AnkleJoint" type="MeshInstance3D" parent="Visual/Legs/LegLeft/Knee/Ankle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+mesh = SubResource("Sphere_0_022")
+
+[node name="Foot" type="MeshInstance3D" parent="Visual/Legs/LegLeft/Knee/Ankle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.011, -0.018)
+material_override = SubResource("Mat_rubber")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.075, 0.03, 0.115)
+bevel = 0.012
+
+[node name="LegRight" type="Node3D" parent="Visual/Legs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.195, 0.175, 0)
+
+[node name="HipJoint" type="MeshInstance3D" parent="Visual/Legs/LegRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+mesh = SubResource("Sphere_0_032")
+
+[node name="Thigh" type="MeshInstance3D" parent="Visual/Legs/LegRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.095, 0)
+material_override = SubResource("Mat_shell")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.045, 0.19, 0.055)
+bevel = 0.02
+
+[node name="Knee" type="Node3D" parent="Visual/Legs/LegRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, 0)
+
+[node name="KneeJoint" type="MeshInstance3D" parent="Visual/Legs/LegRight/Knee"]
 transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
-mesh = SubResource("Mesh_tire")
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 1
+size = Vector3(0.055, 0.06, 0.055)
+bevel = 0.01
+segments = 12
 
-[node name="Spoke" type="MeshInstance3D" parent="Visual/Wheels/WheelFrontRight"]
-mesh = SubResource("Mesh_spoke")
+[node name="Shin" type="MeshInstance3D" parent="Visual/Legs/LegRight/Knee"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.095, 0)
+material_override = SubResource("Mat_metal")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.04, 0.19, 0.05)
+bevel = 0.017
 
-[node name="WheelRearLeft" type="Node3D" parent="Visual/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17, 0.07, 0.1)
+[node name="Ankle" type="Node3D" parent="Visual/Legs/LegRight/Knee"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, 0)
 
-[node name="Tire" type="MeshInstance3D" parent="Visual/Wheels/WheelRearLeft"]
-transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
-mesh = SubResource("Mesh_tire")
+[node name="AnkleJoint" type="MeshInstance3D" parent="Visual/Legs/LegRight/Knee/Ankle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_accent")
+mesh = SubResource("Sphere_0_022")
 
-[node name="Spoke" type="MeshInstance3D" parent="Visual/Wheels/WheelRearLeft"]
-mesh = SubResource("Mesh_spoke")
-
-[node name="WheelRearRight" type="Node3D" parent="Visual/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.07, 0.1)
-
-[node name="Tire" type="MeshInstance3D" parent="Visual/Wheels/WheelRearRight"]
-transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
-mesh = SubResource("Mesh_tire")
-
-[node name="Spoke" type="MeshInstance3D" parent="Visual/Wheels/WheelRearRight"]
-mesh = SubResource("Mesh_spoke")
+[node name="Foot" type="MeshInstance3D" parent="Visual/Legs/LegRight/Knee/Ankle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.011, -0.018)
+material_override = SubResource("Mat_rubber")
+script = ExtResource("3_pmesh")
+kind = 0
+size = Vector3(0.075, 0.03, 0.115)
+bevel = 0.012

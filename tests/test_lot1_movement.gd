@@ -1,7 +1,7 @@
-extends SceneTree
+extends Node
 ## Test automatique du Lot 1 (déplacement roues + escalade), sans affichage.
 ## Lancement (depuis la racine du projet) :
-##   godot --headless --fixed-fps 60 --script res://tests/test_lot1_movement.gd
+##   godot --headless --fixed-fps 60 --path . res://tests/test_lot1_movement.tscn
 ## Code de sortie 0 = succès, 1 = échec.
 
 const LEVEL := preload("res://scenes/levels/test_level.tscn")
@@ -11,18 +11,22 @@ var _nino: NinoController
 var _camera: ThirdPersonCamera
 
 
-func _initialize() -> void:
+func _ready() -> void:
 	_run.call_deferred()
 
 
 func _run() -> void:
 	var level := LEVEL.instantiate()
-	root.add_child(level)
+	add_child(level)
 	_nino = level.get_node("Nino")
 	_camera = level.get_node("ThirdPersonCamera")
 	await _wait(0.5)
 
-	_check(not InputMap.has_action("jump"), "aucune action de saut n'existe")
+	# 0. Pas de saut en mode roues (GDD §3).
+	var ground_y := _nino.global_position.y
+	await _hold(["jump"], 0.4)
+	_check(_nino.mode == NinoController.Mode.WHEELS and _nino.global_position.y <= ground_y + 0.01,
+			"aucun saut possible en mode roues")
 
 	# 1. Rouler vers l'avant.
 	var start := _nino.global_position
@@ -53,7 +57,7 @@ func _run() -> void:
 	var climbed_box := await _hold_and_watch(["move_forward"], 2.2)
 	await _wait(0.5)
 	_check(climbed_box, "Nino s'accroche au carton")
-	_check(_nino.state == NinoController.State.WHEELS and absf(_nino.global_position.y - 1.6) < 0.03,
+	_check(_nino.state == NinoController.State.FREE and absf(_nino.global_position.y - 1.6) < 0.03,
 			"Nino se hisse sur le carton (y = %.2f)" % _nino.global_position.y)
 
 	# 5. Lâcher la paroi en cours d'escalade.
@@ -64,13 +68,13 @@ func _run() -> void:
 	await _wait(1.0 / 60.0)
 	Input.action_release("release_grip")
 	await _wait(1.5)
-	_check(_nino.state == NinoController.State.WHEELS and _nino.global_position.y < 0.1, "Nino lâche la paroi et retombe")
+	_check(_nino.state == NinoController.State.FREE and _nino.global_position.y < 0.1, "Nino lâche la paroi et retombe")
 
 	# 6. Descendre une paroi jusqu'au sol.
 	_place(Vector3(4, 0.02, 0.2), 0.0)
 	await _hold(["move_forward"], 1.0)
 	await _hold(["move_back"], 2.0)
-	_check(_nino.state == NinoController.State.WHEELS and _nino.global_position.y < 0.1, "Nino redescend au sol")
+	_check(_nino.state == NinoController.State.FREE and _nino.global_position.y < 0.1, "Nino redescend au sol")
 
 	# 7. Escalade latérale limitée à la surface : impossible de dépasser le bord.
 	_place(Vector3(5, 0.02, -8.5), 0.0)
@@ -93,7 +97,7 @@ func _run() -> void:
 	_check(_nino.global_position.distance_to(Vector3(0, 0.02, 5)) < 0.2, "réapparition sous la limite de chute")
 
 	print("\n%s : %d échec(s)" % ["SUCCÈS" if _failures == 0 else "ÉCHEC", _failures])
-	quit(1 if _failures > 0 else 0)
+	get_tree().quit(1 if _failures > 0 else 0)
 
 
 func _place(position: Vector3, yaw: float) -> void:
@@ -106,7 +110,7 @@ func _place(position: Vector3, yaw: float) -> void:
 
 func _wait(seconds: float) -> void:
 	for i in ceili(seconds * 60.0):
-		await physics_frame
+		await get_tree().physics_frame
 
 
 func _hold(actions: Array, seconds: float) -> void:
@@ -119,8 +123,8 @@ func _hold_and_watch(actions: Array, seconds: float) -> bool:
 	for action in actions:
 		Input.action_press(action)
 	for i in ceili(seconds * 60.0):
-		await physics_frame
-		climbed = climbed or _nino.state != NinoController.State.WHEELS
+		await get_tree().physics_frame
+		climbed = climbed or _nino.state != NinoController.State.FREE
 	for action in actions:
 		Input.action_release(action)
 	return climbed

@@ -6,9 +6,10 @@ extends CanvasLayer
 @onready var _state_label: Label = $Panel/Margin/VBox/StateLabel
 
 const STATE_NAMES := {
-	NinoController.State.WHEELS: "Roues",
+	NinoController.State.FREE: "Libre",
 	NinoController.State.CLIMBING: "Escalade",
 	NinoController.State.MOUNTING: "Escalade (hissage)",
+	NinoController.State.TRANSFORMING: "Transformation",
 }
 
 
