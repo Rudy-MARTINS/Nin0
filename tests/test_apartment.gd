@@ -1,8 +1,9 @@
 extends Node
-## Test du blockout de l'appartement (lot 4) en mode développement, sans affichage.
+## Test de l'appartement (lot 4, verrous du lot 5) en mode développement, sans affichage.
 ##   godot --headless --fixed-fps 60 --path . res://tests/test_apartment.tscn
 ## Vérifie : placard intact, sept zones, dimensions, sols et plafonds, passages
-## réellement franchissables sur roues, accès bloqués, caméra, aucune sauvegarde.
+## réellement franchissables sur roues, accès bloqués (salon fermé, cuisine au loquet,
+## chambre), caméra, aucune sauvegarde.
 
 const APARTMENT := preload("res://scenes/levels/apartment.tscn")
 ## Dimensions intérieures provisoires (unités ; 10 u = 1 m) : largeur x, profondeur z.
@@ -36,7 +37,7 @@ func _run() -> void:
 
 	# 1. Mode développement : placard intact, session complète, aucune sauvegarde.
 	var workshop: Node3D = _dev.workshop
-	_check(GameState.dev_mode and _nino.controls_enabled and _nino.legs_available and _dev.get_node("Workshop").focus_vision.unlocked,
+	_check(GameState.dev_mode and _nino.controls_enabled and _nino.legs_available and _dev.workshop.focus_vision.unlocked,
 			"mode développement actif : Nin0 complet et jouable")
 	for path in ["Printer3D", "ClosetDoor", "PowerStrip", "Notebook", "Geometry/ChildDrawing", "Geometry/BenchTop", "Geometry/IroningBoard", "Pickups"]:
 		_check(workshop.has_node(path), "placard intact : %s" % path)
@@ -68,17 +69,24 @@ func _run() -> void:
 	# 3. Passages réels, sur roues.
 	_nino.force_mode(NinoController.Mode.WHEELS)
 	_check(await _drive(Vector3(-12.5, 0.05, 1.45), 90.0, 2), "placard → sas par la porte entrouverte")
-	_check(await _drive(Vector3(-31.5, 0.05, 5.0), 180.0, 6), "sas → salon")
 	_check(await _drive(Vector3(-38.0, 0.05, -7.5), 90.0, 3), "sas → salle de bain")
-	_check(await _drive(Vector3(-38.0, 0.05, 31.5), 90.0, 4), "salon → cuisine")
-	_check(await _drive(Vector3(-31.5, 0.05, 18.0), 0.0, 2), "salon → sas (retour)")
+	_check(await _drive(Vector3(-41.0, 0.05, -7.5), -90.0, 2), "salle de bain → sas (retour)")
 	_check(await _drive(Vector3(-19.5, 0.05, 1.35), -90.0, 1, 6.0), "sas → placard (retour vers l'imprimante)")
+	# Lot 5 : le salon reste fermé pendant tout le chapitre (ouverture À DÉFINIR).
+	_check(not await _drive(Vector3(-31.5, 0.05, 5.0), 180.0, 6, 3.0) and _dev.zone_at(_nino.global_position) == 2, "porte sas → salon fermée")
+	_check(not await _drive(Vector3(-38.0, 0.05, 31.5), 90.0, 4, 3.0) and _dev.zone_at(_nino.global_position) == 6, "passage salon → cuisine fermé")
+	_check(not await _drive(Vector3(-31.5, 0.05, 18.0), 0.0, 2, 3.0) and _dev.zone_at(_nino.global_position) == 6, "salon → sas fermé")
 	_place(Vector3(-20.0, 0.05, 40.0), -90.0)
 	var crossed := await _hold_until(12.0, func() -> bool: return _nino.global_position.x > 8.0)
 	_check(crossed and _dev.zone_at(_nino.global_position) == 6, "salon : passage de l'étape A à l'étape B dans la même pièce")
 
 	# 4. Accès bloqués.
-	_check(not await _drive(Vector3(-40.0, 0.05, 6.5), 90.0, 4, 3.0) and _dev.zone_at(_nino.global_position) == 2, "raccourci sas → cuisine fermé")
+	_check(not await _drive(Vector3(-40.0, 0.05, 8.0), 90.0, 4, 3.0) and _dev.zone_at(_nino.global_position) == 2, "porte sas → cuisine fermée (loquet)")
+	_nino.force_mode(NinoController.Mode.LEGS)
+	await _wait(0.3)
+	await _jump_toward(Vector3(-41.0, 0.05, 8.0), 90.0, 3.0)
+	_check(_dev.zone_at(_nino.global_position) == 2, "même en sautant, la porte de la cuisine reste fermée")
+	_nino.force_mode(NinoController.Mode.WHEELS)
 	_check(not await _drive(Vector3(30.0, 0.05, 20.0), 0.0, 7, 3.0) and _dev.zone_at(_nino.global_position) == 6, "rideau de la chambre verrouillé")
 	_check(_nino.global_position.z > 12.6, "Nin0 reste dans le salon devant le rideau (z = %.2f)" % _nino.global_position.z)
 	_place(Vector3(-2.0, 0.05, 50.0), 180.0)
