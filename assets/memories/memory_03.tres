@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MemoryData" format=3 uid="uid://rkn7s6qiddkd"]
+
+[ext_resource type="Script" uid="uid://dd5enw7lqlhs1" path="res://scripts/memory/memory_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"memory_03"
+slot = 3
+title = "Fragment 03"
+lines = PackedStringArray("À faire", "1. Fleurs", "2. Récupérer costume au pressing", "3. Acheter des bougies", "4. Préparer la chambre", "5. Anniversaire R… (rayé)")
+object_name = "Liste manuscrite aimantée (cuisine)"
+comment = "Une liste… des choses à faire. La dernière est rayée. Pourquoi ?"
+presentation = &"todo"

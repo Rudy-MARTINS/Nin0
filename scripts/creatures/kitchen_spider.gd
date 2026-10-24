@@ -93,7 +93,7 @@ func is_engaged() -> bool:
 
 
 func on_projectile_hit(projectile: Node3D) -> void:
-	if state == State.RETREAT:
+	if state == State.RETREAT or knocked_out:
 		return
 	health -= 1
 	Sfx.play(&"impact_small", -6.0, 0.9)
@@ -101,7 +101,15 @@ func on_projectile_hit(projectile: Node3D) -> void:
 	push.y = 0.0
 	(body as SpiderBody).excitement = 1.0
 	if health <= 0:
-		_set_state(State.RETREAT)
+		# Trois billes : l'araignée est mise KO (une créature d'arrière-plan bat en retraite).
+		if background:
+			_set_state(State.RETREAT)
+		else:
+			_drop_carried()
+			prey = null
+			_thread_top = Vector3.INF
+			_thread.visible = false
+			knock_out()
 	elif not background:
 		# Provoquée : elle s'en prend à Nin0.
 		prey = _nino
@@ -109,6 +117,8 @@ func on_projectile_hit(projectile: Node3D) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _update_ko(delta):
+		return
 	if GameState.hazards_suspended():
 		_hold_still()
 		return
@@ -315,6 +325,23 @@ func _arrive_home() -> void:
 			cocoons.pop_front().queue_free()
 		_carried = null
 	_set_state(State.LURK)
+
+
+## Retour après une mise KO : au repaire, apaisée un moment, en pleine forme.
+func _spawn_point() -> Vector3:
+	return home
+
+
+func _on_revived() -> void:
+	health = max_health
+	_calm = 10.0
+	_set_state(State.LURK)
+
+
+func _drop_carried() -> void:
+	if _carried:
+		_carried.queue_free()
+		_carried = null
 
 
 ## Cocon emporté vers le repaire après l'emballage.

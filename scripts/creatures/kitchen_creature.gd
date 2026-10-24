@@ -23,6 +23,11 @@ const LOD_MID := 28.0
 @export var blockers: Array[AABB] = []
 ## Créature d'arrière-plan (zone inaccessible) : jamais hostile envers Nin0.
 @export var background := false
+## Mise KO (lot 7) : délai avant le retour, loin de Nin0 et hors de sa vue.
+@export var respawn_delay := 60.0
+
+signal ko_started(creature: KitchenCreature)
+signal revived(creature: KitchenCreature)
 
 var body: Node3D
 var focus: FocusTarget
@@ -35,6 +40,10 @@ var _integrity: NinoIntegrity
 var _lod_accum := 0.0
 var _lod_frame := 0
 var _route: Array[Vector3] = []
+## Neutralisée par le canon : immobile, puis absente jusqu'à son retour.
+var knocked_out := false
+var _ko_timer := 0.0
+var _body_scale := Vector3.ONE
 
 
 func _setup_common(species: SpeciesData, focus_radius: float, hit_size: Vector3, icons: Array[StringName]) -> void:
@@ -220,3 +229,64 @@ func face(point: Vector3, step: float, rate := 10.0) -> void:
 
 func set_emote(text: String) -> void:
 	_emote.text = text
+
+
+## Mise KO : la créature cesse le combat, se retourne (pattes en l'air, frémissements),
+## puis disparaît ; la zone reste sûre jusqu'à son retour.
+func knock_out() -> void:
+	if knocked_out:
+		return
+	knocked_out = true
+	_route.clear()
+	set_emote("")
+	hit_body.collision_layer = 0
+	focus.enabled = false
+	_ko_timer = respawn_delay
+	_body_scale = body.scale
+	Sfx.play(&"thud", -10.0, 1.6)
+	var flip := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	flip.tween_property(body, "rotation:z", PI, 0.35)
+	flip.tween_interval(2.4)
+	flip.tween_property(body, "scale", _body_scale * 0.05, 0.5)
+	flip.tween_callback(func() -> void: visible = false)
+	ko_started.emit(self)
+
+
+## À appeler au début de _physics_process : vrai tant que la créature est KO.
+func _update_ko(delta: float) -> bool:
+	if not knocked_out:
+		return false
+	_ko_timer -= delta
+	if _ko_timer <= 0.0 and _can_reappear(_spawn_point()):
+		_reappear()
+	return knocked_out
+
+
+## Jamais sous les yeux du joueur : loin de Nin0 et hors du champ de la caméra.
+func _can_reappear(point: Vector3) -> bool:
+	if _nino and _nino.global_position.distance_to(point) < 9.0:
+		return false
+	var cam := get_viewport().get_camera_3d()
+	return cam == null or not cam.is_position_in_frustum(point)
+
+
+func _reappear() -> void:
+	knocked_out = false
+	global_position = _spawn_point()
+	visible = true
+	body.rotation.z = 0.0
+	body.scale = _body_scale
+	hit_body.collision_layer = 32
+	focus.enabled = true
+	_on_revived()
+	revived.emit(self)
+
+
+## Lieu de retour (surchargé).
+func _spawn_point() -> Vector3:
+	return global_position
+
+
+## Remise en état après le retour (surchargé).
+func _on_revived() -> void:
+	pass

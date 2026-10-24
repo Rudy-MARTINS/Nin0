@@ -41,6 +41,7 @@ func _run() -> void:
 	_game.run_dev_scenario(&"kitchen_inside")
 	await _wait(1.0)
 
+	await _test_intro()
 	await _test_layout()
 	await _test_collisions()
 	await _test_routes()
@@ -49,11 +50,27 @@ func _run() -> void:
 	await _test_ecosystem()
 	await _test_cannon()
 	await _test_resources()
+	await _test_flea_and_jump()
+	await _test_memory()
 	await _test_saves()
 
 	Sfx.stop_all_loops()
 	print("\n%s : %d échec(s)" % ["SUCCÈS" if _failures == 0 else "ÉCHEC", _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
+
+
+# --- Entrée -------------------------------------------------------------------------------
+
+func _test_intro() -> void:
+	var started := await _wait_until(3.0, func() -> bool: return _game.cine.is_active())
+	_check(started and not _nino.controls_enabled and GameState.hazards_suspended(), "entrée : présentation panoramique, contrôle retiré, dangers suspendus")
+	var hp := GameState.integrity + GameState.shield
+	var flea := _kitchen.get_flea()
+	var done := await _wait_until(30.0, func() -> bool: return _nino.controls_enabled and not _game.cine.is_active())
+	_check(done and GameState.seen_notices.has(&"kitchen_intro"), "fin de la présentation : contrôle rendu (une seule fois)")
+	_check(flea.jumps >= 1 and flea.global_position.y > 6.0, "la puce a bondi tout en haut de la poubelle (y = %.1f)" % flea.global_position.y)
+	_check(GameState.integrity + GameState.shield >= hp - 0.01, "aucun dégât pendant la présentation")
+	_check(_game._shown.has(&"scan_flea") and not GameState.has_species(&"flea"), "invitation à observer la puce (aucune analyse automatique)")
 
 
 # --- Lieu ---------------------------------------------------------------------------------
@@ -93,7 +110,8 @@ func _test_collisions() -> void:
 		"réfrigérateur": Vector3(-49.6, 9.0, 53.6), "caisson ouest": Vector3(-72.0, 5.0, 24.0), "caisson sud": Vector3(-68.0, 5.0, 54.0),
 		"plan de travail": Vector3(-70.0, 8.8, 45.0), "poubelle": Vector3(-49.0, 3.0, 15.0), "micro-ondes": Vector3(-72.5, 10.6, 54.4),
 		"placards hauts": Vector3(-68.0, 17.0, 55.0), "fond de l'évier": Vector3(-72.0, 6.9, 31.0), "pile de cartons": Vector3(-72.4, 2.0, 18.1),
-		"étagère": Vector3(-73.3, 14.85, 48.0), "cafetière": Vector3(-67.1, 11.0, 54.9),
+		"étagère": Vector3(-73.3, 14.85, 48.0), "cafetière": Vector3(-67.1, 11.0, 54.9), "caisse": Vector3(-71.6, 0.35, 15.45),
+		"packs d'eau": Vector3(-66.0, 1.3, 46.6), "tiroir ouvert": Vector3(-66.0, 6.2, 49.6), "étagère aimantée": Vector3(-53.25, 14.85, 53.7),
 	}
 	var missing := solids.keys().filter(func(k: String) -> bool: return not _solid_at(solids[k]))
 	_check(missing.is_empty(), "collisions des meubles et appareils %s" % ("" if missing.is_empty() else str(missing)))
@@ -110,46 +128,59 @@ func _test_collisions() -> void:
 
 
 func _test_routes() -> void:
-	_nino.force_mode(NinoController.Mode.WHEELS)
-	# Sol → plan de travail : torchon pendu (escalade).
-	var towel := await _climb(Vector3(-64.6, 0.05, 49.9), 180.0, 9.0)
-	_check(towel, "torchon : du sol au plan de travail (escalade)")
-	# Sol → cartons (4,6) → plan de travail (9,0).
-	var low := await _climb(Vector3(-71.6, 0.05, 15.5), 180.0, 4.6)
-	var high := low and await _climb(Vector3(-72.6, 4.65, 16.4), 180.0, 9.0)
-	_check(low and high, "pile de cartons : deux escalades jusqu'au plan de travail")
-	_nino.global_position.z = 21.0
-	await _wait(0.4)
-	_check(_nino.is_on_floor() and absf(_nino.global_position.y - 9.0) < 0.15, "les cartons rejoignent le plan de travail")
-	# Plan de travail → céréales (14) → calendrier → dessus du réfrigérateur (18).
-	var cereal := await _climb(Vector3(-55.0, 9.05, 52.0), -90.0, 14.0)
-	var fridge := cereal and await _climb(Vector3(-53.2, 14.05, 52.0), -90.0, 18.0)
-	_check(cereal and fridge, "céréales puis calendrier aimanté : dessus du réfrigérateur")
-	# Plan de travail → étagère (15) → casier à épices → dessus des placards (21).
-	var shelf := await _climb(Vector3(-73.4, 9.05, 43.4), 180.0, 15.0)
-	var rack := shelf and await _climb(Vector3(-72.4, 15.05, 47.6), 90.0, 21.0)
-	_check(shelf and rack, "étagère puis casier à épices : dessus des placards hauts")
+	_check(_kitchen.find_children("*", "PropBlock", true, false).all(func(p: Node) -> bool: return not (p as PropBlock).climbable),
+			"aucune surface escaladable dans la cuisine (escalade retirée)")
+	_nino.force_mode(NinoController.Mode.LEGS)
+	await _wait(0.6)
+	# Avant l'amélioration : le plan de travail reste hors de portée.
+	_check(not _nino.charged_jump_unlocked, "pas encore de saut chargé")
+	var crate := await _hop(Vector3(-71.6, 0.05, 14.15), Vector3(-71.6, 0.7, 15.2))
+	var too_high := await _hop(Vector3(-71.6, 0.75, 15.6), Vector3(-71.6, 3.4, 16.8))
+	_check(crate and not too_high, "sans saut chargé : la caisse oui, le grand carton non")
+	# Après l'amélioration (installée par le scénario de test).
+	GameState.add_upgrade(&"charged_jump")
+	await _wait(0.3)
+	_check(_nino.charged_jump_unlocked, "saut chargé débloqué par l'amélioration")
+	var a := await _charged_hop(Vector3(-71.6, 0.75, 15.75), Vector3(-71.6, 3.4, 16.8), 0.8)
+	var b := a and await _charged_hop(Vector3(-71.1, 3.45, 16.9), Vector3(-72.0, 6.2, 18.5), 1.0)
+	var c := b and await _charged_hop(Vector3(-72.4, 6.25, 19.0), Vector3(-72.4, 9.0, 21.2), 1.0)
+	_check(a and b and c, "pile de cartons : trois sauts chargés de hauteurs différentes jusqu'au plan de travail")
+	# Route alternative : packs d'eau, tiroir ouvert, plan de travail.
+	var p1 := await _charged_hop(Vector3(-66.0, 0.05, 45.2), Vector3(-66.0, 2.6, 46.2), 0.75)
+	var p2 := p1 and await _charged_hop(Vector3(-66.0, 2.65, 46.4), Vector3(-66.2, 5.0, 47.6), 0.7)
+	var p3 := p2 and await _charged_hop(Vector3(-66.2, 5.05, 47.4), Vector3(-66.0, 6.3, 49.4), 0.95)
+	var p4 := p3 and await _charged_hop(Vector3(-66.0, 6.35, 49.9), Vector3(-66.0, 9.0, 51.4), 0.85)
+	_check(p1 and p2 and p3 and p4, "packs d'eau puis tiroir ouvert : autre accès au plan de travail")
+	# Plan de travail → céréales → étagère aimantée → dessus du réfrigérateur.
+	var f1 := await _charged_hop(Vector3(-55.1, 9.05, 52.0), Vector3(-53.7, 12.0, 52.0), 0.95)
+	var f2 := f1 and await _charged_hop(Vector3(-53.6, 12.05, 52.1), Vector3(-53.3, 15.0, 53.8), 0.95)
+	var f3 := f2 and await _charged_hop(Vector3(-53.0, 15.05, 53.7), Vector3(-51.6, 18.0, 53.7), 0.95)
+	_check(f1 and f2 and f3, "céréales, étagère aimantée : dessus du réfrigérateur")
+	# Plan de travail → micro-ondes → étagère → casier à épices (deux gradins) → placards.
+	var h1 := await _charged_hop(Vector3(-69.95, 9.05, 53.2), Vector3(-71.2, 12.2, 53.4), 1.0)
+	var h2 := h1 and await _charged_hop(Vector3(-72.2, 12.25, 52.6), Vector3(-72.4, 15.0, 50.6), 0.95)
+	var h3 := h2 and await _charged_hop(Vector3(-72.6, 15.05, 47.4), Vector3(-74.2, 18.2, 47.6), 1.0)
+	var h4 := h3 and await _charged_hop(Vector3(-74.2, 18.25, 49.6), Vector3(-74.2, 21.0, 50.9), 0.95)
+	_check(h1 and h2 and h3 and h4, "micro-ondes, étagère, casier à épices : dessus des placards")
 	_nino.global_position = Vector3(-74.0, 21.1, 54.5)
 	await _wait(0.5)
 	_check(_nino.is_on_floor() and absf(_nino.global_position.y - 21.0) < 0.15, "le casier rejoint le dessus des placards")
-	# Le dessus est coupé par la hotte : le haut du placard est (arrière-plan) reste hors d'atteinte.
-	_check(not _solid_at(Vector3(-59.0, 20.9, 54.2)) and _solid_at(Vector3(-59.0, 21.0, 56.0)), "la hotte coupe le dessus des placards (partie est inaccessible)")
-	# Plan de travail → pot de basilic → rebord de la fenêtre (saut, jambes).
-	_nino.force_mode(NinoController.Mode.LEGS)
-	await _wait(0.6)
+	_check(_solid_at(Vector3(-62.15, 20.0, 55.0)) and _solid_at(Vector3(-54.05, 22.5, 54.9)), "dessus de la hotte et placard est : visibles mais inaccessibles")
+	# Rebord de la fenêtre, bac de l'évier, meuble sous l'évier : sauts normaux.
 	var pot := await _hop(Vector3(-72.2, 9.05, 38.7), Vector3(-73.0, 9.6, 38.7))
 	var sill := pot and await _hop(Vector3(-73.2, 9.65, 38.6), Vector3(-74.4, 10.2, 38.2))
 	_check(pot and sill, "pot de basilic puis rebord de la fenêtre (sauts)")
-	# Bac de l'évier : on en ressort par l'éponge.
 	var sponge := await _hop(Vector3(-70.95, 7.05, 32.6), Vector3(-70.95, 7.55, 31.6))
 	var soap := sponge and await _hop(Vector3(-70.95, 7.6, 31.6), Vector3(-70.95, 8.1, 30.45))
 	var brush := soap and await _hop(Vector3(-70.95, 8.15, 30.45), Vector3(-70.95, 8.6, 29.3))
 	var out := brush and await _hop(Vector3(-70.95, 8.65, 29.1), Vector3(-70.95, 9.0, 27.4))
 	_check(sponge and soap and brush and out, "bac de l'évier : on en ressort (éponge, flacon, brosse)")
-	# Meuble sous l'évier : marche puis porte entrouverte.
 	var step := await _hop(Vector3(-67.6, 0.05, 34.4), Vector3(-68.4, 0.65, 34.4))
 	var inside := step and await _hop(Vector3(-68.7, 0.7, 34.4), Vector3(-69.8, 1.2, 34.4))
 	_check(step and inside, "meuble sous l'évier : passage secondaire (porte entrouverte)")
+	# Grande chute (dessus des placards → sol) : dégâts proportionnels, sans excès.
+	_check(is_equal_approx(_game.integrity.fall_damage(3.4), 0.0) and _game.integrity.fall_damage(9.0) < 12.0 and _game.integrity.fall_damage(21.0) > _game.integrity.fall_damage(9.0),
+			"dégâts de chute proportionnels à la hauteur (saut chargé sans dégât)")
 	_nino.force_mode(NinoController.Mode.WHEELS)
 	await _wait(0.6)
 
@@ -191,6 +222,26 @@ func _test_roaches() -> void:
 	nest.hides = saved_hides
 	_place(Vector3(-49.0, 0.05, 6.5), 90.0)
 	await _wait(1.6)
+	# Cafard courageux : il charge Nin0 au lieu de fuir ; deux billes le mettent KO.
+	var brave := _kitchen.get_node("Creatures/RoachFloor4") as KitchenRoach
+	_check(brave.brave, "certains cafards sont courageux")
+	brave._set_state(KitchenRoach.State.WANDER)
+	brave.global_position = Vector3(-60.0, 0.0, 32.0)
+	_place(Vector3(-60.0, 0.05, 33.4), 0.0)
+	var hp := GameState.integrity + GameState.shield
+	var charged := await _wait_until(1.5, func() -> bool: return brave.state == KitchenRoach.State.DEFEND)
+	await _wait(1.2)
+	_check(charged and GameState.integrity + GameState.shield < hp, "le cafard courageux charge et pince")
+	var marker := Node3D.new()
+	add_child(marker)
+	marker.global_position = brave.global_position + Vector3(0.5, 0.1, 0.0)
+	brave._set_state(KitchenRoach.State.WANDER)
+	brave.on_projectile_hit(marker)
+	brave.on_projectile_hit(marker)
+	marker.queue_free()
+	_check(brave.knocked_out, "deux billes : cafard mis KO")
+	_place(Vector3(-49.0, 0.05, 6.5), 90.0)
+	await _wait(1.0)
 
 
 # --- Araignées ----------------------------------------------------------------------------
@@ -239,7 +290,18 @@ func _test_spiders() -> void:
 	for i in 3:
 		spider.on_projectile_hit(marker)
 	marker.queue_free()
-	_check(spider.state == KitchenSpider.State.RETREAT, "trois billes : retraite vers le repaire")
+	_check(spider.knocked_out and not spider.is_engaged() and spider.hit_body.collision_layer == 0, "trois billes : l'araignée est mise KO (fin du combat)")
+	var ko_stats := int(_kitchen.stats[&"knockouts"])
+	await _wait(3.5)
+	_check(not spider.visible and ko_stats >= 1, "elle disparaît après son animation (zone sûre)")
+	spider._ko_timer = 0.0
+	_place(spider.home + Vector3(1.5, 0.05, -1.5), 90.0)
+	await _wait(0.6)
+	_check(spider.knocked_out, "jamais de retour sous les yeux de Nin0")
+	_place(Vector3(-50.0, 0.05, 8.0), 0.0)
+	_camera.rotation.y = 0.0
+	await _wait(0.6)
+	_check(not spider.knocked_out and spider.visible and spider.global_position.distance_to(spider.home) < 0.1, "retour plus tard, à son repaire, loin de Nin0")
 	# Le corps de tir est sur la couche des cibles du canon, sans bloquer Nin0.
 	_check(spider.hit_body.collision_layer == 32 and (spider.hit_body.collision_layer & 1) == 0, "araignée : cible des billes, jamais un obstacle")
 	# Embuscade : l'araignée du repaire descend au bout de son fil sur le plan de travail.
@@ -305,10 +367,10 @@ func _test_ecosystem() -> void:
 	_check(hunts >= 3 and outcomes >= 3, "affrontements autonomes sans Nin0 (%d chasses, %d issues : %s)" % [hunts, outcomes, str(_kitchen.stats)])
 	_check(far, "au loin : comportement mis à jour moins souvent, animation arrêtée (arrière-plan simplifié)")
 	var bg_hunts := [0]
-	for name in ["BgSpiderFridge", "BgSpiderCabinet", "BgSpiderMicrowave"]:
+	for name in ["BgSpiderFridge", "BgSpiderCabinet", "BgSpiderHood"]:
 		var s := _kitchen.get_node("Creatures/" + name) as KitchenSpider
 		bg_hunts[0] += 1 if s.cocoons.size() > 0 or s.state != KitchenSpider.State.LURK else 0
-	_check(bg_hunts[0] >= 1, "arrière-plan (derrière le frigo, dessus des placards, micro-ondes) vivant")
+	_check(bg_hunts[0] >= 1, "arrière-plan (derrière le frigo, dessus des placards, dessus de la hotte) vivant")
 	_check(Array(_kitchen.get_roaches()).all(func(r: KitchenRoach) -> bool: return r.in_territory(r.global_position, 0.3, 0.3) or not r.visible),
 			"chaque cafard reste dans son territoire")
 	_check(Array(_kitchen.get_spiders()).all(func(s: KitchenSpider) -> bool: return s.global_position.distance_to(s.home) < 40.0), "chaque araignée reste près de son repaire")
@@ -385,6 +447,81 @@ func _test_resources() -> void:
 	_check(lore.size() >= 6, "traces du lieu : toiles, cachettes, restes, végétation (%d)" % lore.size())
 
 
+func _test_flea_and_jump() -> void:
+	# Puce : pacifique, analysable, inspire le plan du saut chargé.
+	var flea := _kitchen.get_flea()
+	_check(flea.focus.species.unlocks_plan == &"plan_charged_jump" and flea.get_node_or_null("HitBody") == null, "puce : pacifique (aucun corps de combat), inspire un plan")
+	_place(flea.global_position + Vector3(0.0, 0.05, -0.5), 0.0)
+	await _wait(0.6)
+	_check(flea.jumps >= 2 or flea.flying, "trop près, la puce bondit ailleurs")
+	GameState.discoveries.erase(&"plan_charged_jump")
+	_director.focus_vision.target_identified.emit(flea.focus)
+	var opened := await _wait_until(12.0, func() -> bool: return _game.blueprint._open)
+	_check(GameState.has_species(&"flea") and opened, "analyse de la puce → réflexion → plan « Saut chargé »")
+	await _wait(2.6)
+	_game.blueprint.close()
+	await _wait(0.4)
+	_check(GameState.has_discovery(&"plan_charged_jump"), "plan du saut chargé enregistré")
+	_check(_director._printer_upgrades().any(func(u: UpgradeData) -> bool: return u.id == &"charged_jump"), "l'imprimante propose de fabriquer le saut chargé")
+	var upgrade := UpgradeCatalog.find(&"charged_jump")
+	_check(upgrade.category == UpgradeData.Category.MAJOR, "capacité permanente (pas un module secondaire)")
+	# Saut chargé : appui bref = saut normal ; appui long = saut bien plus haut ; jamais en l'air.
+	_nino.force_mode(NinoController.Mode.LEGS)
+	await _wait(0.6)
+	_place(Vector3(-60.0, 0.05, 30.0), 0.0)
+	await _wait(0.4)
+	var peak := [0.0]
+	var watch := func() -> void: peak[0] = maxf(peak[0], _nino.global_position.y)
+	get_tree().physics_frame.connect(watch)
+	Input.action_press("jump")
+	await _wait(0.06)
+	Input.action_release("jump")
+	await _wait(1.2)
+	var short: float = peak[0]
+	peak[0] = 0.0
+	Input.action_press("jump")
+	await _wait(1.2)
+	var gauge := _game.hud._charge_gauge != null and _game.hud._charge_gauge.value > 0.9
+	Input.action_release("jump")
+	await _wait(1.6)
+	var long: float = peak[0]
+	get_tree().physics_frame.disconnect(watch)
+	_check(short > 0.6 and short < 1.3 and long > 3.0 and long < 3.7, "appui bref : %.1f u ; appui long : %.1f u (puissance limitée)" % [short, long])
+	_check(gauge, "indicateur discret de charge")
+	_nino.velocity = Vector3(0.0, 4.0, 0.0)
+	await _wait(0.05)
+	Input.action_press("jump")
+	await _wait(0.4)
+	_check(not _nino.is_charging(), "aucune charge en l'air")
+	Input.action_release("jump")
+	await _wait(1.0)
+	_nino.force_mode(NinoController.Mode.WHEELS)
+	await _wait(0.6)
+
+
+func _test_memory() -> void:
+	var focus := _kitchen.get_node("Appliances/TodoFocus") as FocusTarget
+	_check(focus.memory != null and focus.memory.id == &"memory_03" and not GameState.has_memory(&"memory_03"), "liste du réfrigérateur : souvenir n° 3 (pas encore acquis)")
+	var lines := focus.memory.lines
+	_check(lines.size() == 6 and lines[1].contains("Fleurs") and lines[2].contains("pressing") and lines[3].contains("bougies") and lines[4].contains("chambre") and lines[5].begins_with("5. Anniversaire R…"),
+			"contenu de la liste conforme (nom après « R » jamais complété)")
+	_place(Vector3(-50.6, 0.05, 46.6), 180.0)
+	await _wait(0.5)
+	var eye := _nino.global_position + Vector3.UP * 0.4
+	var aim: Dictionary = _director.focus_vision.find_aimed(eye, (focus.global_position - eye).normalized())
+	_check(aim.target == focus and aim.status == FocusVision.Status.OK, "la note est observable depuis le sol (vision focalisée)")
+	var count := GameState.memory_count()
+	_director.focus_vision.target_identified.emit(focus)
+	var reading := await _wait_until(3.0, func() -> bool: return _game.get_children().any(func(c: Node) -> bool: return c is TodoReader))
+	_check(reading and GameState.hazards_suspended() and not _nino.controls_enabled, "lecture ligne par ligne, dangers suspendus")
+	var done := await _wait_until(40.0, func() -> bool: return GameState.has_memory(&"memory_03") and _nino.controls_enabled)
+	_check(done and GameState.memory_count() == count + 1, "archive 03/07 débloquée après le scan")
+	_check(not GameState.hazards_suspended(), "dangers rétablis à la fin")
+	_director.focus_vision.target_identified.emit(focus)
+	await _wait(1.0)
+	_check(GameState.memory_count() == count + 1 and _nino.controls_enabled, "réobserver la note ne redéclenche rien")
+
+
 func _test_saves() -> void:
 	GameState.dev_mode = false
 	GameState.save_path = GameState.TEST_SAVE_PATH
@@ -438,6 +575,37 @@ func _solid_at(point: Vector3) -> bool:
 	query.position = point
 	query.collision_mask = 1
 	return not _nino.get_world_3d().direct_space_state.intersect_point(query, 1).is_empty()
+
+
+## Saut chargé réel : Nin0 se ramasse `hold` secondes (Espace maintenu), relâche,
+## puis se dirige vers la cible en l'air.
+func _charged_hop(from: Vector3, to: Vector3, hold: float) -> bool:
+	var flat := Vector3(to.x - from.x, 0.0, to.z - from.z)
+	var yaw := atan2(-flat.x, -flat.z)
+	_nino.global_position = from + Vector3.UP * 0.05
+	_nino.rotation.y = yaw
+	_nino.velocity = Vector3.ZERO
+	_camera.rotation.y = yaw
+	_camera.snap_to_target()
+	await _wait(0.35)
+	Input.action_press("jump")
+	await _wait(hold)
+	var charged := _nino.charge
+	Input.action_press("move_forward")
+	Input.action_release("jump")
+	var airborne := false
+	for i in 150:
+		await get_tree().physics_frame
+		var remaining := Vector2(to.x - _nino.global_position.x, to.z - _nino.global_position.z).length()
+		if remaining < 0.15 or (_nino.global_position.y > to.y - 0.05 and remaining < 0.4 and _nino.velocity.y < 0.0):
+			Input.action_release("move_forward")
+		if not _nino.is_on_floor():
+			airborne = true
+		elif airborne:
+			break
+	Input.action_release("move_forward")
+	await _wait(0.3)
+	return charged > 0.0 and absf(_nino.global_position.y - to.y) < 0.15
 
 
 ## Saut d'un appui à l'autre en mode jambes (vraie physique).

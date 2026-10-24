@@ -641,7 +641,9 @@ func _test_kitchen() -> void:
 	await _wait(1.8)
 	_game.chapter_end._on_continue()
 	await _wait(0.3)
-	_check(not get_tree().paused and _nino.controls_enabled, "« Continuer à explorer »")
+	var intro := _game.cine.is_active() and not _nino.controls_enabled
+	var resumed := await _wait_until(30.0, func() -> bool: return _nino.controls_enabled and not _game.cine.is_active())
+	_check(not get_tree().paused and intro and resumed, "« Entrer dans la cuisine » : présentation de la pièce, puis contrôle rendu")
 	_check(not await _drive(Vector3(-38.0, 0.05, 31.5), 90.0, 4, 3.0) or _game.zone_at(_nino.global_position) != 6, "cuisine ↔ salon toujours fermé")
 	_check(not await _drive(Vector3(-31.5, 0.05, 5.0), 180.0, 6, 3.0), "salon toujours fermé après l'ouverture de la cuisine")
 

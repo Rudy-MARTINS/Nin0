@@ -22,6 +22,8 @@ const SPECIES: SpeciesData = preload("res://assets/species/roach.tres")
 @export var nino_alert := 1.3
 @export var nip_damage := 6.0
 @export var respawn_time := 40.0
+## Courageux : face à Nin0, il charge et pince au lieu de fuir (cible pour le canon).
+@export var brave := false
 ## Vigilance face au bond d'une araignée (0 = ne la voit jamais venir, 1 = normal).
 @export var wariness := 1.0
 
@@ -94,14 +96,21 @@ func is_defending() -> bool:
 
 
 func on_projectile_hit(projectile: Node3D) -> void:
-	if state == State.CAUGHT:
+	if state == State.CAUGHT or knocked_out:
 		return
 	Sfx.play(&"impact_small", -6.0, 1.3)
+	# Deuxième bille alors qu'il fuit, se cache ou se défend : il est mis KO.
+	if state in [State.FLEE, State.HIDE, State.DEFEND] and not background:
+		(body as RoachBody).rear = 0.0
+		knock_out()
+		return
 	state = State.WANDER
 	alarm(projectile, false)
 
 
 func _physics_process(delta: float) -> void:
+	if _update_ko(delta):
+		return
 	if state == State.CAUGHT:
 		_timer -= delta
 		if _timer <= 0.0:
@@ -150,6 +159,13 @@ func _physics_process(delta: float) -> void:
 			roach.rear = minf(roach.rear + step * 4.0, 1.0)
 			if threat:
 				face(threat.global_position, step, 14.0)
+				# Courageux : il charge Nin0 avant de pincer.
+				if brave and threat == _nino and flat_distance(_nino.global_position) > 0.45 and _timer < 0.8:
+					var to := (_nino.global_position - global_position) * Vector3(1, 0, 1)
+					var next := global_position + to.normalized() * 1.6 * step
+					if in_territory(next, 0.05, 0.3) and not is_blocked(next):
+						global_position = next
+						speed = 1.6
 			# Petite morsure si Nin0 reste collé à lui.
 			if not _nip_done and not background and threat == _nino and _timer < 0.5 and nino_distance() < 0.55:
 				_nip_done = true
@@ -175,8 +191,12 @@ func _watch_threats() -> void:
 		if spider.is_hunting() and spider.global_position.distance_to(global_position) < spider_alert:
 			alarm(spider)
 			return
-	if not background and _nino and nino_distance() < nino_alert and same_level(_nino.global_position, 0.6):
-		alarm(_nino)
+	if not background and _nino and nino_distance() < nino_alert * (1.3 if brave else 1.0) and same_level(_nino.global_position, 0.6):
+		if brave:
+			threat = _nino
+			_set_state(State.DEFEND)
+		else:
+			alarm(_nino)
 
 
 ## Cachette atteignable la plus proche qui l'éloigne de la menace (jamais vers elle).
@@ -213,6 +233,21 @@ func _farthest_point(from: Vector3) -> Variant:
 			best_d = d
 			best = p
 	return best
+
+
+func _spawn_point() -> Vector3:
+	var spots := Array(hides)
+	spots.shuffle()
+	for spot in spots:
+		if _nino == null or (spot as Vector3).distance_to(_nino.global_position) > 9.0:
+			return spot
+	return global_position
+
+
+func _on_revived() -> void:
+	(body as RoachBody).rear = 0.0
+	_route.clear()
+	_set_state(State.HIDE)
 
 
 func _respawn() -> void:

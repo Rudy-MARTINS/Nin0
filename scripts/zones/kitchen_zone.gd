@@ -14,7 +14,7 @@ signal examined(data: DiscoveryData)
 signal spider_alerted(spider: KitchenSpider)
 
 ## Affrontements observés depuis le chargement : chasses, captures, échecs, défenses.
-var stats := {&"hunts": 0, &"catches": 0, &"fails": 0, &"defends": 0, &"flees": 0}
+var stats := {&"hunts": 0, &"catches": 0, &"fails": 0, &"defends": 0, &"flees": 0, &"knockouts": 0, &"revivals": 0}
 
 var _cocoon_mesh: SphereMesh
 var _cocoon_material: StandardMaterial3D
@@ -32,6 +32,12 @@ func _ready() -> void:
 		spider.prey_caught.connect(_on_prey_caught)
 		spider.hunt_failed.connect(func(_s: KitchenSpider, _p: Node3D) -> void: stats[&"fails"] += 1)
 		spider.noticed_nino.connect(func(s: KitchenSpider) -> void: spider_alerted.emit(s))
+	for child in $Creatures.get_children():
+		var creature := child as KitchenCreature
+		if creature == null:
+			continue
+		creature.ko_started.connect(func(_c: KitchenCreature) -> void: stats[&"knockouts"] += 1)
+		creature.revived.connect(func(_c: KitchenCreature) -> void: stats[&"revivals"] += 1)
 	for roach in get_roaches():
 		roach.defended.connect(func(_r: KitchenRoach) -> void: stats[&"defends"] += 1)
 		roach.fled.connect(func(_r: KitchenRoach, _from: Node3D) -> void: stats[&"flees"] += 1)
@@ -72,10 +78,40 @@ func any_spider_engaged() -> bool:
 ## Retour après une absence : les araignées regagnent leur repaire, apaisées un instant.
 func reset_creatures() -> void:
 	for spider in get_spiders():
-		if spider.state != KitchenSpider.State.FEED:
+		if spider.state != KitchenSpider.State.FEED and not spider.knocked_out:
 			spider.global_position = spider.home
 			spider.prey = null
 			spider._set_state(KitchenSpider.State.LURK)
+
+
+func get_flea() -> KitchenFlea:
+	return $Creatures/Flea as KitchenFlea
+
+
+## Mise en scène d'entrée : la puce apparaît aux pieds de Nin0, puis bondit sur le
+## couvercle de la poubelle (très haut pour elle).
+func flea_intro_start() -> Vector3:
+	return (get_node("Markers/KitchenEntry") as Node3D).global_position + Vector3(-1.4, 0.0, 0.9)
+
+
+func flea_intro_perch() -> Vector3:
+	return get_flea().perches[3]
+
+
+## Une chasse visible pendant la présentation : un cafard passe près d'une araignée.
+func stage_intro_hunt() -> void:
+	var spider := $Creatures/SpiderUnder as KitchenSpider
+	var roach := $Creatures/RoachFloor3 as KitchenRoach
+	if spider == null or roach == null or not roach.is_available():
+		return
+	spider._rest = 0.0
+	roach.global_position = Vector3(-69.0, 0.0, 53.6)
+	roach._set_state(KitchenRoach.State.FORAGE)
+	roach._timer = 4.0
+
+
+func todo_note_position() -> Vector3:
+	return ($Appliances/TodoFocus as Node3D).global_position
 
 
 func marker(name: String) -> Transform3D:

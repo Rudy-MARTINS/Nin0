@@ -898,7 +898,7 @@ func _reach_window() -> void:
 
 
 func _on_focus_target_identified(target: FocusTarget) -> void:
-	if target.memory != null:
+	if target.memory != null and target.memory.presentation == &"":
 		_acquire_memory(target.memory)
 	elif target.id == &"door_handle" and not GameState.handle_identified:
 		GameState.set_flag(&"handle_identified")

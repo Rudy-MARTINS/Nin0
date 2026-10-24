@@ -47,6 +47,9 @@ var _tick := 0.0
 var _music_on := false
 var _boss_music := false
 var _mood_tween: Tween
+## Caméra des mises en scène du lot 7 (entrée de la cuisine, puce, souvenirs…).
+var cine: CineCamera
+var _charge_tutorial := false
 var _base_ambient := -1.0
 
 @onready var workshop: Node3D = $Workshop
@@ -92,6 +95,12 @@ func _ready() -> void:
 	sas.kitchen_door.unlocked.connect(_on_kitchen_unlocked)
 	bath.entered.connect(func() -> void: pass)
 	kitchen.examined.connect(func(data: DiscoveryData) -> void: director._on_examined(data))
+	GameState.upgrade_added.connect(_on_upgrade_added)
+	nino.charged_jump.connect(func(power: float) -> void:
+		if _charge_tutorial and power > 0.5:
+			_charge_tutorial = false
+			director.reactions.react(&"upgrade", null, true)
+			hud.show_toast("Saut chargé maîtrisé", 2.5))
 	kitchen.salon_door_examined.connect(_on_salon_door_examined)
 	kitchen.spider_alerted.connect(_on_spider_alerted)
 	for spider in kitchen.get_spiders():
@@ -135,6 +144,12 @@ func _build_ui() -> void:
 	(workshop.get_node("PauseMenu") as PauseMenu).inventory = inventory
 	chapter_end = ChapterEnd.new()
 	add_child(chapter_end)
+	chapter_end.continue_requested.connect(func() -> void:
+		if current_zone == ZONE_KITCHEN:
+			play_kitchen_intro())
+	cine = CineCamera.new()
+	cine.changed.connect(func(active: bool) -> void: hud.set_gameplay_visible(not active))
+	add_child(cine)
 
 
 # --- Démarrage, reprise ---------------------------------------------------------------
@@ -163,6 +178,7 @@ func _apply_saved_world() -> void:
 	bath.arena.apply_saved_state()
 	bath.reset_creatures()
 	kitchen.reset_creatures()
+	nino.charged_jump_unlocked = GameState.has_upgrade(&"charged_jump")
 	for node in get_tree().get_nodes_in_group(&"resource_pickups"):
 		(node as ResourcePickup).refresh()
 	for node in get_tree().get_nodes_in_group(&"focus_targets"):
@@ -208,6 +224,8 @@ func _set_resume(point: StringName, checkpoint: Variant = null) -> void:
 # --- Suivi des zones ------------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	if nino and nino.charged_jump_unlocked:
+		hud.set_charge(nino.charge)
 	_tick -= delta
 	if _tick > 0.0 or nino == null:
 		return
@@ -293,6 +311,8 @@ func _on_zone_changed(_previous: int, zone: int) -> void:
 				_complete_chapter()
 			elif GameState.chapter2_completed:
 				_set_resume(&"kitchen", kitchen.marker("KitchenEntry"))
+				if not GameState.seen_notices.has(&"kitchen_intro"):
+					play_kitchen_intro()
 
 
 ## Points sûrs de la salle de bain : pied de l'escabeau, haut de l'escabeau.
@@ -332,6 +352,134 @@ func _update_kitchen_checkpoints() -> void:
 		_set_resume(&"kitchen_counter", counter)
 	elif p.y < 0.5 and p.distance_to(kitchen.marker("KitchenEntry").origin) < 2.0 and GameState.resume_point != &"kitchen":
 		_set_resume(&"kitchen", kitchen.marker("KitchenEntry"))
+
+
+# --- Cuisine : entrée, puce, saut chargé, souvenir n° 3 (lot 7) --------------------------
+
+## Présentation panoramique : une cuisine immense à l'échelle de Nin0, des cafards qui
+## circulent, une araignée qui chasse, des mouvements dans les recoins inaccessibles…
+## puis une puce bondit d'un coup tout en haut de la poubelle : Nin0 en reste bouche bée.
+func play_kitchen_intro() -> void:
+	if GameState.seen_notices.has(&"kitchen_intro") or cine.is_active() or _sequence:
+		return
+	GameState.seen_notices.append(&"kitchen_intro")
+	GameState.save()
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	var flea := kitchen.get_flea()
+	flea.hold = true
+	flea.global_position = kitchen.flea_intro_start()
+	# Une chasse en cours pour le plan suivant (sans Nin0).
+	kitchen.stage_intro_hunt()
+	cine.reason = &"kitchen_intro"
+	cine.begin(60.0)
+	# 1. La pièce, immense.
+	await cine.move(Vector3(-47.0, 15.0, 3.0), Vector3(-50.0, 12.0, 9.0), Vector3(-62.0, 4.0, 36.0), 3.2)
+	# 2. Des cafards au ras du sol.
+	var roach := kitchen.get_roaches()[0]
+	await cine.move(roach.global_position + Vector3(2.4, 1.2, -2.4), roach.global_position + Vector3(1.4, 0.7, -1.6), roach, 2.2)
+	# 3. Une araignée en chasse sous les meubles.
+	var spider := kitchen.get_node("Creatures/SpiderUnder") as KitchenSpider
+	await cine.move(Vector3(-66.0, 1.6, 47.0), Vector3(-68.0, 1.0, 49.5), spider, 2.6)
+	# 4. Derrière le réfrigérateur, ça bouge aussi.
+	await cine.move(Vector3(-47.8, 4.5, 47.6), Vector3(-47.2, 3.4, 49.0), Vector3(-46.1, 0.5, 53.0), 2.0)
+	# 5. Retour sur Nin0 : une puce à ses pieds… et le bond.
+	var visual := nino.get_visual()
+	cine.shot(nino.global_position + Vector3(-1.6, 1.2, 2.2), flea.global_position + Vector3.UP * 0.6)
+	visual.look_target = flea.global_position
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 3.0)
+	await _wait(1.2)
+	cine.follow(flea, Vector3(1.8, 1.4, -3.2))
+	visual.look_target = kitchen.flea_intro_perch()
+	await flea.jump_to(kitchen.flea_intro_perch(), 2.5)
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 2.0)
+	Sfx.play(&"surprised", -6.0)
+	await _wait(1.0)
+	cine.shot(nino.global_position + Vector3(-1.4, 0.9, 1.4), nino.global_position + Vector3.UP * 0.5)
+	visual.set_tilt(10.0)
+	thoughts.think([&"flea", &"up", &"exclamation"], "Si haut… d'un seul bond ?!", 2.6, true)
+	await _wait(2.6)
+	visual.set_tilt(0.0)
+	thoughts.think([&"eye", &"binoculars"], "", 1.8)
+	await _wait(1.2)
+	visual.look_target = null
+	cine.end()
+	flea.hold = false
+	flea.linger(18.0)
+	nino.controls_enabled = true
+	_sequence = false
+	if not GameState.has_species(&"flea"):
+		_hint_once(&"scan_flea", "Observez la [color=#ffd28a]puce[/color] avec la vision focalisée", 6.0)
+
+
+## Observer → comprendre : les pattes de la puce stockent l'énergie, puis la libèrent.
+func _flea_reflection() -> void:
+	var visual := nino.get_visual()
+	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 2.0)
+	thoughts.think([&"eye", &"flea"], "Ses pattes se replient…", 2.2, true)
+	await _wait(2.4)
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	thoughts.think([&"legs", &"energy"], "…comme un ressort ?", 2.2, true)
+	await _wait(2.4)
+	visual.show_emotion(NinoVisual.Emotion.ENTHUSIASTIC, 1.5)
+	thoughts.think([&"robot", &"legs", &"idea"], "Mes jambes aussi pourraient !", 2.4, true)
+	await _wait(2.0)
+	species_card.hide_card()
+	await blueprint.present(&"charged_jump", "SAUT CHARGÉ",
+			"Amélioration permanente des jambes : des ressorts accumulent l'énergie pendant que Nin0 se ramasse, puis la libèrent d'un coup. Appui bref : saut normal ; appui maintenu : saut bien plus haut. À fabriquer à l'imprimante du placard (filament structurel).",
+			[&"flea", &"arrow", &"legs", &"up"])
+	GameState.add_discovery(&"plan_charged_jump")
+	hud.show_toast("Plan découvert : Saut chargé", 3.0)
+
+
+func _on_upgrade_added(id: StringName) -> void:
+	if id != &"charged_jump":
+		return
+	nino.charged_jump_unlocked = true
+	_charge_tutorial = true
+	await _wait_until(30.0, func() -> bool: return nino.controls_enabled and not _sequence)
+	_hint_once(&"charged_jump", "Jambes déployées : maintenez %s pour charger, relâchez pour bondir" % Hud.key("Espace"), 8.0)
+
+
+## Souvenir n° 3 : Nin0 déchiffre la liste ligne par ligne ; silence particulier devant
+## la dernière, rayée. Il reste perplexe. L'archive 03/07 n'est accordée qu'ici.
+func play_todo_memory(memory: MemoryData) -> void:
+	if GameState.has_memory(memory.id) or _sequence:
+		if GameState.has_memory(memory.id):
+			director.reactions.react(&"known", null, true)
+		return
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	GameState.suspend_hazards(&"memory")
+	var visual := nino.get_visual()
+	var note := kitchen.todo_note_position()
+	visual.look_target = note
+	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 3.0)
+	cine.reason = &"memory_03"
+	cine.begin(45.0)
+	cine.shot(note + Vector3(0.6, 0.3, -2.2), note)
+	Sfx.play(&"focus_lock", -6.0)
+	await _wait(1.0)
+	var reader := TodoReader.new()
+	add_child(reader)
+	Music.duck(-14.0, 9.0)
+	await reader.read(memory.lines)
+	visual.show_emotion(NinoVisual.Emotion.HESITANT, 3.0)
+	await _wait(0.4)
+	reader.queue_free()
+	cine.end()
+	GameState.add_memory(memory.id)
+	hud.show_toast("Archive retrouvée : %02d / %02d" % [memory.slot, GameState.ARCHIVE.total], 3.0)
+	visual.set_tilt(8.0)
+	thoughts.think([&"question", &"ellipsis"], memory.comment, 3.2, true)
+	await _wait(2.6)
+	visual.set_tilt(0.0)
+	visual.look_target = null
+	GameState.resume_hazards(&"memory")
+	nino.controls_enabled = true
+	_sequence = false
 
 
 # --- Cuisine : araignées ----------------------------------------------------------------
@@ -511,6 +659,8 @@ func _follow_with_eyes(target: Node3D, duration: float) -> void:
 func _on_target_identified(target: FocusTarget) -> void:
 	if target.species:
 		_on_species_analyzed(target.species)
+	elif target.memory and target.memory.presentation == &"todo":
+		play_todo_memory(target.memory)
 	elif target.id == &"kitchen_latch":
 		if GameState.has_cannon():
 			thoughts.think([&"lock", &"cannon", &"exclamation"], "Une bille… pourrait le soulever.", 2.8, true)
@@ -533,6 +683,9 @@ func _on_species_analyzed(data: SpeciesData) -> void:
 	if data.unlocks_plan == &"plan_armor_1" and not GameState.has_discovery(&"plan_armor_1"):
 		await _wait(1.2)
 		await _armor_reflection()
+	elif data.unlocks_plan == &"plan_charged_jump" and not GameState.has_discovery(&"plan_charged_jump"):
+		await _wait(1.2)
+		await _flea_reflection()
 
 
 func _resume_after_card() -> void:
@@ -836,3 +989,13 @@ func _glance(point: Vector3, duration: float) -> void:
 
 func _wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
+
+
+func _wait_until(timeout: float, condition: Callable) -> bool:
+	var elapsed := 0.0
+	while elapsed < timeout:
+		if condition.call():
+			return true
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+	return false

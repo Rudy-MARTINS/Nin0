@@ -15,3 +15,6 @@ extends Resource
 @export var object_name := ""
 ## Commentaire de Nin0 après l'analyse (son interprétation, pas une information).
 @export var comment := ""
+## Mise en scène particulière (vide = enregistrement parasité habituel).
+## « todo » : Nin0 déchiffre lui-même un document manuscrit, ligne par ligne.
+@export var presentation: StringName

@@ -32,6 +32,7 @@ var _gameplay_visible := true
 var _last_fragments := -1
 var _last_plastic := -1
 var _notice: PanelContainer
+var _charge_gauge: ChargeGauge
 var _notice_title: Label
 var _notice_text: Label
 var _notice_icon: ThoughtIcon
@@ -128,6 +129,17 @@ func _build_notice() -> void:
 ## Met en forme une touche dans un texte d'indice : « [E] ».
 static func key(name: String) -> String:
 	return "[color=%s][b]%s[/b][/color]" % [KEY_COLOR, name]
+
+
+## Saut chargé : petit arc de charge au bas du centre de l'écran.
+func set_charge(value: float) -> void:
+	if _charge_gauge == null:
+		_charge_gauge = ChargeGauge.new()
+		_charge_gauge.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+		_charge_gauge.position = Vector2(-28.0, -200.0)
+		add_child(_charge_gauge)
+	_charge_gauge.value = value
+	_charge_gauge.position = Vector2(get_viewport().get_visible_rect().size.x * 0.5 - 28.0, get_viewport().get_visible_rect().size.y - 210.0)
 
 
 ## Textes de l'interface que les bulles de pensée ne doivent pas recouvrir.

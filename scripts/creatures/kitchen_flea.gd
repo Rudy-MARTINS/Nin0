@@ -98,6 +98,12 @@ func jump_to(target: Vector3, apex_extra := 1.2) -> void:
 	jumped.emit(from, target)
 
 
+## Reste sur son perchoir un moment (le joueur a le temps de l'observer).
+func linger(seconds: float) -> void:
+	_timer = seconds
+	_perch = _nearest_perch(global_position)
+
+
 func _arc_height(y0: float, y1: float, apex: float, t: float) -> float:
 	# Deux demi-paraboles raccordées à l'apex (montée rapide, descente).
 	var split := clampf(sqrt(apex - y0) / (sqrt(apex - y0) + sqrt(maxf(apex - y1, 0.01))), 0.2, 0.8)

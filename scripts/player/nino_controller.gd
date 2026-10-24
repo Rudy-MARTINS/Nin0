@@ -49,7 +49,7 @@ const CLIMBABLE_MASK := 1 << 1  # couche 2 « escaladable »
 ## Tolérance après avoir quitté un rebord, et mémorisation d'un appui anticipé.
 @export var coyote_time := 0.1
 ## Saut chargé (amélioration inspirée de la puce, lot 7) : maintenir Espace au sol.
-@export var charged_jump_height := 3.2
+@export var charged_jump_height := 3.4
 ## Durée de maintien pour une charge complète, au-delà du simple appui.
 @export var charge_time := 0.85
 ## En deçà, l'appui est un saut normal.
@@ -432,8 +432,11 @@ func _update_charge(delta: float) -> void:
 		cancel_charge()
 		return
 	if Input.is_action_pressed("jump"):
+		var before := charge
 		_charge_hold += delta
 		charge = clampf((_charge_hold - charge_min_hold) / charge_time, 0.0, 1.0)
+		if before <= 0.0 and charge > 0.0:
+			Sfx.play(&"charge", -12.0)
 		return
 	# Relâchement.
 	if _charge_hold < charge_min_hold or charge <= 0.0:
@@ -441,6 +444,7 @@ func _update_charge(delta: float) -> void:
 	else:
 		_pending_jump_height = lerpf(jump_height * 1.15, charged_jump_height, charge)
 		charged_jump.emit(charge)
+		Sfx.play(&"charged_jump", -8.0, 0.9 + charge * 0.2)
 	_jump_buffer = jump_buffer_time
 	_charging = false
 	charge = 0.0

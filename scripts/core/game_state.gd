@@ -609,6 +609,10 @@ func get_objective() -> String:
 		return "Prendre ses repères"
 	# Chapitre 2 (jeu complet) : objectifs au-delà du seuil du placard.
 	if chapter2_completed:
+		if has_upgrade(&"charged_jump"):
+			return "Explorer les hauteurs de la cuisine"
+		if has_discovery(&"plan_charged_jump"):
+			return "Fabriquer le saut chargé à l'imprimante"
 		return "Explorer la cuisine"
 	if kitchen_unlocked:
 		return "Entrer dans la cuisine"
