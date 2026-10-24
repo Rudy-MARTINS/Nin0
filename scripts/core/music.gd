@@ -16,7 +16,9 @@ extends Node
 ## Pistes du pack musical (lot 5.1, prototypes Suno retravaillés, usage interne) :
 ## - hub, labyrinthe : intro + boucle assemblées ; la boucle reprend juste après l'intro ;
 ## - boss : intro + deux sections, coupé avant la fin du morceau ; la boucle reprend à
-##   l'attaque de la première section (48,00 s), la fin n'est jamais jouée.
+##   l'attaque de la première section (48,00 s), la fin n'est jamais jouée ;
+## - cuisine : coupé à 76,02 s (avant le fondu final) avec un fondu enchaîné de 0,35 s
+##   vers la reprise à 25,50 s (passage musicalement équivalent, 50,5 s de boucle).
 const TRACKS := {
 	&"intro": {"path": "res://assets/music/intro_prototype.ogg", "loop": false, "volume": -4.0},
 	# « Petit Refuge » : placard-hub et sas.
@@ -26,7 +28,7 @@ const TRACKS := {
 	# « boss fight - Nin0 », V2 : reine des fourmis.
 	&"boss": {"path": "res://assets/music/boss_fight.ogg", "loop": true, "loop_offset": 47.984, "volume": -3.3},
 	# « kitchen - Nin0 » : cuisine (lot 6).
-	&"kitchen": {"path": "res://assets/music/kitchen.ogg", "loop": true, "loop_offset": 0.0, "volume": 3.0},
+	&"kitchen": {"path": "res://assets/music/kitchen.ogg", "loop": true, "loop_offset": 1124374.0 / 44100.0, "volume": 3.0},
 	# « living room - Nin0 » : salon, conservé hors du jeu (assets/music/_reserve), pas avant son ouverture.
 	&"living_room": {"path": "res://assets/music/living_room.ogg", "loop": true, "volume": -4.0},
 }

@@ -7,17 +7,17 @@ extends Node3D
 ##
 ## Touches : 1–7 aller à une zone · F1 aide · F2 carte · F3 plafonds ·
 ## F4 caméra libre (Z Q S D, Espace / C, Maj = rapide) ·
-## Ctrl + 1…7 : scénarios (rencontre du sas, labyrinthe gauche, labyrinthe droit,
-## escabeau, boss, fabrication du canon, porte de la cuisine).
+## Ctrl + 1…8 : scénarios (rencontre du sas, labyrinthe gauche, labyrinthe droit,
+## escabeau, boss, fabrication du canon, porte de la cuisine, intérieur de la cuisine).
 ## Démarrer : propriétés `start_zone` / `scenario`, ou « -- --zone=6 », « -- --scenario=boss ».
 
 @export_range(1, 7) var start_zone := 1
 @export var free_camera_speed := 14.0
 ## Scénario de test préparé au démarrage (vide = aucun).
-## sas, maze, right, stool, boss, cannon, kitchen (voir SCENARIOS).
+## sas, maze, right, stool, boss, cannon, kitchen, kitchen_inside (voir SCENARIOS).
 @export var scenario := ""
 
-const SCENARIOS := [&"sas", &"maze", &"right", &"stool", &"boss", &"cannon", &"kitchen"]
+const SCENARIOS := [&"sas", &"maze", &"right", &"stool", &"boss", &"cannon", &"kitchen", &"kitchen_inside"]
 
 const ZONE_COLORS := {
 	1: Color(0.85, 0.7, 0.45), 2: Color(0.72, 0.66, 0.56), 3: Color(0.55, 0.72, 0.8), 4: Color(0.78, 0.5, 0.38),
@@ -115,7 +115,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if key == null or not key.pressed or key.echo or GameState.modal_open:
 		return
 	var code := key.physical_keycode
-	if key.ctrl_pressed and code >= KEY_1 and code <= KEY_7:
+	if key.ctrl_pressed and code >= KEY_1 and code <= KEY_8:
 		game.run_dev_scenario(SCENARIOS[code - KEY_1])
 	elif code >= KEY_1 and code <= KEY_7:
 		go_to_zone(code - KEY_0)
@@ -186,7 +186,7 @@ func _build_hud() -> void:
 	_info.offset_top = 40
 	layer.add_child(_info)
 	_help = _label(15, Color(1, 0.95, 0.85))
-	_help.text = "1 à 7 (ou pavé numérique) : aller à une zone\nF2 : carte de l'appartement\nF3 : plafonds\nF4 : caméra libre (Z Q S D, Espace / C, Maj rapide)\nCtrl+1 rencontre du sas · Ctrl+2 labyrinthe gauche · Ctrl+3 labyrinthe droit\nCtrl+4 escabeau · Ctrl+5 reine · Ctrl+6 canon (imprimante) · Ctrl+7 porte cuisine\nÉchap : pause du jeu"
+	_help.text = "1 à 7 (ou pavé numérique) : aller à une zone\nF2 : carte de l'appartement\nF3 : plafonds\nF4 : caméra libre (Z Q S D, Espace / C, Maj rapide)\nCtrl+1 rencontre du sas · Ctrl+2 labyrinthe gauche · Ctrl+3 labyrinthe droit\nCtrl+4 escabeau · Ctrl+5 reine · Ctrl+6 canon (imprimante) · Ctrl+7 porte cuisine\nCtrl+8 intérieur de la cuisine (lot 6)\nÉchap : pause du jeu"
 	_help.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	_help.offset_left = 20
 	_help.offset_top = -290

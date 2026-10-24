@@ -8,6 +8,7 @@ extends Node3D
 ## sas (première ouvrière, analyse, plan Armure I, colonne, portes) → salle de bain
 ## (labyrinthes, soldats, souvenir n° 2, escabeau) → lavabo (reine, vidange, plan du
 ## canon) → retour à l'imprimante (canon) → loquet de la cuisine → fin du chapitre.
+## Lot 6 : la cuisine (araignées, cafards) s'explore ensuite librement.
 ## Le salon reste fermé (ouverture À DÉFINIR) ; la chambre reste verrouillée.
 
 signal encounter_finished
@@ -45,11 +46,14 @@ var _tick := 0.0
 ## Musique d'exploration autorisée (après le début de la partie, pas à l'écran titre).
 var _music_on := false
 var _boss_music := false
+var _mood_tween: Tween
+var _base_ambient := -1.0
 
 @onready var workshop: Node3D = $Workshop
 @onready var blockout: Node3D = $Blockout
 @onready var sas: SasZone = $SasZone
 @onready var bath: BathroomZone = $BathroomZone
+@onready var kitchen: KitchenZone = $KitchenZone
 
 
 func _ready() -> void:
@@ -87,6 +91,11 @@ func _ready() -> void:
 	sas.kitchen_door.examined.connect(_on_kitchen_door_examined)
 	sas.kitchen_door.unlocked.connect(_on_kitchen_unlocked)
 	bath.entered.connect(func() -> void: pass)
+	kitchen.examined.connect(func(data: DiscoveryData) -> void: director._on_examined(data))
+	kitchen.salon_door_examined.connect(_on_salon_door_examined)
+	kitchen.spider_alerted.connect(_on_spider_alerted)
+	for spider in kitchen.get_spiders():
+		spider.attacked_nino.connect(func(_s: KitchenSpider) -> void: director.reactions.react(&"danger", null, true))
 	for soldier in bath.get_soldiers():
 		soldier.alerted.connect(_on_soldier_alerted)
 	bath.larvae.landed_near.connect(func(point: Vector3) -> void: director.reactions.react(&"puzzled", point + Vector3.UP * 3.0))
@@ -146,6 +155,7 @@ func _apply_saved_world() -> void:
 		_show_fire_spot(true)
 	bath.arena.apply_saved_state()
 	bath.reset_creatures()
+	kitchen.reset_creatures()
 	for node in get_tree().get_nodes_in_group(&"resource_pickups"):
 		(node as ResourcePickup).refresh()
 	for node in get_tree().get_nodes_in_group(&"focus_targets"):
@@ -168,7 +178,9 @@ func _resume_transform() -> Variant:
 		&"sas":
 			return sas.marker("SasEntry")
 		&"kitchen":
-			return sas.marker("KitchenDoorFront")
+			return kitchen.marker("KitchenEntry") if GameState.chapter2_completed else sas.marker("KitchenDoorFront")
+		&"kitchen_counter":
+			return kitchen.marker("CounterWest")
 		&"bath":
 			return bath.marker("BathEntry")
 		&"stool":
@@ -198,10 +210,13 @@ func _physics_process(delta: float) -> void:
 		var previous := current_zone
 		current_zone = zone
 		_on_zone_changed(previous, zone)
-	GameState.in_combat = bath.any_soldier_engaged() or bath.arena.phase in [SinkArena.Phase.INTRO, SinkArena.Phase.FIGHT]
+	GameState.in_combat = bath.any_soldier_engaged() or bath.arena.phase in [SinkArena.Phase.INTRO, SinkArena.Phase.FIGHT] \
+			or kitchen.any_spider_engaged()
 	_update_music()
 	if current_zone == ZONE_BATH and GameState.woke_up and nino.is_on_floor():
 		_update_bath_checkpoints()
+	if current_zone == ZONE_KITCHEN and GameState.chapter2_completed and nino.is_on_floor():
+		_update_kitchen_checkpoints()
 	# Ouvrière croisée de près : intérêt (rarement, voir NinoReactions).
 	if current_zone == ZONE_SAS and GameState.worker_met and not _sequence:
 		for worker in sas.column.workers:
@@ -246,6 +261,7 @@ func zone_at(point: Vector3) -> int:
 
 
 func _on_zone_changed(_previous: int, zone: int) -> void:
+	_set_kitchen_mood(zone == ZONE_KITCHEN)
 	if not GameState.woke_up or GameState.dev_mode and not GameState.legs_installed:
 		return
 	match zone:
@@ -268,6 +284,8 @@ func _on_zone_changed(_previous: int, zone: int) -> void:
 		ZONE_KITCHEN:
 			if GameState.kitchen_unlocked and not GameState.chapter2_completed:
 				_complete_chapter()
+			elif GameState.chapter2_completed:
+				_set_resume(&"kitchen", kitchen.marker("KitchenEntry"))
 
 
 ## Points sûrs de la salle de bain : pied de l'escabeau, haut de l'escabeau.
@@ -279,6 +297,50 @@ func _update_bath_checkpoints() -> void:
 		_set_resume(&"stool", base)
 	elif p.y > 6.6 and p.y < 7.2 and Vector2(p.x - top.origin.x, p.z - top.origin.z).length() < 1.8 and GameState.resume_point != &"stool_top":
 		_set_resume(&"stool_top", top)
+
+
+## Ambiance de la cuisine : lumière ambiante plus faible (la fenêtre éclaire, les
+## dessous de meubles restent sombres), brume un peu plus froide. Retour progressif.
+func _set_kitchen_mood(on: bool) -> void:
+	var world := workshop.get_node_or_null("WorldEnvironment") as WorldEnvironment
+	if world == null or world.environment == null:
+		return
+	if _base_ambient < 0.0:
+		# Copie propre à cette partie : la ressource de la scène reste intacte.
+		world.environment = world.environment.duplicate()
+		_base_ambient = world.environment.ambient_light_energy
+	var env := world.environment
+	if _mood_tween:
+		_mood_tween.kill()
+	_mood_tween = create_tween().set_parallel(true)
+	_mood_tween.tween_property(env, "ambient_light_energy", _base_ambient * (0.5 if on else 1.0), 2.0)
+	_mood_tween.tween_property(env, "fog_density", 0.004 if on else 0.0025, 2.0)
+
+
+## Points sûrs de la cuisine : entrée, plan de travail (ouest).
+func _update_kitchen_checkpoints() -> void:
+	var p := nino.global_position
+	var counter := kitchen.marker("CounterWest")
+	if p.y > 8.8 and p.y < 9.4 and p.distance_to(counter.origin) < 2.0 and GameState.resume_point != &"kitchen_counter":
+		_set_resume(&"kitchen_counter", counter)
+	elif p.y < 0.5 and p.distance_to(kitchen.marker("KitchenEntry").origin) < 2.0 and GameState.resume_point != &"kitchen":
+		_set_resume(&"kitchen", kitchen.marker("KitchenEntry"))
+
+
+# --- Cuisine : araignées ----------------------------------------------------------------
+
+## Une araignée a repéré Nin0 près de son repaire : il comprend qu'il dérange.
+func _on_spider_alerted(spider: KitchenSpider) -> void:
+	if _shown.has(&"spider_alert"):
+		director.reactions.react(&"danger", spider.global_position + Vector3.UP * 0.1)
+		return
+	_shown[&"spider_alert"] = true
+	nino.get_visual().show_emotion(NinoVisual.Emotion.WORRIED, 1.8)
+	nino.get_visual().look_target = spider.global_position + Vector3.UP * 0.1
+	thoughts.think([&"spider", &"exclamation"], "", 1.8, true)
+	thoughts.think([&"house", &"cross"], "Son territoire…", 2.2)
+	await _wait(1.6)
+	nino.get_visual().look_target = null
 
 
 # --- Sas : première rencontre ---------------------------------------------------------
@@ -716,6 +778,17 @@ func run_dev_scenario(scenario: StringName) -> void:
 			GameState.add_plastic(12)
 			nino.get_visual().set_cannon_installed(true)
 			_teleport(sas.marker("KitchenDoorFront"))
+		&"kitchen_inside":
+			GameState.queen_defeated = true
+			bath.arena.apply_saved_state()
+			if not GameState.has_cannon():
+				GameState.add_upgrade(&"cannon")
+			GameState.add_plastic(12)
+			nino.get_visual().set_cannon_installed(true)
+			GameState.kitchen_unlocked = true
+			GameState.chapter2_completed = true
+			sas.kitchen_door.set_unlocked_immediately()
+			_teleport(kitchen.marker("KitchenEntry"))
 	GameState.progress_changed.emit()
 
 

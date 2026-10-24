@@ -1,7 +1,7 @@
 class_name ChapterEnd
 extends CanvasLayer
-## Fin de chapitre (lot 5 : la cuisine est ouverte). Sobre ; le joueur peut continuer
-## à explorer l'appartement (rien n'est perdu) ou quitter.
+## Fin de chapitre (lot 5 : la cuisine est ouverte). Sobre ; le joueur continue dans
+## la cuisine (lot 6, rien n'est perdu) ou quitte.
 
 signal continue_requested
 
@@ -27,11 +27,11 @@ func _init() -> void:
 	_content.theme = UiKit.THEME
 	UiKit.label(_content, "CHAPITRE 2 TERMINÉ", 16, UiKit.SCAN_COLOR).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	UiKit.label(_content, "Le territoire des fourmis", 34, UiKit.TITLE_COLOR).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var text := UiKit.label(_content, "La cuisine s'ouvre… la suite de l'aventure n'est pas encore construite.", 17, UiKit.DIM_COLOR)
+	var text := UiKit.label(_content, "La cuisine s'ouvre… Quelque chose y vit.", 17, UiKit.DIM_COLOR)
 	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var buttons := UiKit.hbox(_content, 16)
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	_continue = UiKit.button(buttons, "Continuer à explorer")
+	_continue = UiKit.button(buttons, "Entrer dans la cuisine")
 	_continue.pressed.connect(_on_continue)
 	UiKit.button(buttons, "Quitter").pressed.connect(func() -> void: get_tree().quit())
 	visible = false

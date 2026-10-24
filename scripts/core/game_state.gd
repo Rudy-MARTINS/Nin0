@@ -609,7 +609,7 @@ func get_objective() -> String:
 		return "Prendre ses repères"
 	# Chapitre 2 (jeu complet) : objectifs au-delà du seuil du placard.
 	if chapter2_completed:
-		return ""
+		return "Explorer la cuisine"
 	if kitchen_unlocked:
 		return "Entrer dans la cuisine"
 	if has_cannon():
