@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpeciesData" format=3 uid="uid://g3efh21evxtj"]
+
+[ext_resource type="Script" uid="uid://huvtoujplpbv" path="res://scripts/creatures/species_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"spider"
+display_name = "Araignée domestique"
+classification = "Arachnide — prédatrice solitaire"
+description = "Huit pattes, plusieurs yeux. Tisse dans les coins sombres et en hauteur, attend, puis bondit. Emballe ses proies dans la soie."
+behavior = "Territoriale : surveille, avertit, attaque si l'on s'attarde près de son repaire"
+traits = PackedStringArray("Se ramasse avant de bondir (attaque annoncée)", "Descend et remonte le long de son fil", "Chasse les cafards ; ignore le reste pendant qu'elle emballe une proie")
+mechanical_inspiration = ""
+icon = &"spider"
+color = Color(0.3, 0.24, 0.2, 1)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpeciesData" format=3 uid="uid://0nq5ib73t896"]
+
+[ext_resource type="Script" uid="uid://huvtoujplpbv" path="res://scripts/creatures/species_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"roach"
+display_name = "Cafard des bois"
+classification = "Insecte — fouisseur opportuniste"
+description = "Corps plat et luisant, longues antennes. Fouille les miettes, se glisse sous les meubles, détale au moindre danger."
+behavior = "Craintif : fuit vers une cachette ; acculé, se dresse et pince"
+traits = PackedStringArray("Très rapide, change de direction sans prévenir", "Antennes toujours en mouvement", "Proie favorite des araignées")
+mechanical_inspiration = ""
+icon = &"roach"
+color = Color(0.45, 0.27, 0.14, 1)
