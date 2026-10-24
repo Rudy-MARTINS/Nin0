@@ -3,9 +3,15 @@ extends RefCounted
 ## Petits constructeurs d'interface (style de l'ordinateur de Nin0, thème commun).
 
 const THEME: Theme = preload("res://assets/ui/nino_theme.tres")
-const TITLE_COLOR := Color(1.0, 0.86, 0.62)
-const SCAN_COLOR := Color(0.55, 0.95, 1.0)
-const DIM_COLOR := Color(0.75, 0.78, 0.8)
+## Palette Nin0 (glow-up lot 7) : crème du châssis, orange doux des accents, cyan de
+## l'écran-visage, bleu-gris profond des panneaux. Toute nouvelle interface s'y tient.
+const CREAM := Color(0.97, 0.93, 0.85)
+const ORANGE := Color(0.96, 0.6, 0.28)
+const CYAN := Color(0.5, 0.93, 1.0)
+const INK := Color(0.095, 0.11, 0.14)
+const TITLE_COLOR := Color(1.0, 0.82, 0.58)
+const SCAN_COLOR := CYAN
+const DIM_COLOR := Color(0.72, 0.76, 0.8)
 
 
 static func panel() -> PanelContainer:
