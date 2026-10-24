@@ -102,15 +102,69 @@ Les scènes de zones sont produites par des générateurs Python hors dépôt (b
 - Canon : 6 billes offertes à la fabrication ; une bille = un plastique ; 24 au maximum.
 - Coûts : Armure I et canon 3 fragments chacun.
 - Le labyrinthe gauche et le souvenir n° 2 restent accessibles avant et après la reine.
-- Musique : le morceau d'introduction reste joué une fois au démarrage ; aucune musique de zone (à composer séparément).
+- Musique : voir « Lot 5.1 » ci-dessous.
 
 ## Limites connues
 
 - Graphismes : accessoires en volumes simples (boîtes, cylindres, sphères), sans textures ; les galeries de terre sont des volumes arrondis.
 - La colonne et les soldats ne contournent pas les obstacles par navigation : leurs trajets sont posés à la main ; un soldat coincé abandonne et reprend sa patrouille.
-- Pas de son de zone ni de musique de combat ; effets sonores synthétiques.
+- Musiques de zone : le système est prêt, mais seuls les fichiers fournis sont joués (voir `assets/music/LISEZMOI.md`) ; effets sonores et jingles synthétiques.
 - La caméra peut passer derrière des accessoires dans les galeries étroites (pas de transparence des obstacles).
 - Les validations automatiques ne remplacent pas un essai à la manette / au clavier sous Windows (sensations, lisibilité, difficulté).
+
+## Lot 5.1 — corrections après le premier essai manuel [DÉVELOPPÉ, en attente d'un nouveau test]
+
+### Musique
+- **Bug corrigé** : l'introduction continuait pendant le jeu. Elle se joue maintenant à l'écran titre seulement ; au début du gameplay (réveil, Continuer, mode développement) elle s'arrête par un fondu et **« Petit Refuge »** prend le relais.
+- Une seule musique de zone à la fois : deux lecteurs servent uniquement au fondu enchaîné (0,8 s ; 1,2 s vers le boss). Demander le morceau déjà en cours ne fait rien : **aucun redémarrage** entre le placard et le sas ni lors d'une interaction.
+- Choix par zone (`GameWorld.music_for_state`) : combat de la reine > salle de bain (« ant labyrinth », V3) > cuisine (« kitchen », lot 6) > placard et sas (« Petit Refuge »). La musique du boss démarre **au moment où la reine se redresse** dans la mini-cinématique ; après la victoire (une fois le plan du canon obtenu) ou après un échec, retour aux labyrinthes.
+- Pause : la musique continue (bus séparé) ; chargement : la zone de reprise choisit le morceau.
+- Volume musical indépendant des effets (bus Music / Sfx).
+- **Fichiers non encore fournis** : Petit Refuge, ant labyrinth V3, boss fight V2, kitchen. Le système joue du silence à leur place ; ils seront joués dès qu'ils seront déposés sous les noms de `assets/music/LISEZMOI.md`. Ces morceaux ne sont donc **pas** intégrés à ce jour.
+
+### Jingles de découverte (originaux, synthétisés)
+- **A — scan terminé** : signal électronique puis arpège montant (≈ 1,4 s), à la première identification d'une espèce.
+- **B — nouveau plan** : courte phrase chaleureuse qui se pose sur un accord (≈ 2 s), à chaque plan débloqué (Renfort, Armure I, canon).
+- **C — amélioration installée** : notes ascendantes rapides et accord (≈ 1,4 s), à l'installation des jambes, du Renfort, d'Armure I et du canon.
+- La musique s'efface brièvement (−12 dB) puis revient ; chaque découverte étant unique, chaque jingle n'est joué qu'une fois par découverte.
+
+### Labyrinthes
+- Les murs de terre du chemin droit sont devenus du **linge** : piles de vêtements pliés (couches arrondies, plis visibles, couleurs naturelles), serviettes pliées surmontées de serviettes roulées, gros tas de linge pour les zones fermées, chiffons et tee-shirts tombés au sol ; quelques miettes de terre au sommet rappellent les galeries des fourmis. Collisions : boîtes invisibles de même emprise qu'avant (parcours inchangés).
+- Chemin gauche : la boîte de lessive et la boîte de cotons sont devenues des piles de serviettes et de vêtements pliés ; le paquet de rouleaux a ses quatre rouleaux visibles. Il reste reconnaissable (objets de salle de bain, couleurs claires) face au chemin droit (linge et terre de la colonie).
+
+### Soldats (4 → 10, IA inchangée)
+| Soldat | Chemin | Rôle |
+|---|---|---|
+| SoldierLeftSouth | gauche, couloir sud | longue patrouille jusqu'au cul-de-sac (plastique) |
+| SoldierLeftCenter | gauche, couloir central | patrouille transversale |
+| SoldierLeftUpper | gauche, couloir haut | garde l'approche du recoin du ticket (sans s'y poster) : on passe quand elle tourne le dos |
+| SoldierGravel | droit, gravier | inchangé |
+| SoldierStep | droit, jonction gravier / marche | nouvelle |
+| SoldierCorridor | droit, couloir de la marche | inchangé |
+| SoldierPebbles | droit, avant les cailloux | nouvelle |
+| SoldierToilet | droit, poche du WC | inchangé |
+| SoldierVanity | droit, devant le meuble | inchangé |
+| SoldierTowel | droit, sous la serviette (larves) | nouvelle, la plus proche de l'escabeau |
+- Tous patrouillent (aucun garde immobile), leurs trajets sont vérifiés sans obstacle, aucun n'est posté à moins de 3 u du ticket ni des points sûrs. Après une mise en veille, les soldats reviennent à leur poste et ignorent Nin0 2,5 s (récupération après une erreur). Dégâts des soldats inchangés.
+
+### Reine
+- **Mobile** dans toute la vasque (zone praticable bornée : matière, débris, éponge), à 0,7 u/s (0,85 quand elle vient chercher Nin0), virages lents d'un gros insecte. Elle se replace à distance de crachat (2,2 à 3,4 u), vient chercher Nin0 s'il reste 3 s au même endroit ou s'éloigne trop, et se repositionne souvent après une attaque. Elle ne sort pas de la vasque, ne traverse pas Nin0 (elle le repousse doucement) et ne peut pas atteindre l'anneau (sur le rebord).
+- **Dégâts relevés** : acide 12 → 18 (ralentissement 2 s au lieu de 1,6 ; dans la matière ×1,25), morsure 30 → 42 (préparation allongée de 1,0 à 1,1 s, récupération 1,5 s). Sans Armure I, deux morsures dans la matière mettent Nin0 en veille : il faut bouger. Victoire toujours possible sans arme ni armure (test automatique).
+- Elle est cachée dans la matière avant la première rencontre ; une bille la fait sursauter, sans dégâts.
+
+### Mises en scène
+- **Début (première fois, ≈ 6 s)** : caméra de mise en scène (travelling sur l'arène) ; bulles, la reine émerge de la matière et monte sur son éponge ; gros plan : elle remarque Nin0 (« ! ») ; elle se redresse et grogne — la musique du combat démarre ; plan sur Nin0 surpris ; caméra et contrôle rendus. Essais suivants : grognement et musique, 0,8 s.
+- **Fin** : Nin0 tire la chaînette ; gros plan sur la bonde qui saute ; travelling pendant la vidange (6 s) ; la reine réagit (« ?! »), court vers son éponge, vacille, s'accroche, puis le courant l'emporte en tournoyant vers la bonde ; plan sur Nin0 qui constate le lavabo vide ; puis son raisonnement vers le plan du canon. Interface masquée pendant ces plans.
+
+### Première ouvrière
+- Après l'arrêt de l'ouvrière : Nin0 l'observe, **ses yeux se calibrent** (deux plissements, déclic optique), pensée **jumelles + fourmi** ; le contrôle revient ; une **cible pulsante** apparaît sous l'ouvrière (et son repère dans la vision focalisée) avec l'indication « Maintenez clic droit : vision focalisée — visez la fourmi ». L'ouvrière **attend** jusqu'à 14 s (tant que Nin0 reste à moins de 3,5 u). Le scan n'est jamais automatique. Après l'analyse : jingle, fiche, réaction à l'exosquelette, plan Armure I ; puis elle repart.
+
+### Captures du lot 5.1
+
+| | | |
+|---|---|---|
+| ![Labyrinthe gauche](images/lot5_1/11_labyrinthe_gauche.png) | ![Galeries en linge](images/lot5_1/12_galeries_linge.png) | ![Arène](images/lot5_1/13_arene_reine.png) |
+| Chemin gauche : serviettes, vêtements pliés, rouleaux | Chemin droit : galeries de linge | Vue de la mini-cinématique |
 
 ## Captures (rendu Godot 4.7, OpenGL, sans interface)
 

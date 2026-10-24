@@ -42,6 +42,7 @@ func _run() -> void:
 	await _hold(["move_forward"], 0.1)
 	await _wait(6.5)
 	_check(GameState.woke_up and _nino.controls_enabled, "Nin0 s'est réveillé et répond aux commandes")
+	_check(Music.desired == &"hub" and Music.current != &"intro", "début du jeu : l'introduction s'arrête, la musique du hub prend le relais")
 	_check(_saw_thought([&"ellipsis"]) and _saw_thought([&"question"]), "pensées du réveil : confusion puis interrogation")
 
 	# 2. Mini-tutoriel : chaque action doit être réellement effectuée.
