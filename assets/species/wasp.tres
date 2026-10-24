@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpeciesData" format=3 uid="uid://bqxnzw8q7c32j"]
+
+[ext_resource type="Script" uid="uid://huvtoujplpbv" path="res://scripts/creatures/species_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"wasp"
+display_name = "Guêpe"
+classification = "Insecte volant"
+description = "Corps rayé jaune et noir, taille très fine, quatre ailes rapides. Entre par la fenêtre."
+behavior = "Agressive : défend son passage, attaque en piqué"
+traits = PackedStringArray("Dard au bout de l'abdomen, dur et pointu", "Annonce son attaque : abdomen relevé, bourdonnement plus aigu")
+mechanical_inspiration = "Une pointe dure et fine traverse ce qu'une bille ronde ne fait que heurter."
+icon = &"wasp"
+color = Color(0.85, 0.62, 0.1, 1)

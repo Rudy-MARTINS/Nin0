@@ -8,8 +8,12 @@ extends Node
 signal fired
 signal hit(collider: Object)
 signal empty
+signal ammo_changed(ammo: AmmoData)
 
 const AMMO: AmmoData = preload("res://assets/upgrades/ammo_bead.tres")
+const AMMO_STING: AmmoData = preload("res://assets/upgrades/ammo_sting.tres")
+## Munitions connues, dans l'ordre du changement (Q).
+const AMMO_TYPES: Array[AmmoData] = [AMMO, AMMO_STING]
 ## Monde, créatures, cibles de projectiles.
 const HIT_MASK := 1 | 16 | 32
 
@@ -21,18 +25,73 @@ var ammo: AmmoData = AMMO
 var shots := 0
 var _cooldown := 0.0
 var _bead_material: StandardMaterial3D
-var _bead_mesh: SphereMesh
+var _bead_mesh: Mesh
+var _meshes := {}
+var _materials := {}
 
 
 func _ready() -> void:
-	_bead_material = StandardMaterial3D.new()
-	_bead_material.albedo_color = ammo.color
-	_bead_material.roughness = 0.25
-	_bead_mesh = SphereMesh.new()
-	_bead_mesh.radius = ammo.radius
-	_bead_mesh.height = ammo.radius * 2.0
-	_bead_mesh.radial_segments = 10
-	_bead_mesh.rings = 5
+	for type in AMMO_TYPES:
+		var material := StandardMaterial3D.new()
+		material.albedo_color = type.color
+		material.roughness = 0.25
+		if type.piercing:
+			material.metallic = 0.6
+			var cone := CylinderMesh.new()
+			cone.top_radius = 0.0
+			cone.bottom_radius = type.radius
+			cone.height = type.radius * 4.0
+			cone.radial_segments = 8
+			_meshes[type.id] = cone
+		else:
+			var sphere := SphereMesh.new()
+			sphere.radius = type.radius
+			sphere.height = type.radius * 2.0
+			sphere.radial_segments = 10
+			sphere.rings = 5
+			_meshes[type.id] = sphere
+		_materials[type.id] = material
+	select_ammo(GameState.ammo_type, false)
+
+
+## Munitions utilisables (améliorations possédées).
+func available_ammo() -> Array[AmmoData]:
+	var list: Array[AmmoData] = []
+	for type in AMMO_TYPES:
+		if type.requires_upgrade == &"" or GameState.has_upgrade(type.requires_upgrade):
+			list.append(type)
+	return list
+
+
+func select_ammo(id: StringName, notify := true) -> bool:
+	for type in available_ammo():
+		if type.id == id:
+			ammo = type
+			_bead_mesh = _meshes[type.id]
+			_bead_material = _materials[type.id]
+			if GameState.ammo_type != id:
+				GameState.ammo_type = id
+				GameState._save_if_started()
+			if notify:
+				ammo_changed.emit(ammo)
+			return true
+	if notify:
+		return false
+	ammo = AMMO
+	_bead_mesh = _meshes[AMMO.id]
+	_bead_material = _materials[AMMO.id]
+	return false
+
+
+## Munition suivante (Q) ; false s'il n'y en a qu'une.
+func cycle_ammo() -> bool:
+	var list := available_ammo()
+	if list.size() < 2:
+		return false
+	var index := list.find(ammo)
+	select_ammo(list[(index + 1) % list.size()].id)
+	Sfx.play(&"click", -8.0, 1.4 if ammo.piercing else 1.0)
+	return true
 
 
 func can_fire() -> bool:
@@ -44,6 +103,8 @@ func _physics_process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	if Input.is_action_just_pressed("fire") and can_fire():
 		fire()
+	if Input.is_action_just_pressed("switch_ammo") and GameState.has_cannon() and not GameState.modal_open:
+		cycle_ammo()
 
 
 ## Point visé : centre de l'écran, premier obstacle sur la ligne de visée.
@@ -83,7 +144,7 @@ func fire() -> bool:
 		model.recoil()
 	Sfx.play(&"shot", -6.0, randf_range(0.95, 1.08))
 	fired.emit()
-	_launch(muzzle, direction * ammo.speed)
+	_launch(muzzle, direction * ammo.speed, ammo)
 	return true
 
 
@@ -125,25 +186,29 @@ func _assisted_target() -> Vector3:
 	return best
 
 
-func _launch(from: Vector3, velocity: Vector3) -> void:
+func _launch(from: Vector3, velocity: Vector3, type: AmmoData = AMMO) -> void:
 	var bead := MeshInstance3D.new()
-	bead.mesh = _bead_mesh
-	bead.material_override = _bead_material
+	bead.mesh = _meshes.get(type.id, _bead_mesh)
+	bead.material_override = _materials.get(type.id, _bead_material)
 	nino.get_parent().add_child(bead)
 	bead.global_position = from
 	var travelled := 0.0
 	var space := nino.get_world_3d().direct_space_state
-	while is_instance_valid(bead) and travelled < ammo.max_range:
+	while is_instance_valid(bead) and travelled < type.max_range:
 		await get_tree().physics_frame
 		if not is_instance_valid(bead):
 			return
 		var step := get_physics_process_delta_time()
-		velocity.y -= ammo.gravity * step
+		velocity.y -= type.gravity * step
 		var next := bead.global_position + velocity * step
+		if type.piercing and velocity.length() > 0.01:
+			# La pointe suit la trajectoire.
+			bead.look_at(bead.global_position + velocity, Vector3.UP if absf(velocity.normalized().y) < 0.99 else Vector3.RIGHT)
+			bead.rotate_object_local(Vector3.RIGHT, -PI * 0.5)
 		var query := PhysicsRayQueryParameters3D.create(bead.global_position, next, HIT_MASK, [nino.get_rid()])
 		var result := space.intersect_ray(query)
 		if not result.is_empty():
-			_impact(result.position, result.normal, result.collider)
+			_impact(result.position, result.normal, result.collider, type)
 			bead.queue_free()
 			return
 		travelled += bead.global_position.distance_to(next)
@@ -152,7 +217,7 @@ func _launch(from: Vector3, velocity: Vector3) -> void:
 		bead.queue_free()
 
 
-func _impact(point: Vector3, normal: Vector3, collider: Object) -> void:
+func _impact(point: Vector3, normal: Vector3, collider: Object, type: AmmoData = AMMO) -> void:
 	Sfx.play(&"impact_small", -8.0, randf_range(0.9, 1.2))
 	var receiver: Object = collider
 	if collider and not collider.has_method("on_projectile_hit") and collider.has_meta("projectile_receiver"):
@@ -160,6 +225,9 @@ func _impact(point: Vector3, normal: Vector3, collider: Object) -> void:
 	var marker := Node3D.new()
 	nino.get_parent().add_child(marker)
 	marker.global_position = point
+	marker.set_meta("damage", type.damage)
+	marker.set_meta("piercing", type.piercing)
+	marker.set_meta("ammo", type.id)
 	if receiver and receiver.has_method("on_projectile_hit"):
 		receiver.on_projectile_hit(marker)
 	hit.emit(receiver)
@@ -167,7 +235,7 @@ func _impact(point: Vector3, normal: Vector3, collider: Object) -> void:
 	var burst := CPUParticles3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2(0.02, 0.02)
-	var material := _bead_material.duplicate() as StandardMaterial3D
+	var material := (_materials.get(type.id, _bead_material) as StandardMaterial3D).duplicate() as StandardMaterial3D
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	quad.material = material

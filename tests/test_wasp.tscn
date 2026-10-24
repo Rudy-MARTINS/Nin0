@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://clsaowoxrm6m"]
+
+[ext_resource type="Script" uid="uid://bas4n0bab2ndp" path="res://tests/test_wasp.gd" id="1_test"]
+
+[node name="TestWasp" type="Node"]
+script = ExtResource("1_test")

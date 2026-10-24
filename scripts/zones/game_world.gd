@@ -18,6 +18,7 @@ const ZONE_HUB := 1
 const ZONE_SAS := 2
 const ZONE_BATH := 3
 const ZONE_KITCHEN := 4
+const ZONE_SALON := 6
 
 ## Mode développement : scénario à préparer au démarrage (voir apartment_dev.gd).
 var dev_scenario: StringName = &""
@@ -102,6 +103,21 @@ func _ready() -> void:
 			director.reactions.react(&"upgrade", null, true)
 			hud.show_toast("Saut chargé maîtrisé", 2.5))
 	kitchen.salon_door_examined.connect(_on_salon_door_examined)
+	var wasps := kitchen.wasp_arena
+	wasps.engaged.connect(_play_wasp_intro)
+	wasps.minions_defeated.connect(_play_wasp_transition)
+	wasps.boss_defeated.connect(_play_wasp_victory)
+	wasps.fight_reset.connect(func() -> void:
+		_boss_music = false
+		kitchen.set_window_spider_hidden(false))
+	wasps.fight_paused.connect(func() -> void:
+		if not _shown.has(&"wasp_paused"):
+			_shown[&"wasp_paused"] = true
+			thoughts.think([&"wasp", &"up"], "Elles m'attendent là-haut…", 2.4, true))
+	sas.salon_door.bounced.connect(_on_salon_elastic_bounced)
+	sas.salon_door.opened.connect(_on_salon_opened)
+	cannon.ammo_changed.connect(func(ammo: AmmoData) -> void:
+		hud.set_ammo(ammo, cannon.available_ammo().size() > 1))
 	kitchen.spider_alerted.connect(_on_spider_alerted)
 	for spider in kitchen.get_spiders():
 		spider.attacked_nino.connect(func(_s: KitchenSpider) -> void: director.reactions.react(&"danger", null, true))
@@ -178,6 +194,13 @@ func _apply_saved_world() -> void:
 	bath.arena.apply_saved_state()
 	bath.reset_creatures()
 	kitchen.reset_creatures()
+	kitchen.wasp_arena.apply_saved_state()
+	if GameState.salon_opened:
+		sas.salon_door.set_open_immediately()
+	elif GameState.has_upgrade(&"sting_bead") and GameState.seen_notices.has(&"salon_elastic_plan"):
+		sas.salon_door.highlight(true)
+	cannon.select_ammo(GameState.ammo_type, false)
+	hud.set_ammo(cannon.ammo, cannon.available_ammo().size() > 1)
 	nino.charged_jump_unlocked = GameState.has_upgrade(&"charged_jump")
 	for node in get_tree().get_nodes_in_group(&"resource_pickups"):
 		(node as ResourcePickup).refresh()
@@ -236,7 +259,7 @@ func _physics_process(delta: float) -> void:
 		current_zone = zone
 		_on_zone_changed(previous, zone)
 	GameState.in_combat = bath.any_soldier_engaged() or bath.arena.phase in [SinkArena.Phase.INTRO, SinkArena.Phase.FIGHT] \
-			or kitchen.any_spider_engaged()
+			or kitchen.any_spider_engaged() or kitchen.wasp_arena.is_active()
 	_update_music()
 	if current_zone == ZONE_BATH and GameState.woke_up and nino.is_on_floor():
 		_update_bath_checkpoints()
@@ -263,6 +286,8 @@ func music_for_state() -> StringName:
 			return &"labyrinth"
 		ZONE_KITCHEN:
 			return &"kitchen"
+		ZONE_SALON:
+			return &"living_room" if Music.has_track(&"living_room") else &"hub"
 		ZONE_HUB, ZONE_SAS:
 			return &"hub"
 	return Music.desired
@@ -313,6 +338,11 @@ func _on_zone_changed(_previous: int, zone: int) -> void:
 				_set_resume(&"kitchen", kitchen.marker("KitchenEntry"))
 				if not GameState.seen_notices.has(&"kitchen_intro"):
 					play_kitchen_intro()
+		ZONE_SALON:
+			if GameState.salon_opened and not GameState.salon_entered:
+				GameState.set_flag(&"salon_entered")
+				nino.get_visual().show_emotion(NinoVisual.Emotion.SURPRISED, 2.0)
+				thoughts.think([&"eye", &"sun", &"exclamation"], "", 2.4)
 
 
 ## Points sûrs de la salle de bain : pied de l'escabeau, haut de l'escabeau.
@@ -434,6 +464,11 @@ func _flea_reflection() -> void:
 
 
 func _on_upgrade_added(id: StringName) -> void:
+	if id == &"sting_bead":
+		cannon.select_ammo(&"sting_bead")
+		await _wait_until(30.0, func() -> bool: return nino.controls_enabled and not _sequence)
+		_hint_once(&"sting_bead", "%s : changer de munition (billes / billes pointues)" % Hud.key("Q"), 7.0)
+		return
 	if id != &"charged_jump":
 		return
 	nino.charged_jump_unlocked = true
@@ -480,6 +515,157 @@ func play_todo_memory(memory: MemoryData) -> void:
 	GameState.resume_hazards(&"memory")
 	nino.controls_enabled = true
 	_sequence = false
+
+
+# --- Cuisine : guêpes de la fenêtre (lot 7) ----------------------------------------------
+
+## Intro : bourdonnement, deux petites guêpes entrent par l'imposte, la grosse se pose sur
+## le linteau, remarque Nin0 et s'énerve. Reprise (nouvel essai, phase 2) : version courte.
+func _play_wasp_intro() -> void:
+	var arena := kitchen.wasp_arena
+	var great := arena.great
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	kitchen.set_window_spider_hidden(true)
+	var visual := nino.get_visual()
+	cine.reason = &"wasp_intro"
+	cine.begin(58.0)
+	if arena.attempts == 1 and not GameState.wasp_phase2:
+		Sfx.play(&"buzz", -4.0, 0.9)
+		visual.look_target = arena.window
+		visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+		cine.shot(arena.window + Vector3(5.2, -2.6, 4.6), arena.window)
+		await _wait(0.8)
+		arena.spawn_intro_minions()
+		Sfx.play(&"buzz", -2.0, 1.4)
+		await _wait(1.4)
+		great.global_position = arena.window + Vector3(-1.4, 1.2, 0.0)
+		cine.move(arena.perch + Vector3(4.6, -2.2, 4.0), arena.perch + Vector3(3.4, -1.0, 2.6), great, 2.0)
+		Sfx.play(&"buzz_angry", -2.0, 0.7)
+		await great.fly_to(arena.perch, 1.8)
+		great.look_toward(nino.global_position)
+		await _wait(0.4)
+		great.show_anger(true)
+		Sfx.play(&"queen_roar", -6.0, 1.9)
+		_boss_music = true
+		_update_music()
+		await _wait(1.2)
+		cine.shot(nino.global_position + Vector3(1.4, 0.8, -1.6), nino.global_position + Vector3.UP * 0.4)
+		visual.look_target = arena.perch
+		visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.6)
+		Sfx.play(&"surprised", -6.0)
+		thoughts.think([&"wasp", &"exclamation"], "", 1.8, true)
+		await _wait(1.4)
+		great.show_anger(false)
+		hud.show_toast("Les guêpes de la fenêtre", 3.0)
+	else:
+		if not GameState.wasp_phase2:
+			arena.spawn_intro_minions()
+			great.global_position = arena.perch
+		great.look_toward(nino.global_position)
+		cine.shot(great.global_position + Vector3(3.4, -1.4, -2.8), great.global_position)
+		great.show_anger(true)
+		Sfx.play(&"queen_roar", -6.0, 1.9)
+		_boss_music = true
+		_update_music()
+		await _wait(1.2)
+		great.show_anger(false)
+	visual.look_target = null
+	cine.end()
+	nino.controls_enabled = true
+	_sequence = false
+	arena.begin_phase1()
+	if GameState.wasp_phase2:
+		_hint_once(&"wasp_phase2", "Tirez quand elle [color=#ffd28a]appelle des renforts[/color] ou après une charge : elle est vulnérable", 6.0)
+	else:
+		_hint_once(&"wasp_phase1", "Les petites guêpes s'annoncent avant de piquer (« ! ») : visez-les, esquivez les piques", 6.0)
+
+
+## Changement de phase : la grosse guêpe voit les petites à terre, s'énerve, descend.
+func _play_wasp_transition() -> void:
+	var arena := kitchen.wasp_arena
+	var great := arena.great
+	await _wait(0.7)
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	var visual := nino.get_visual()
+	cine.reason = &"wasp_phase"
+	cine.begin(55.0)
+	var fallen := nino.global_position
+	for minion in arena.minions:
+		if is_instance_valid(minion):
+			fallen = minion.global_position
+	cine.shot(great.global_position + Vector3(3.0, -1.2, -2.6), great.global_position)
+	great.look_toward(fallen)
+	await _wait(1.0)
+	great.look_toward(nino.global_position)
+	great.show_anger(true)
+	Sfx.play(&"buzz_angry", 0.0, 0.8)
+	Sfx.play(&"queen_roar", -4.0, 1.7)
+	await _wait(1.1)
+	var down_to := arena.clamp_air(nino.global_position + Vector3(1.6, 2.0, -2.0))
+	cine.follow(great, Vector3(2.6, 0.6, -2.4))
+	await great.fly_to(down_to, 1.6)
+	cine.shot(nino.global_position + Vector3(1.2, 0.7, -1.5), nino.global_position + Vector3.UP * 0.4)
+	visual.look_target = great.global_position
+	visual.show_emotion(NinoVisual.Emotion.WORRIED, 1.6)
+	thoughts.think([&"wasp", &"exclamation"], "La grande…", 1.8, true)
+	await _wait(1.2)
+	great.show_anger(false)
+	visual.look_target = null
+	cine.end()
+	nino.controls_enabled = true
+	_sequence = false
+	arena.begin_phase2()
+	_hint_once(&"wasp_phase2", "Tirez quand elle [color=#ffd28a]appelle des renforts[/color] ou après une charge : elle est vulnérable", 6.0)
+
+
+## Victoire : la grosse guêpe tombe, sonnée ; Nin0 observe son dard → plan des billes
+## pointues (à fabriquer à l'imprimante). Elle repart par la fenêtre et ne revient plus.
+func _play_wasp_victory() -> void:
+	var arena := kitchen.wasp_arena
+	var great := arena.great
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	var visual := nino.get_visual()
+	cine.reason = &"wasp_victory"
+	cine.begin(52.0)
+	await _wait(0.1)
+	var at := great.global_position
+	cine.shot(at + Vector3(2.4, 1.2, -2.2), at)
+	await _wait(1.2)
+	at = great.global_position
+	cine.shot(nino.global_position + Vector3(1.4, 0.8, -1.6), nino.global_position + Vector3.UP * 0.4)
+	visual.look_target = at
+	visual.show_emotion(NinoVisual.Emotion.ENTHUSIASTIC, 2.0)
+	director.reactions.react(&"upgrade", null, true)
+	await _wait(1.6)
+	# Observation du dard.
+	cine.shot(at + Vector3(0.9, 0.5, -0.9), at + Vector3(0.0, 0.05, 0.0))
+	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 2.4)
+	thoughts.think([&"wasp", &"eye"], "Ce dard…", 2.2, true)
+	await _wait(2.4)
+	thoughts.think([&"sting", &"idea"], "Une pointe… elle percerait !", 2.4, true)
+	await _wait(2.2)
+	cine.follow(great, Vector3(2.8, 1.0, -2.0))
+	await arena.finish()
+	visual.look_target = null
+	cine.end()
+	kitchen.set_window_spider_hidden(false)
+	await _wait(0.3)
+	await blueprint.present(&"sting", "BILLES POINTUES",
+			"Second chargeur du canon : des billes prolongées d'une pointe dure, inspirées du dard de la guêpe. Elles frappent plus fort et percent ce qui fait rebondir une bille ronde. Coûtent deux plastiques. À fabriquer à l'imprimante du placard.",
+			[&"wasp", &"arrow", &"sting", &"cannon"])
+	GameState.add_discovery(&"plan_sting_bead")
+	hud.show_toast("Plan découvert : billes pointues", 3.0)
+	_boss_music = false
+	_update_music()
+	nino.controls_enabled = true
+	_sequence = false
+	thoughts.think([&"printer", &"question"], "", 2.4)
 
 
 # --- Cuisine : araignées ----------------------------------------------------------------
@@ -661,6 +847,8 @@ func _on_target_identified(target: FocusTarget) -> void:
 		_on_species_analyzed(target.species)
 	elif target.memory and target.memory.presentation == &"todo":
 		play_todo_memory(target.memory)
+	elif target.id == &"salon_elastic":
+		_on_salon_door_examined()
 	elif target.id == &"kitchen_latch":
 		if GameState.has_cannon():
 			thoughts.think([&"lock", &"cannon", &"exclamation"], "Une bille… pourrait le soulever.", 2.8, true)
@@ -718,6 +906,9 @@ func _armor_reflection() -> void:
 # --- Portes du sas --------------------------------------------------------------------
 
 func _on_salon_door_examined() -> void:
+	if current_zone == ZONE_SAS and not GameState.salon_opened:
+		_examine_salon_elastic()
+		return
 	director.reactions.react(&"strange", null, true)
 	if _shown.has(&"salon_door"):
 		thoughts.think([&"door", &"lock"], "", 2.0, true)
@@ -725,6 +916,62 @@ func _on_salon_door_examined() -> void:
 	_shown[&"salon_door"] = true
 	thoughts.think([&"door", &"lock"], "Fermée…", 2.2, true)
 	thoughts.think([&"robot", &"cross"], "Pas par là. Pas encore.", 2.6)
+
+
+## Porte du salon, côté sas (lot 7) : observer → déduire. Le pêne est cassé, un gros
+## élastique retient la porte. Une bille ronde rebondirait ; une pointe le percerait.
+func _examine_salon_elastic() -> void:
+	_shown[&"salon_door"] = true
+	var door := sas.salon_door
+	var visual := nino.get_visual()
+	_glance(door.elastic_focus.global_position, 2.4)
+	if GameState.has_upgrade(&"sting_bead"):
+		visual.show_emotion(NinoVisual.Emotion.FOCUSED, 2.0)
+		thoughts.think([&"door", &"eye"], "Cet élastique la retient…", 2.2, true)
+		thoughts.think([&"sting", &"arrow", &"door"], "Une bille pointue le percerait !", 2.6)
+		door.highlight(true)
+		if not GameState.seen_notices.has(&"salon_elastic_plan"):
+			GameState.seen_notices.append(&"salon_elastic_plan")
+			GameState.save()
+		_hint_once(&"salon_elastic", "%s : billes pointues · visez l'[color=#ffd28a]élastique[/color] puis %s" % [Hud.key("Q"), Hud.key("clic gauche / X")], 7.0)
+	elif GameState.wasp_defeated:
+		director.reactions.react(&"puzzled", null, true)
+		thoughts.think([&"door", &"eye"], "Cet élastique la retient…", 2.2, true)
+		thoughts.think([&"wasp", &"idea"], "Il faudrait une pointe… comme ce dard.", 2.8)
+	elif GameState.has_cannon():
+		director.reactions.react(&"strange", null, true)
+		thoughts.think([&"door", &"eye"], "Retenue par un élastique…", 2.2, true)
+		thoughts.think([&"cannon", &"question"], "Une bille rebondirait dessus ?", 2.6)
+	else:
+		director.reactions.react(&"strange", null, true)
+		thoughts.think([&"door", &"lock"], "Fermée…", 2.2, true)
+		thoughts.think([&"robot", &"cross"], "Pas par là. Pas encore.", 2.6)
+
+
+## Une bille ronde a rebondi sur l'élastique : Nin0 comprend qu'il faut autre chose.
+func _on_salon_elastic_bounced() -> void:
+	if _shown.has(&"elastic_bounce"):
+		director.reactions.react(&"failure")
+		return
+	_shown[&"elastic_bounce"] = true
+	nino.get_visual().show_emotion(NinoVisual.Emotion.FRUSTRATED, 1.4)
+	if GameState.has_upgrade(&"sting_bead"):
+		thoughts.think([&"plastic", &"cross"], "Trop ronde… les pointues !", 2.4, true)
+	else:
+		thoughts.think([&"plastic", &"cross"], "Elle rebondit… trop souple.", 2.4, true)
+
+
+## L'élastique a cédé : le courant d'air entrouvre la porte vers le salon.
+func _on_salon_opened() -> void:
+	GameState.set_flag(&"salon_opened")
+	var visual := nino.get_visual()
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.4)
+	visual.look_target = sas.salon_door.global_position + Vector3(-4.0, 4.0, 3.0)
+	await _wait(1.2)
+	visual.look_target = null
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.4)
+	thoughts.think([&"door", &"sun", &"question"], "Entrouverte… de la lumière, de l'autre côté.", 2.8, true)
+	hud.show_toast("La porte du salon s'est entrouverte", 3.0)
 
 
 func _on_kitchen_door_examined() -> void:
@@ -877,6 +1124,8 @@ func _on_acid_hit() -> void:
 func _on_shutdown_finished() -> void:
 	if bath.arena.phase in [SinkArena.Phase.INTRO, SinkArena.Phase.FIGHT]:
 		bath.arena.reset_fight()
+	if kitchen.wasp_arena.is_active():
+		kitchen.wasp_arena.reset_fight()
 	bath.reset_creatures()
 
 
@@ -959,6 +1208,29 @@ func run_dev_scenario(scenario: StringName) -> void:
 			GameState.chapter2_completed = true
 			sas.kitchen_door.set_unlocked_immediately()
 			_teleport(kitchen.marker("KitchenEntry"))
+		&"wasps", &"salon_door":
+			GameState.queen_defeated = true
+			bath.arena.apply_saved_state()
+			for id in [&"cannon", &"charged_jump"]:
+				if not GameState.has_upgrade(id):
+					GameState.add_upgrade(id)
+			nino.charged_jump_unlocked = true
+			GameState.add_plastic(GameState.PLASTIC_MAX)
+			nino.get_visual().set_cannon_installed(true)
+			GameState.kitchen_unlocked = true
+			GameState.chapter2_completed = true
+			if not GameState.seen_notices.has(&"kitchen_intro"):
+				GameState.seen_notices.append(&"kitchen_intro")
+			sas.kitchen_door.set_unlocked_immediately()
+			if scenario == &"wasps":
+				_teleport(kitchen.marker("CounterWest"))
+			else:
+				GameState.wasp_defeated = true
+				kitchen.wasp_arena.apply_saved_state()
+				GameState.add_discovery(&"plan_sting_bead")
+				if not GameState.has_upgrade(&"sting_bead"):
+					GameState.add_upgrade(&"sting_bead")
+				_teleport(sas.marker("FireSpot"))
 	GameState.progress_changed.emit()
 
 

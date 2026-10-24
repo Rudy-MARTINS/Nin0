@@ -174,6 +174,10 @@ func _build_sounds() -> void:
 	_streams[&"boing"] = _boing(0.45)
 	_streams[&"charge"] = _tone([[300.0, 900.0, 0.8]], 0.08)
 	_streams[&"charged_jump"] = _tone([[260.0, 1300.0, 0.18], [1300.0, 1100.0, 0.06]], 0.2)
+	# Lot 7 : guêpes.
+	_streams[&"buzz"] = _buzz(0.7, 210.0, 0.16)
+	_streams[&"buzz_angry"] = _buzz(1.0, 300.0, 0.24)
+	_streams[&"spike_throw"] = _tone([[1400.0, 600.0, 0.12]], 0.14, true)
 	# Lot 6 : cuisine (araignées, cafards).
 	_streams[&"spider_hiss"] = _hiss(0.45)
 	_streams[&"roach_skitter"] = _skitter(0.4)
@@ -411,6 +415,22 @@ func _boing(duration: float) -> AudioStreamWAV:
 		var freq := 220.0 + 260.0 * exp(-t * 5.0) + sin(t * 70.0) * 40.0 * exp(-t * 3.0)
 		phase += TAU * freq / RATE
 		samples.append(sin(phase) * 0.28 * exp(-t * 5.0) * minf(t / 0.01, 1.0))
+	return _to_wav(samples)
+
+
+## Bourdonnement d'ailes : dent de scie grave modulée (battements rapides), fondu.
+func _buzz(duration: float, base: float, amplitude: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(duration * RATE)
+	var phase := 0.0
+	for i in count:
+		var t := float(i) / RATE
+		var freq := base * (1.0 + 0.04 * sin(t * 31.0)) + t * base * 0.15
+		phase += freq / RATE
+		var saw := 2.0 * (phase - floorf(phase)) - 1.0
+		var flutter := 0.7 + 0.3 * sin(t * TAU * 48.0)
+		var env := minf(t / 0.08, 1.0) * minf((duration - t) / 0.2, 1.0)
+		samples.append(saw * flutter * env * amplitude)
 	return _to_wav(samples)
 
 

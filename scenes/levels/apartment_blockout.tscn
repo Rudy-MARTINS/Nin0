@@ -570,29 +570,6 @@ bevel = 0.02
 material = SubResource("Mat_frame")
 collide = false
 
-[node name="DoorSasSalonPanel" type="StaticBody3D" parent="Openings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 10.1, 12.3)
-script = ExtResource("1_prop_block")
-size = Vector3(8.2, 20.2, 0.4)
-bevel = 0.02
-material = SubResource("Mat_door")
-
-[node name="DoorSasSalonKnob0" type="StaticBody3D" parent="Openings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.63, 10, 11.95)
-script = ExtResource("1_prop_block")
-size = Vector3(0.25, 0.25, 0.7)
-bevel = 0.02
-material = SubResource("Mat_frame")
-collide = false
-
-[node name="DoorSasSalonKnob1" type="StaticBody3D" parent="Openings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.63, 10, 12.65)
-script = ExtResource("1_prop_block")
-size = Vector3(0.25, 0.25, 0.7)
-bevel = 0.02
-material = SubResource("Mat_frame")
-collide = false
-
 [node name="WallSasSalon_2" type="StaticBody3D" parent="Walls"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.3, 12, 12.3)
 script = ExtResource("1_prop_block")
@@ -923,7 +900,7 @@ metadata/state = "ouvert"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 1, 12.3)
 metadata/from = 2
 metadata/to = 6
-metadata/state = "fermé (ouverture à définir)"
+metadata/state = "élastique (bille pointue)"
 
 [node name="C_salon_cuisine" type="Marker3D" parent="Connections"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 1, 31.5)
@@ -965,7 +942,7 @@ billboard = 1
 modulate = Color(1, 0.6, 0.5, 0.9)
 outline_size = 8
 font_size = 64
-text = "Salon — fermé (à définir)"
+text = "Salon — élastique (bille pointue)"
 
 [node name="LabelCurtain" type="Label3D" parent="Labels"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 22.5, 13.8)

@@ -15,7 +15,7 @@ const ICONS := [
 	&"plug", &"energy", &"arrow", &"up", &"down", &"gear", &"door", &"handle", &"spool", &"robot",
 	&"check", &"cross", &"frame", &"house", &"book", &"sun", &"wrench", &"damage", &"filament",
 	&"ant", &"ant_soldier", &"ant_queen", &"shield", &"cannon", &"acid", &"lock", &"plastic", &"binoculars",
-	&"spider", &"roach", &"web",
+	&"spider", &"roach", &"web", &"flea", &"wasp", &"sting",
 ]
 
 @export var icon: StringName = &"question":
@@ -246,6 +246,34 @@ func _draw_icon(name: StringName, area: Vector2) -> void:
 					points.append(c + Vector2.from_angle(TAU * k / 8.0) * (10.0 + ring * 10.0) * s)
 				draw_polyline(points, silk, w * 0.3, true)
 			draw_circle(c, 3.0 * s, INK)
+		&"flea":
+			# Puce de profil : corps ovale brun-rouge, grande patte arrière repliée en ressort.
+			var rust := Color(0.5, 0.2, 0.12)
+			_draw_ellipse(c + Vector2(-4, 0) * s, Vector2(22, 15) * s, rust)
+			draw_circle(c + Vector2(-26, -2) * s, 7.0 * s, rust)
+			draw_circle(c + Vector2(-28, -4) * s, 2.2 * s, Color.WHITE)
+			draw_polyline(PackedVector2Array([c + Vector2(10, 6) * s, c + Vector2(28, -14) * s, c + Vector2(22, 24) * s, c + Vector2(34, 26) * s]), INK, w * 0.6, true)
+			for k in 2:
+				draw_line(c + Vector2(-14 + k * 10, 12) * s, c + Vector2(-20 + k * 10, 26) * s, INK, w * 0.45, true)
+		&"wasp":
+			# Guêpe de dessus : abdomen rayé, taille fine, ailes, dard.
+			var yellow := Color(0.98, 0.78, 0.12)
+			var wing := Color(0.85, 0.92, 1.0, 0.8)
+			for side in [-1.0, 1.0]:
+				_draw_ellipse(c + Vector2(side * 18, -10) * s, Vector2(15, 7) * s, wing)
+			draw_circle(c + Vector2(0, -26) * s, 9.0 * s, yellow)
+			for side in [-1.0, 1.0]:
+				draw_circle(c + Vector2(side * 5, -28) * s, 3.5 * s, INK)
+			_draw_ellipse(c + Vector2(0, -10) * s, Vector2(9, 9) * s, INK)
+			_draw_ellipse(c + Vector2(0, 14) * s, Vector2(13, 18) * s, yellow)
+			for k in 3:
+				draw_line(c + Vector2(-12, 6 + k * 8) * s, c + Vector2(12, 6 + k * 8) * s, INK, w * 0.7, true)
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-3, 30) * s, c + Vector2(3, 30) * s, c + Vector2(0, 42) * s]), INK)
+		&"sting":
+			# Bille pointue : sphère bleue prolongée d'une pointe.
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-4, -12) * s, c + Vector2(40, 0) * s, c + Vector2(-4, 12) * s]), Color(0.75, 0.78, 0.82))
+			draw_circle(c + Vector2(-10, 0) * s, 18.0 * s, COOL)
+			draw_circle(c + Vector2(-16, -6) * s, 5.0 * s, Color(1, 1, 1, 0.7))
 		_:
 			draw_circle(c, 10.0 * s, INK)
 

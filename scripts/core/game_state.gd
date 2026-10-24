@@ -88,6 +88,15 @@ var boss_started := false
 var queen_defeated := false
 var kitchen_unlocked := false
 var chapter2_completed := false
+# --- Lot 7 : guêpes, billes pointues, salon ------------------------------------------------
+var wasp_started := false
+## Phase 2 atteinte : en cas d'échec, le combat reprend en phase 2.
+var wasp_phase2 := false
+var wasp_defeated := false
+var salon_opened := false
+var salon_entered := false
+## Munition choisie pour le canon (identifiant AmmoData).
+var ammo_type: StringName = &"bead"
 ## Espèces analysées (encyclopédie biologique), dans l'ordre.
 var species: Array[StringName] = []
 ## Plastique à munitions (une bille = une unité).
@@ -153,6 +162,7 @@ func save() -> void:
 	config.set_value("collections", "pickup_times", _string_keys(pickup_times))
 	config.set_value("collections", "memory_reads", _string_keys(memory_reads))
 	config.set_value("nino", "ammo_plastic", ammo_plastic)
+	config.set_value("nino", "ammo_type", String(ammo_type))
 	config.set_value("progress", "playtime", playtime)
 	config.set_value("progress", "resume_point", String(resume_point))
 	config.save(save_path)
@@ -160,7 +170,8 @@ func save() -> void:
 
 ## Indicateurs sauvegardés en plus des jambes (lot 3).
 const SAVED_FLAGS := [&"legs_deployed_once", &"reached_window", &"handle_identified", &"door_opened", &"injured", &"repaired",
-		&"sas_entered", &"worker_met", &"bathroom_entered", &"boss_started", &"queen_defeated", &"kitchen_unlocked", &"chapter2_completed"]
+		&"sas_entered", &"worker_met", &"bathroom_entered", &"boss_started", &"queen_defeated", &"kitchen_unlocked", &"chapter2_completed",
+		&"wasp_started", &"wasp_phase2", &"wasp_defeated", &"salon_opened", &"salon_entered"]
 
 
 func load_save() -> void:
@@ -203,6 +214,9 @@ func load_save() -> void:
 	for key in reads:
 		memory_reads[StringName(key)] = reads[key]
 	ammo_plastic = clampi(int(config.get_value("nino", "ammo_plastic", 0)), 0, PLASTIC_MAX)
+	ammo_type = StringName(config.get_value("nino", "ammo_type", "bead"))
+	if ammo_type != &"bead" and not upgrades.has(ammo_type):
+		ammo_type = &"bead"
 	playtime = maxf(float(config.get_value("progress", "playtime", 0.0)), 0.0)
 	resume_point = StringName(config.get_value("progress", "resume_point", ""))
 	fragments = maxi(int(config.get_value("nino", "fragments", 0)), 0)
@@ -241,6 +255,12 @@ func reset_progress() -> void:
 	queen_defeated = false
 	kitchen_unlocked = false
 	chapter2_completed = false
+	wasp_started = false
+	wasp_phase2 = false
+	wasp_defeated = false
+	salon_opened = false
+	salon_entered = false
+	ammo_type = &"bead"
 	species.clear()
 	equipped_modules.clear()
 	seen_notices.clear()
@@ -609,6 +629,16 @@ func get_objective() -> String:
 		return "Prendre ses repères"
 	# Chapitre 2 (jeu complet) : objectifs au-delà du seuil du placard.
 	if chapter2_completed:
+		if salon_entered:
+			return "Explorer le salon"
+		if salon_opened:
+			return "Entrer dans le salon"
+		if has_upgrade(&"sting_bead"):
+			return "Ouvrir la porte du salon"
+		if wasp_defeated:
+			return "Fabriquer les billes pointues à l'imprimante"
+		if wasp_started:
+			return "Chasser les guêpes de la fenêtre"
 		if has_upgrade(&"charged_jump"):
 			return "Explorer les hauteurs de la cuisine"
 		if has_discovery(&"plan_charged_jump"):

@@ -8,6 +8,7 @@ g = Gen("SasZone", "res://scripts/zones/sas_zone.gd")
 s = g.s
 COLUMN = s.ext_res("Script", "res://scripts/creatures/ant_column.gd")
 KDOOR = s.ext_res("Script", "res://scripts/zones/kitchen_door.gd")
+SDOOR = s.ext_res("Script", "res://scripts/zones/salon_door.gd")
 LANDMARK = s.ext_res("Resource", "res://assets/observation/landmark.tres")
 g.mat("wood", (0.42, 0.3, 0.2), 0.7)
 g.mat("wood_dark", (0.26, 0.18, 0.12), 0.8)
@@ -26,6 +27,7 @@ g.mat("door", (0.5, 0.36, 0.24), 0.6)
 g.mat("brass", (0.78, 0.62, 0.32), 0.3, 0.85)
 g.mat("toy", (0.85, 0.3, 0.25), 0.6)
 g.mat("scarf", (0.55, 0.5, 0.3), 1.0)
+g.mat("elastic", (0.85, 0.55, 0.2), 0.7)
 for k, a in (("dust", 0.28), ("stain", 0.32), ("crack", 0.85)):
     col = {"dust": (0.55, 0.52, 0.46), "stain": (0.3, 0.27, 0.2), "crack": (0.12, 0.1, 0.08)}[k]
     g.mat(k, col, 1.0, extra=f"transparency = 1\nalbedo_color = Color({col[0]}, {col[1]}, {col[2]}, {a})\ncull_mode = 2")
@@ -96,8 +98,35 @@ g.marker("Stop", "Encounter", (-18.6, 0.0, 1.0))
 g.marker("Leave", "Encounter", (-22.6, 0.0, -2.2))
 g.area("EncounterZone", ".", (2.6, 2.0, 4.0), (-17.2, 1.0, 2.0))
 
-# Porte du salon : fermée (blockout). Nin0 peut l'examiner.
-g.interactable("SalonDoorInspect", ".", (9.0, 2.0, 1.6), (-31.5, 1.0, 11.2), "Examiner la porte")
+# Porte du salon (lot 7) : pêne cassé, battant retenu par un gros élastique tendu entre
+# la poignée et une patère du mur (côté sas). Charnière à l'est : entrouverte vers le
+# salon, elle barre le chemin direct vers la chambre.
+SD = "SalonDoor"
+s.node(SD, "Node3D", ".", f"transform = {tf(I, (-27.4, 0.0, 12.3))}\nscript = {SDOOR}")
+s.node("Hinge", "Node3D", SD)
+s.node("Panel", "AnimatableBody3D", f"{SD}/Hinge", "collision_mask = 0")
+box_shape(s, "Shape", f"{SD}/Hinge/Panel", (8.2, 20.2, 0.4), (-4.1, 10.1, 0.0))
+g.prop("Slab", f"{SD}/Hinge/Panel", (8.2, 20.2, 0.4), (-4.1, 10.1, 0.0), "door", collide=False, bevel=0.05)
+g.prop("MoldingUpper", f"{SD}/Hinge/Panel", (6.0, 7.0, 0.06), (-4.1, 14.2, -0.22), "wood_dark", collide=False, bevel=0.02)
+g.prop("MoldingLower", f"{SD}/Hinge/Panel", (6.0, 6.0, 0.06), (-4.1, 5.0, -0.22), "wood_dark", collide=False, bevel=0.02)
+g.prop("Knob", f"{SD}/Hinge/Panel", (0.6, 0.6, 0.6), (-7.5, 10.0, -0.4), "brass", cyl=True, rot=rx(90), collide=False)
+g.prop("KnobSalon", f"{SD}/Hinge/Panel", (0.6, 0.6, 0.6), (-7.5, 10.0, 0.4), "brass", cyl=True, rot=rx(90), collide=False)
+g.prop("LatchTape", f"{SD}/Hinge/Panel", (0.3, 1.2, 0.5), (-8.05, 10.0, 0.0), "paper", collide=False, bevel=0.0)
+# Patère du mur et élastique tendu (de la poignée à la patère).
+g.prop("Peg", SD, (0.5, 0.5, 0.9), (-10.9, 11.0, -0.75), "brass", cyl=True, rot=rx(90), collide=False)
+g.prop("PegPlate", SD, (0.9, 1.4, 0.1), (-10.9, 11.0, -0.35), "brass", collide=False)
+g.prop("Elastic", SD, (3.5, 0.12, 0.12), (-9.2, 10.5, -0.75), "elastic", rot=rz(-16.4), bevel=0.04, collide=False)
+s.node("ElasticTarget", "StaticBody3D", SD, f"transform = {tf(rz(-16.4), (-9.2, 10.5, -0.75))}\ncollision_layer = 32\ncollision_mask = 0")
+box_shape(s, "Shape", f"{SD}/ElasticTarget", (3.5, 0.6, 0.6), (0.0, 0.0, 0.0))
+s.node("ElasticFocus", "Marker3D", SD, f"transform = {tf(I, (-9.2, 10.5, -0.8))}\nscript = {g.FOCUS}\nid = &\"salon_elastic\"\nradius = 0.7\nprofile = {LANDMARK}\nfacing = Vector3(0, 0, -1)\nthought_icons = Array[StringName]([&\"door\", &\"eye\"])")
+# Après la coupure : deux bouts qui pendent.
+s.node("Snapped", "Node3D", SD)
+s.node("EndPivotA", "Node3D", f"{SD}/Snapped", f"transform = {tf(I, (-10.9, 11.0, -0.75))}")
+g.prop("EndA", f"{SD}/Snapped/EndPivotA", (1.2, 0.12, 0.12), (0.6, 0.0, 0.0), "elastic", bevel=0.04, collide=False)
+s.node("EndPivotB", "Node3D", f"{SD}/Snapped", f"transform = {tf(I, (-7.5, 10.0, -0.75))}")
+g.prop("EndB", f"{SD}/Snapped/EndPivotB", (1.0, 0.12, 0.12), (-0.5, 0.0, 0.0), "elastic", bevel=0.04, collide=False)
+g.interactable("SalonDoorInspect", SD, (9.0, 2.0, 1.6), (-4.1, 1.0, -1.1), "Examiner la porte")
+s.node("SalonLight", "OmniLight3D", SD, f"transform = {tf(I, (-6.0, 8.0, 4.0))}\nlight_color = Color(1, 0.92, 0.75, 1)\nlight_energy = 0.0\nomni_range = 14.0")
 # Porte de la cuisine : battant à charnière, loquet en hauteur côté sas.
 s.node("KitchenDoor", "Node3D", ".", f"transform = {tf(I, (-45.3, 0.0, 10.6))}\nscript = {KDOOR}")
 s.node("Hinge", "Node3D", "KitchenDoor")

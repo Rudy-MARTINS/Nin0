@@ -16,6 +16,8 @@ signal spider_alerted(spider: KitchenSpider)
 ## Affrontements observés depuis le chargement : chasses, captures, échecs, défenses.
 var stats := {&"hunts": 0, &"catches": 0, &"fails": 0, &"defends": 0, &"flees": 0, &"knockouts": 0, &"revivals": 0}
 
+@onready var wasp_arena: WaspArena = $WaspArena
+
 var _cocoon_mesh: SphereMesh
 var _cocoon_material: StandardMaterial3D
 
@@ -82,6 +84,21 @@ func reset_creatures() -> void:
 			spider.global_position = spider.home
 			spider.prey = null
 			spider._set_state(KitchenSpider.State.LURK)
+
+
+## Pendant le combat des guêpes, l'araignée de la fenêtre se terre (elle revient après).
+func set_window_spider_hidden(hidden: bool) -> void:
+	var spider := get_node_or_null("Creatures/SpiderWindow") as KitchenSpider
+	if spider == null:
+		return
+	spider.visible = not hidden
+	spider.set_physics_process(not hidden)
+	if spider.hit_body:
+		spider.hit_body.collision_layer = 0 if hidden else 32
+	if spider.focus:
+		spider.focus.enabled = not hidden
+	if not hidden:
+		spider.global_position = spider.home
 
 
 func get_flea() -> KitchenFlea:

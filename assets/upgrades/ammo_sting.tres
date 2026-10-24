@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AmmoData" format=3 uid="uid://xlwdtgzr6eqt"]
+
+[ext_resource type="Script" uid="uid://b8gs1x2t05evy" path="res://scripts/weapons/ammo_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"sting_bead"
+title = "Billes pointues"
+speed = 17.0
+gravity = 1.8
+damage = 2
+radius = 0.03
+color = Color(0.82, 0.84, 0.88, 1)
+cost = 2
+piercing = true
+requires_upgrade = &"sting_bead"

@@ -1,14 +1,15 @@
 class_name SasZone
 extends Node3D
-## Sas (zone 2), jouable au lot 5 : décor, colonne d'ouvrières, porte du salon (fermée,
-## examinable), porte de la cuisine (loquet). La mise en scène est pilotée par GameWorld.
+## Sas (zone 2), jouable au lot 5 : décor, colonne d'ouvrières, porte du salon (élastique à percer,
+## lot 7), porte de la cuisine (loquet). La mise en scène est pilotée par GameWorld.
 
 signal salon_door_examined
 signal encounter_zone_entered
 
 @onready var column: AntColumn = $AntColumn
 @onready var kitchen_door: KitchenDoor = $KitchenDoor
-@onready var salon_inspect: Interactable = $SalonDoorInspect
+@onready var salon_door: SalonDoor = $SalonDoor
+@onready var salon_inspect: Interactable = $SalonDoor/SalonDoorInspect
 
 
 func _ready() -> void:

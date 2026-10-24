@@ -10,6 +10,7 @@ const PATHS := [
 	"res://assets/species/spider.tres",
 	"res://assets/species/roach.tres",
 	"res://assets/species/flea.tres",
+	"res://assets/species/wasp.tres",
 ]
 
 

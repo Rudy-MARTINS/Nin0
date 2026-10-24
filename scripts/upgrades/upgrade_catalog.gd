@@ -9,6 +9,7 @@ const PATHS := [
 	"res://assets/upgrades/armor_1.tres",
 	"res://assets/upgrades/cannon.tres",
 	"res://assets/upgrades/charged_jump.tres",
+	"res://assets/upgrades/sting_bead.tres",
 ]
 
 

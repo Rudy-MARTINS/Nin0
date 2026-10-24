@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://b0ubmbhynexq9"]
+
+[ext_resource type="Script" uid="uid://cfw45n4p3ofep" path="res://scripts/upgrades/upgrade_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"sting_bead"
+title = "Chargeur de billes pointues"
+description = "Un second chargeur pour le canon : des billes prolongées d'une pointe dure, inspirées du dard de la guêpe."
+category = 0
+family = &"weapon"
+cost_fragments = 3
+required_discovery = &"plan_sting_bead"
+effect_text = "Q : changer de munition. Une bille pointue coûte 2 plastiques, frappe deux fois plus fort et perce les mécanismes à goupille."

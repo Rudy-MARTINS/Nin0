@@ -39,6 +39,8 @@ func _run() -> void:
 	_director = _dev.workshop
 	await _wait(1.5)
 	_game.run_dev_scenario(&"kitchen_inside")
+	# Le combat des guêpes (plan de travail ouest) a sa propre suite : test_wasp.
+	_kitchen.wasp_arena.enabled = false
 	await _wait(1.0)
 
 	await _test_intro()
@@ -314,6 +316,11 @@ func _test_spiders() -> void:
 		r.wariness = 0.0
 		r.spider_alert = 0.0
 	lair._rest = 0.0
+	# L'appât a pu être chassé plus tôt (capture, mise KO) : il revient en jeu.
+	bait.knocked_out = false
+	bait.visible = true
+	bait.hit_body.collision_layer = 32
+	bait.focus.enabled = true
 	bait.global_position = Vector3(-62.5, 9.0, 52.4)
 	bait._set_state(KitchenRoach.State.FORAGE)
 	bait._timer = 30.0

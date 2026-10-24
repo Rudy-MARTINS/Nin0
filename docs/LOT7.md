@@ -78,3 +78,68 @@ Le joueur la scanne avec la vision focalisée ; Nin0 la déchiffre ligne par lig
 Hésitation avant la dernière ligne, long silence, musique baissée ; Nin0 reste perplexe
 (« Une liste… des choses à faire. La dernière est rayée. Pourquoi ? »).
 L'archive 03/07 n'est accordée qu'après ce scan ; réobserver la note ne redéclenche rien.
+
+## Lot 7B — Guêpes, billes pointues, porte du salon
+
+### Combat des guêpes (cuisine, plan de travail ouest)
+
+Arène : le plan de travail autour de l'évier et de la fenêtre (9 u), accessible seulement
+avec le saut chargé. Les guêpes entrent par une imposte entrouverte en haut de la fenêtre.
+Trois réserves de plastique (réapparition 45 s) entourent l'arène. L'araignée de la fenêtre
+se terre pendant le combat et revient après.
+
+1. **Intro** (première fois) : bourdonnement, deux petites guêpes entrent, la grosse guêpe
+   se pose sur le linteau, remarque Nin0 et s'énerve (abdomen rouge, « !! ») ; Nin0 sursaute.
+   Musique « boss ». Dangers suspendus pendant toute la séquence.
+2. **Phase 1** : les petites guêpes tournent autour de Nin0 et attaquent en piqué, **une seule
+   à la fois**, après une préparation lisible (« ! », abdomen relevé, bourdonnement aigu).
+   La grosse reste perchée, **hors d'atteinte** (la bille ricoche avec un petit clic), et lance
+   des piques après une préparation de 0,85 s (« ! », abdomen relevé, lueur).
+   Petite guêpe : 3 billes → KO (tombe ailes repliées, disparaît ; pas de retour).
+3. **Transition** (petite mise en scène) : la grosse regarde les petites à terre, se met en
+   colère, descend dans l'arène. Contrôle rendu. **Étape sauvegardée.**
+4. **Phase 2** (16 points de vie) — patterns :
+   - A : approche, dard annoncé (0,9 s), charge en ligne droite, ouverture après la charge ;
+   - B : repli derrière la boîte à biscuits sur le dessus des placards (hors de la ligne de tir,
+     invulnérable), petit soin (+3), **2 fois au plus** et seulement sous 75 % ;
+   - C : immobile près de la fenêtre, elle appelle une petite guêpe (2 s 5) ; **dégâts ×1,5**
+     pendant l'appel ; **3 appels au plus**, **2 petites guêpes simultanées au plus**.
+5. **Victoire** : la grosse tombe, sonnée ; Nin0 jubile (« Yeeeaah ! »), observe le dard
+   (« Ce dard… » / « Une pointe… elle percerait ! »), la guêpe repart par la fenêtre en titubant
+   et **ne revient jamais**. Plan **Billes pointues** présenté : à fabriquer à l'imprimante.
+
+Échecs et sorties :
+- Nin0 descend du plan de travail : **pause** (les guêpes se replient, aucune attaque), reprise
+  à son retour dans la même phase.
+- Nin0 hors service : redémarrage sur le plan de travail ; en phase 1, tout recommence
+  (intro courte) ; **en phase 2, reprise directement en phase 2**, jamais depuis le début.
+
+### Billes pointues (seconde munition)
+
+- Plan « plan_sting_bead » (victoire) → amélioration « Chargeur de billes pointues »
+  (3 filaments) à l'imprimante.
+- **Q** : changer de munition (billes / billes pointues). Choix sauvegardé.
+- Bille pointue : 2 plastiques par tir, dégâts ×2, trajectoire plus tendue, **perce**.
+  Les billes ordinaires restent utilisables et coûtent toujours 1 plastique.
+- Interface : petite étiquette à côté du compteur de plastique, seulement quand on possède
+  les deux munitions.
+
+### Porte du salon (côté sas)
+
+Le pêne de la porte est cassé (ruban adhésif) ; un gros élastique tendu entre la poignée et
+une patère du mur la retient fermée côté sas. Avant les billes pointues, Nin0 le remarque
+(« Retenue par un élastique… ») ; une bille ronde rebondit dessus ; après la victoire :
+« Il faudrait une pointe… comme ce dard. » Avec les billes pointues, il comprend, un repère
+discret (lueur chaude) apparaît, **le joueur tire** : l'élastique claque, le courant d'air
+entrouvre la porte de 30° vers le salon.
+
+Topologie : la charnière est côté est. Le battant entrouvert forme avec le mur un recoin
+qui ne s'ouvre que **vers l'ouest** : Nin0 entre dans le salon par sa première partie, sans
+mur invisible. Le chemin direct vers la chambre (est) est barré par le battant lui-même.
+La chambre reste verrouillée (rideau). Le bloc provisoire « porte fermée » du blockout est
+remplacé par ce vrai battant.
+
+### Mode développement
+
+Ctrl+9 : guêpes (plan de travail, canon, saut chargé, plastique) · Ctrl+0 : porte du salon
+(billes pointues fabriquées).

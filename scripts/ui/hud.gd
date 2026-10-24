@@ -37,6 +37,7 @@ var _notice_title: Label
 var _notice_text: Label
 var _notice_icon: ThoughtIcon
 var _notice_tween: Tween
+var _ammo_label: Label
 
 
 func _ready() -> void:
@@ -48,7 +49,25 @@ func _ready() -> void:
 	GameState.stats_changed.connect(refresh_stats)
 	GameState.resource_discovered.connect(_on_resource_discovered)
 	_build_notice()
+	_ammo_label = Label.new()
+	_ammo_label.add_theme_font_size_override("font_size", 15)
+	_ammo_label.add_theme_constant_override("outline_size", 5)
+	_ammo_label.visible = false
+	_plastic_box.add_child(_ammo_label)
+	_plastic_box.move_child(_ammo_label, 0)
 	refresh_stats()
+
+
+## Munition choisie (affichée seulement quand il y en a plusieurs).
+func set_ammo(ammo: AmmoData, several: bool) -> void:
+	_ammo_label.visible = several
+	_ammo_label.text = ("◆ %s ×%d" % [ammo.title.to_lower(), ammo.cost]) if ammo.piercing else "● billes"
+	_ammo_label.modulate = Color(0.85, 0.9, 1.0) if ammo.piercing else Color(0.6, 0.78, 1.0)
+	if several:
+		var pop := create_tween()
+		_ammo_label.pivot_offset = _ammo_label.size * 0.5
+		_ammo_label.scale = Vector2.ONE * 1.2
+		pop.tween_property(_ammo_label, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK)
 
 
 ## Intégrité, bouclier et fragments (affichés seulement une fois connus).

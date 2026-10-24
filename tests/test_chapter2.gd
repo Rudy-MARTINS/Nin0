@@ -474,8 +474,12 @@ func _test_boss() -> void:
 	await _wait(2.4)
 	_check(not _nino.is_slowed(), "ralentissement limité dans le temps")
 	# Esquive : se déplacer pendant le vol.
+	# Nin0 se déplace jusqu'à ce que la reine prépare vraiment un crachat.
+	for i in 16:
+		_place(Vector3(-55.4, 8.15, -30.2) if i % 2 == 0 else Vector3(-56.2, 8.15, -32.4), -90.0)
+		if await _wait_until(1.0, func() -> bool: return queen.state == AntQueen.State.SPIT_WINDUP):
+			break
 	var hits := queen.acid_hits
-	await _wait_until(5.0, func() -> bool: return queen.state == AntQueen.State.SPIT_WINDUP)
 	await _wait_until(2.0, func() -> bool: return queen.state == AntQueen.State.SPIT_RECOVER)
 	var dodge := Vector3(-62.4, 8.2, -30.25) if _nino.global_position.x > -59.0 else Vector3(-55.4, 8.15, -30.2)
 	_place(dodge, -90.0)

@@ -17,6 +17,7 @@ FLEA = s.ext_res("Script", "res://scripts/creatures/kitchen_flea.gd")
 MEMORY3 = s.ext_res("Resource", "res://assets/memories/memory_03.tres")
 MEMPROF = s.ext_res("Resource", "res://assets/observation/memory_detail.tres")
 DISC = s.ext_res("Script", "res://scripts/discovery/discovery_data.gd")
+WARENA = s.ext_res("Script", "res://scripts/zones/wasp_arena.gd")
 
 # ------------------------------------------------------------------ matériaux
 g.mat("cabinet", (0.9, 0.89, 0.86), 0.5)
@@ -574,6 +575,16 @@ g.pickup("PlasticSill", "Pickups", "k_pl_sill", (-74.4, 10.25, 33.0), 1, 3, 240.
 g.pickup("FilamentFridgeTop", "Pickups", "k_fil_fridge_top", (-49.6, 18.05, 52.4), 0, 2, 0.0)
 g.pickup("PlasticCabinetTop", "Pickups", "k_pl_cabinet_top", (-67.0, 21.05, 55.4), 1, 5, 0.0)
 g.pickup("FilamentShelf", "Pickups", "k_fil_shelf", (-72.6, 15.05, 45.6), 0, 1, 0.0)
+# Lot 7 : réserves de plastique autour de l'arène des guêpes (réapparition rapide).
+g.pickup("PlasticArenaA", "Pickups", "k_pl_arena_a", (-70.2, 9.05, 25.0), 1, 3, 45.0)
+g.pickup("PlasticArenaB", "Pickups", "k_pl_arena_b", (-69.5, 9.05, 42.6), 1, 3, 45.0)
+g.pickup("PlasticArenaC", "Pickups", "k_pl_arena_c", (-74.6, 9.05, 21.0), 1, 2, 45.0)
+
+# ------------------------------------------------------------------ arène des guêpes (lot 7) : plan de travail ouest
+# Les guêpes entrent par une imposte entrouverte en haut de la fenêtre.
+g.prop("WindowVent", D, (0.08, 1.6, 4.0), (-74.6, 18.6, 30.4), "frame", rot=rz(-18), bevel=0.02, collide=False)
+g.decal("WindowVentGap", D, (3.8, 1.2), (-74.93, 18.6, 30.4), "shadow", ry(90))
+s.node("WaspArena", "Node3D", ".", f"script = {WARENA}")
 
 # ------------------------------------------------------------------ porte du salon (côté cuisine), entrée, repères
 g.interactable("SalonDoorInspect", ".", (1.6, 2.0, 9.0), (-46.4, 1.0, 31.5), "Examiner la porte")

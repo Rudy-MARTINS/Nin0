@@ -12,3 +12,4 @@ Thumbs.db
 build/
 dist/
 exports/
+__pycache__/

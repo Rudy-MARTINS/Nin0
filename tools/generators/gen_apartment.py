@@ -151,7 +151,7 @@ wall("WallSasWest", "x", -45.3, -35.6, 57.6, [
 wall("WallSasNorth", "z", -15.3, -45.6, -15.6)
 wall("WallBathNorth", "z", -35.3, -75.6, -45.0)
 wall("WallBathKitchen", "z", -0.3, -75.0, -45.6)
-wall("WallSasSalon", "z", 12.3, -45.0, -15.6, [(-36.0, -27.0, DOOR_H, "closed_door", "DoorSasSalon")])  # salon : fermé
+wall("WallSasSalon", "z", 12.3, -45.0, -15.6, [(-36.0, -27.0, DOOR_H, "open", "DoorSasSalon")])  # salon : battant dans sas_zone.tscn (élastique, lot 7)
 wall("WallChamberWestNorth", "x", 15.3, -35.6, -15.6)
 wall("WallChamberNorth", "z", -35.3, 15.0, 45.6)
 wall("WallEast", "x", 45.3, -35.6, 57.6)
@@ -191,7 +191,7 @@ for num, (p, yaw) in SPAWNS.items():
 CONNECTIONS = [
     ("placard_sas", 1, 2, "ouvert", (-15.3, 5.5)),
     ("sas_sdb", 2, 3, "ouvert", (-45.3, -7.5)),
-    ("sas_salon", 2, 6, "fermé (ouverture à définir)", (-31.5, 12.3)),
+    ("sas_salon", 2, 6, "élastique (bille pointue)", (-31.5, 12.3)),
     ("salon_cuisine", 6, 4, "fermé (ouverture à définir)", (-45.3, 31.5)),
     ("salon_porte_fenetre", 6, 5, "fermé (jardin non validé)", (-2.0, 57.3)),
     ("sas_cuisine", 2, 4, "verrou (canon)", (-45.3, 6.5)),
@@ -199,7 +199,7 @@ CONNECTIONS = [
 ]
 for cid, a, b, state, (x, z) in CONNECTIONS:
     s.node(f"C_{cid}", "Marker3D", "Connections", f"transform = {tf(I, (x, 1.0, z))}\nmetadata/from = {a}\nmetadata/to = {b}\nmetadata/state = \"{state}\"")
-for name, (x, z), txt in (("LabelShortcut", (-44.0, 6.5), "Cuisine — loquet (canon)"), ("LabelSalonDoor", (-31.5, 10.8), "Salon — fermé (à définir)"),
+for name, (x, z), txt in (("LabelShortcut", (-44.0, 6.5), "Cuisine — loquet (canon)"), ("LabelSalonDoor", (-31.5, 10.8), "Salon — élastique (bille pointue)"),
         ("LabelCurtain", (30.0, 13.8), "Rideau japonais — accès verrouillé")):
     s.node(name, "Label3D", "Labels", f"transform = {tf(I, (x, 22.5, z))}\npixel_size = 0.014\nbillboard = 1\nmodulate = Color(1, 0.6, 0.5, 0.9)\noutline_size = 8\nfont_size = 64\ntext = \"{txt}\"")
 
