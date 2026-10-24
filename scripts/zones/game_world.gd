@@ -102,6 +102,13 @@ func _ready() -> void:
 	integrity.shutdown_finished.connect(func() -> void: director.reactions.react(&"failure", null, true))
 	GameState.resource_discovered.connect(func(_kind: StringName) -> void: director.reactions.react(&"discovery"))
 	var arena := bath.arena
+	arena.mire.entered_liquid.connect(func() -> void:
+		_hint_once(&"mire_acid", "Le liquide du lavabo abîme Nin0 peu à peu : rejoignez vite les [color=#c8e07a]débris flottants[/color]", 5.0))
+	arena.mire.ticked.connect(func(_d: float) -> void:
+		if not _shown.has(&"mire_tick"):
+			_shown[&"mire_tick"] = true
+			nino.get_visual().show_emotion(NinoVisual.Emotion.WORRIED, 1.4)
+			thoughts.think([&"acid", &"damage"], "", 1.6, true))
 	arena.intro_started.connect(_on_arena_intro)
 	arena.boss_music_started.connect(func() -> void:
 		_boss_music = true
@@ -515,7 +522,10 @@ func _on_target_identified(target: FocusTarget) -> void:
 func _on_species_analyzed(data: SpeciesData) -> void:
 	if not GameState.add_species(data.id):
 		return
+	# Analyse importante : rien ne peut toucher Nin0 pendant la lecture de la fiche.
+	GameState.suspend_hazards(&"analysis")
 	species_card.show_species(data)
+	_resume_after_card()
 	for node in get_tree().get_nodes_in_group(&"focus_targets"):
 		var other := node as FocusTarget
 		if other.species == data:
@@ -523,6 +533,13 @@ func _on_species_analyzed(data: SpeciesData) -> void:
 	if data.unlocks_plan == &"plan_armor_1" and not GameState.has_discovery(&"plan_armor_1"):
 		await _wait(1.2)
 		await _armor_reflection()
+
+
+func _resume_after_card() -> void:
+	await _wait(0.5)
+	while species_card.showing or blueprint._open:
+		await get_tree().process_frame
+	GameState.resume_hazards(&"analysis")
 
 
 ## Observer → protection → protection mécanique : le plan Armure I.

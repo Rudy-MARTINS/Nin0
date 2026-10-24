@@ -6,6 +6,8 @@ extends Node3D
 ## Espaces étroits :
 ## - sous un meuble bas, la caméra s'aplatit (pitch proche de l'horizontale) pour
 ##   rester derrière Nin0 au lieu de se coller à lui ;
+## - dans un couloir étroit, si un mur colle la caméra à Nin0 et que le joueur ne la
+##   tourne pas, elle pivote doucement (à l'arrêt) vers le côté le plus dégagé ;
 ## - Nin0 n'est masqué qu'en dernier recours, si la caméra est quasiment en lui.
 
 @export var target: Node3D
@@ -39,6 +41,7 @@ var pitch := 0.0:
 
 var _first_person := false
 var _low_ceiling := 0.0  # 0 = dégagé, 1 = plafond bas
+var _since_mouse := 10.0
 
 @onready var _pitch_pivot: Node3D = $PitchPivot
 @onready var _spring_arm: SpringArm3D = $PitchPivot/SpringArm3D
@@ -81,6 +84,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var sensitivity := mouse_sensitivity * (0.4 if _first_person else 1.0)
 		rotation.y -= motion.relative.x * sensitivity
 		pitch -= motion.relative.y * sensitivity
+		_since_mouse = 0.0
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		capture_mouse()
 
@@ -103,6 +107,39 @@ func _physics_process(delta: float) -> void:
 	_low_ceiling = lerpf(_low_ceiling, low, 1.0 - exp(-6.0 * delta))
 	var effective_pitch := lerpf(pitch, deg_to_rad(-3.0), _low_ceiling) if not _first_person else pitch
 	_pitch_pivot.rotation.x = effective_pitch
+	_since_mouse += delta
+	if not _first_person and input_enabled and _since_mouse > 0.8:
+		_avoid_side_walls(delta)
+
+
+## Couloir étroit : compare l'espace libre derrière Nin0 un peu à gauche et à droite,
+## et pivote lentement vers le côté dégagé.
+func _avoid_side_walls(delta: float) -> void:
+	if _spring_arm.get_hit_length() > arm_length * 0.5:
+		return
+	# Jamais pendant un déplacement : la direction de marche suit la caméra.
+	if target is CharacterBody3D and Vector2((target as CharacterBody3D).velocity.x, (target as CharacterBody3D).velocity.z).length() > 0.3:
+		return
+	var space := target.get_world_3d().direct_space_state
+	var origin := global_position
+	var best := 0.0
+	var best_length := _probe(space, origin, 0.0)
+	for offset in [-0.5, 0.5, -0.9, 0.9]:
+		var length := _probe(space, origin, offset)
+		if length > best_length + 0.3:
+			best_length = length
+			best = offset
+	if best != 0.0:
+		rotation.y += signf(best) * minf(absf(best), 1.4 * delta)
+
+
+func _probe(space: PhysicsDirectSpaceState3D, origin: Vector3, yaw_offset: float) -> float:
+	var back := Basis(Vector3.UP, rotation.y + yaw_offset) * Basis(Vector3.RIGHT, _pitch_pivot.rotation.x) * Vector3.BACK
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + back * arm_length, 1)
+	if target is CollisionObject3D:
+		query.exclude = [(target as CollisionObject3D).get_rid()]
+	var hit := space.intersect_ray(query)
+	return arm_length if hit.is_empty() else origin.distance_to(hit.position)
 
 
 func _process(_delta: float) -> void:

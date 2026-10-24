@@ -1983,7 +1983,6 @@ shape = 1
 size = Vector3(0.7, 4, 0.7)
 bevel = 0.03
 material = SubResource("Mat_pipe")
-collide = false
 
 [node name="BottleA" type="StaticBody3D" parent="Furniture/SinkUnit"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -73.6, 2.6, 35)

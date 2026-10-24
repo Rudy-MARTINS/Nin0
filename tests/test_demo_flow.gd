@@ -130,7 +130,10 @@ func _run() -> void:
 	_check(interactor.focused == _level.printer.interactable, "l'imprimante est détectée comme interactive")
 	await _tap("interact")
 	var panel: PrinterPanel = _level.printer_panel
-	_check(panel.visible and GameState.printer_seen, "l'interface de l'imprimante s'ouvre")
+	await _wait(0.5)
+	_check(not panel.visible and _saw_thought([&"eye", &"question"]), "première rencontre : Nin0 observe la machine avant l'interface")
+	var opened := await _wait_until(9.0, func() -> bool: return panel.visible)
+	_check(opened and GameState.printer_seen, "Nin0 observe la machine, puis l'interface de l'imprimante s'ouvre")
 	_check(panel.get_node("Center/Panel/Margin/VBox/LegsCard/Button").disabled, "impression impossible sans alimentation")
 	await _tap("interact")
 	_check(not panel.visible and _nino.controls_enabled, "l'interface se ferme (sans se rouvrir)")

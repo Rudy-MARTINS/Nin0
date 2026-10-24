@@ -23,6 +23,9 @@ const PROFILE: ObservationProfile = preload("res://assets/observation/creature.t
 @export var detect_angle := 75.0
 @export var attack_range := 0.6
 @export var bite_damage := 14.0
+## Chance qu'une morsure étourdisse Nin0 (≈ 1 s), sans cumul (immunité ensuite).
+@export_range(0.0, 1.0) var stun_chance := 0.15
+@export var stun_time := 1.0
 @export var windup_time := 0.55
 @export var recover_time := 0.9
 @export var lose_time := 2.2
@@ -170,8 +173,8 @@ func _physics_process(delta: float) -> void:
 					and (-global_basis.z).dot((_nino.global_position - global_position).normalized()) > 0.2:
 				_hit_done = true
 				Sfx.play(&"bite", -6.0)
-				if _integrity:
-					_integrity.hit(bite_damage, &"physical", global_position)
+				if _integrity and _integrity.hit(bite_damage, &"physical", global_position) and randf() < stun_chance:
+					_nino.stun(stun_time)
 			if _timer <= 0.0:
 				_set_state(State.RECOVER)
 		State.RECOVER:

@@ -753,6 +753,31 @@ rings = 7
 [sub_resource type="QuadMesh" id="Quad_GravelDirt"]
 size = Vector2(3.8, 6.2)
 
+[sub_resource type="StandardMaterial3D" id="Mat_puddle"]
+albedo_color = Color(0.62, 0.72, 0.8, 1)
+roughness = 0.05
+transparency = 1
+albedo_color = Color(0.62, 0.72, 0.8, 0.45)
+metallic_specular = 1.0
+
+[sub_resource type="QuadMesh" id="Quad_Puddle0"]
+size = Vector2(2.6, 1.8)
+
+[sub_resource type="BoxShape3D" id="PuddleShape0"]
+size = Vector3(2.6, 1, 1.8)
+
+[sub_resource type="QuadMesh" id="Quad_Puddle1"]
+size = Vector2(2.2, 1.6)
+
+[sub_resource type="BoxShape3D" id="PuddleShape1"]
+size = Vector3(2.2, 1, 1.6)
+
+[sub_resource type="QuadMesh" id="Quad_Puddle2"]
+size = Vector2(1.8, 1.4)
+
+[sub_resource type="BoxShape3D" id="PuddleShape2"]
+size = Vector3(1.8, 1, 1.4)
+
 [sub_resource type="BoxMesh" id="SludgeMesh"]
 size = Vector3(8.9, 0.04, 4.7)
 
@@ -5159,6 +5184,70 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -61.5, 0.02, -12)
 script = ExtResource("8_ant_soldier")
 patrol_points = PackedVector3Array(-61.5, 0.02, -12.0, -55.0, 0.02, -12.0)
 
+[node name="SoldierLeftSouthB" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.5, 0.02, -2.6)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-63.5, 0.02, -2.6, -53.0, 0.02, -2.6)
+
+[node name="SoldierStepB" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50.9, 0.02, -21.1)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-50.9, 0.02, -21.1, -48.0, 0.02, -21.1)
+
+[node name="Puddle0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -58.4, 0.016, -2.6)
+material_override = SubResource("Mat_puddle")
+cast_shadow = 0
+mesh = SubResource("Quad_Puddle0")
+
+[node name="PuddleZone0" type="Area3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.4, 0.5, -2.6)
+script = ExtResource("6_terrain_zone")
+key = &"puddle0"
+wheels_factor = 0.55
+speed_factor = 0.7
+accel_factor = 0.7
+splash_color = Color(0.7, 0.8, 0.9, 0.8)
+
+[node name="Shape" type="CollisionShape3D" parent="MazeRight/PuddleZone0"]
+shape = SubResource("PuddleShape0")
+
+[node name="Puddle1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -59.6, 0.016, -7.6)
+material_override = SubResource("Mat_puddle")
+cast_shadow = 0
+mesh = SubResource("Quad_Puddle1")
+
+[node name="PuddleZone1" type="Area3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.6, 0.5, -7.6)
+script = ExtResource("6_terrain_zone")
+key = &"puddle1"
+wheels_factor = 0.55
+speed_factor = 0.7
+accel_factor = 0.7
+splash_color = Color(0.7, 0.8, 0.9, 0.8)
+
+[node name="Shape" type="CollisionShape3D" parent="MazeRight/PuddleZone1"]
+shape = SubResource("PuddleShape1")
+
+[node name="Puddle2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -55.4, 0.016, -22.4)
+material_override = SubResource("Mat_puddle")
+cast_shadow = 0
+mesh = SubResource("Quad_Puddle2")
+
+[node name="PuddleZone2" type="Area3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.4, 0.5, -22.4)
+script = ExtResource("6_terrain_zone")
+key = &"puddle2"
+wheels_factor = 0.55
+speed_factor = 0.7
+accel_factor = 0.7
+splash_color = Color(0.7, 0.8, 0.9, 0.8)
+
+[node name="Shape" type="CollisionShape3D" parent="MazeRight/PuddleZone2"]
+shape = SubResource("PuddleShape2")
+
 [node name="Larvae" type="Node3D" parent="MazeRight"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.2, 0, -26.9)
 script = ExtResource("7_larva_droppe")
@@ -5343,6 +5432,9 @@ speed_factor = 0.38
 jump_factor = 0.62
 accel_factor = 0.3
 damage_factor = 1.25
+tick_damage = 2.0
+tick_interval = 1.6
+tick_grace = 1.2
 sink_depth = 0.2
 sink_speed = 0.16
 active_below_y = 7.82

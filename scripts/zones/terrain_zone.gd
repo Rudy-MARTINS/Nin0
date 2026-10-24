@@ -7,6 +7,9 @@ extends Area3D
 ##   les débris flottants restent des refuges sûrs.
 ## Toujours réversible : en sortant de la zone, Nin0 retrouve ses capacités.
 
+signal ticked(damage: float)
+signal entered_liquid
+
 @export var key: StringName = &"terrain"
 @export_range(0.05, 1.0) var wheels_factor := 1.0
 @export_range(0.05, 1.0) var speed_factor := 1.0
@@ -20,6 +23,11 @@ extends Area3D
 @export var sink_speed := 0.12
 ## Hauteur (globale) au-dessus de laquelle Nin0 n'est plus « dedans » (sur un débris).
 @export var active_below_y := INF
+## Dégâts progressifs faibles (liquide corrosif) : après un délai de grâce, `tick_damage`
+## toutes les `tick_interval` secondes, annoncés par un grésillement et un signal.
+@export var tick_damage := 0.0
+@export var tick_interval := 1.6
+@export var tick_grace := 1.2
 ## Éclaboussures visibles quand Nin0 avance dedans (alpha 0 = aucune).
 @export var splash_color := Color(0, 0, 0, 0)
 
@@ -27,6 +35,7 @@ var _inside: NinoController
 var _active := false
 var _sink := 0.0
 var _splash: CPUParticles3D
+var _tick_timer := 0.0
 
 
 func _ready() -> void:
@@ -52,6 +61,15 @@ func _physics_process(delta: float) -> void:
 	var should := _inside.global_position.y < active_below_y
 	if should != _active:
 		_set_active(should)
+	if _active and tick_damage > 0.0 and not GameState.hazards_suspended():
+		_tick_timer -= delta
+		if _tick_timer <= 0.0:
+			_tick_timer = tick_interval
+			var integrity := get_tree().get_first_node_in_group(&"nino_integrity") as NinoIntegrity
+			if integrity and integrity.enabled:
+				integrity.take_damage(tick_damage, false, &"acid")
+				Sfx.play(&"acid_sizzle", -14.0, 1.3)
+				ticked.emit(tick_damage)
 	if not _active:
 		if _sink > 0.0:
 			_sink = maxf(_sink - delta * 0.8, 0.0)
@@ -76,6 +94,8 @@ func _set_active(on: bool) -> void:
 	_active = on
 	var nino := _inside
 	if on:
+		_tick_timer = tick_grace
+		entered_liquid.emit()
 		if wheels_factor < 1.0:
 			nino.set_wheels_modifier(key, wheels_factor)
 		if speed_factor < 1.0:

@@ -52,6 +52,14 @@ func _run() -> void:
 	var climbed_mug := await _hold_and_watch(["move_forward"], 2.0)
 	_check(not climbed_mug and _nino.global_position.y < 0.1, "la tasse n'est pas escaladable")
 
+	# 3b. Lot 7 : l'escalade libre est désactivée par défaut (le carton reste un obstacle).
+	_check(not _nino.climbing_enabled, "escalade libre désactivée par défaut (lot 7)")
+	_place(Vector3(4, 0.02, 0.2), 0.0)
+	var climbed_disabled := await _hold_and_watch(["move_forward"], 1.6)
+	_check(not climbed_disabled and _nino.global_position.y < 0.1, "sans escalade, le carton reste un obstacle")
+	# Mécanique conservée (prototypes) : on la réactive pour vérifier le code existant.
+	_nino.climbing_enabled = true
+
 	# 4. Carton escaladable : accroche, montée, hissage sur le dessus.
 	_place(Vector3(4, 0.02, 0.2), 0.0)
 	var climbed_box := await _hold_and_watch(["move_forward"], 2.2)

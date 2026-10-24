@@ -140,6 +140,9 @@ var _charge_hold := 0.0
 var _pending_jump_height := -1.0
 var _jump_no_cut := false
 var _air_peak := 0.0
+## Étourdissement (morsure de soldat) : contrôles figés un instant, puis immunité.
+var _stun_timer := 0.0
+var _stun_immunity := 0.0
 var _last_position := Vector3.ZERO
 
 @onready var _collision_shape: CollisionShape3D = $CollisionShape3D
@@ -159,12 +162,14 @@ func _physics_process(delta: float) -> void:
 	_attach_cooldown = maxf(_attach_cooldown - delta, 0.0)
 	_slow_timer = maxf(_slow_timer - delta, 0.0)
 	_jump_buffer = maxf(_jump_buffer - delta, 0.0)
+	_stun_timer = maxf(_stun_timer - delta, 0.0)
+	_stun_immunity = maxf(_stun_immunity - delta, 0.0)
 
 	if global_position.y < kill_height or (controls_enabled and Input.is_action_just_pressed("respawn")):
 		respawn()
 		return
 
-	if controls_enabled and not focus_lock:
+	if controls_enabled and not focus_lock and _stun_timer <= 0.0:
 		if Input.is_action_just_pressed("jump"):
 			if charged_jump_unlocked and mode == Mode.LEGS and state == State.FREE and is_on_floor():
 				_charging = true
@@ -209,15 +214,20 @@ func respawn() -> void:
 
 
 ## Séquence scriptée : Nin0 ne bouge plus de lui-même (la position est pilotée).
+## Séquence scriptée : aucun danger ne peut toucher Nin0 tant qu'elle dure
+## (filet de sécurité commun à toutes les installations et mises en scène).
 func begin_scripted() -> void:
 	velocity = Vector3.ZERO
 	_climb_velocity = Vector3.ZERO
+	cancel_charge()
 	_set_state(State.SCRIPTED)
+	GameState.suspend_hazards(&"scripted")
 
 
 func end_scripted() -> void:
 	if state == State.SCRIPTED:
 		_set_state(State.FREE)
+	GameState.resume_hazards(&"scripted")
 
 
 ## Vrai si la vision focalisée peut être utilisée (au sol, libre, contrôlable).
@@ -706,7 +716,26 @@ func _is_space_free(feet_position: Vector3) -> bool:
 
 # --- Utilitaires ---------------------------------------------------------------
 
+## Étourdit Nin0 `seconds` secondes. Refusé s'il est déjà étourdi ou encore immunisé
+## (jamais d'enchaînement injuste). Renvoie true si l'étourdissement a lieu.
+func stun(seconds: float, immunity := 5.0) -> bool:
+	if _stun_timer > 0.0 or _stun_immunity > 0.0 or state != State.FREE:
+		return false
+	_stun_timer = seconds
+	_stun_immunity = seconds + immunity
+	cancel_charge()
+	_visual.show_emotion(NinoVisual.Emotion.DIZZY, seconds + 0.3)
+	Sfx.play(&"glitch", -12.0)
+	return true
+
+
+func is_stunned() -> bool:
+	return _stun_timer > 0.0
+
+
 func _get_input_vector() -> Vector2:
+	if _stun_timer > 0.0:
+		return Vector2.ZERO
 	if not controls_enabled or focus_lock:
 		return Vector2.ZERO
 	return Input.get_vector("move_left", "move_right", "move_forward", "move_back")

@@ -99,9 +99,11 @@ func start() -> void:
 			return
 	else:
 		# Nouvel essai : la reine est déjà là ; un grognement et la musique repart.
+		GameState.suspend_hazards(&"arena_retry")
 		Sfx.play(&"queen_roar", -8.0, 1.1)
 		boss_music_started.emit()
 		await get_tree().create_timer(0.8).timeout
+		GameState.resume_hazards(&"arena_retry")
 		if phase != Phase.INTRO:
 			return
 	_nino.controls_enabled = true
@@ -249,6 +251,7 @@ func pull_drain() -> void:
 	if _nino == null:
 		_nino = get_tree().get_first_node_in_group(&"nino") as NinoController
 	_nino.controls_enabled = false
+	GameState.suspend_hazards(&"drain")
 	_nino.velocity = Vector3.ZERO
 	_nino.get_visual().show_emotion(NinoVisual.Emotion.FOCUSED, 0.8)
 	Sfx.play(&"click", -4.0, 0.7)
@@ -287,6 +290,7 @@ func pull_drain() -> void:
 	Sfx.play(&"happy", -4.0)
 	await get_tree().create_timer(1.5).timeout
 	_nino.get_visual().look_target = null
+	GameState.resume_hazards(&"drain")
 	_cine_end()
 	_nino.controls_enabled = true
 	queen_defeated.emit()

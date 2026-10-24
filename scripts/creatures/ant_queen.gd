@@ -51,6 +51,8 @@ var acid_hits := 0
 var melee_hits := 0
 ## Distance totale parcourue pendant le combat (contrôle de mobilité).
 var travelled := 0.0
+## Pas lourds (présence physique) : petit choc sourd régulier quand elle marche.
+var _step_timer := 0.0
 
 var _timer := 0.0
 var _spit_timer := 1.2
@@ -298,6 +300,10 @@ func _physics_process(delta: float) -> void:
 			var target := _nino.global_position if _approaching else _move_target
 			_walk_toward(target, approach_speed if _approaching else walk_speed, delta)
 			_move_time -= delta
+			_step_timer -= delta
+			if _step_timer <= 0.0:
+				_step_timer = 0.42
+				Sfx.play(&"thud", -16.0, randf_range(0.55, 0.7))
 			if distance < melee_trigger and nino_level:
 				_set_state(State.MELEE_WINDUP)
 			elif (_approaching and distance < melee_trigger * 0.9) or (not _approaching and _flat_distance(_move_target) < 0.2) or _move_time <= 0.0:
@@ -431,8 +437,11 @@ func _push_nino() -> void:
 	var flat := Vector2(to.x, to.z)
 	if flat.length() < body_length * 0.55 and absf(to.y) < 0.7:
 		var away := Vector3(flat.x, 0.0, flat.y).normalized() if flat.length() > 0.01 else -global_basis.z
-		_nino.velocity.x = away.x * 2.2
-		_nino.velocity.z = away.z * 2.2
+		# Masse imposante : elle bouscule franchement Nin0.
+		_nino.velocity.x = away.x * 3.4
+		_nino.velocity.z = away.z * 3.4
+		if _nino.is_on_floor():
+			_nino.velocity.y = 2.2
 
 
 func _set_state(next: State) -> void:

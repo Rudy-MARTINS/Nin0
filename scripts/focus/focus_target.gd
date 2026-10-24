@@ -23,12 +23,37 @@ signal identified(target: FocusTarget)
 @export var enabled := true
 ## Affiche un repère discret dans la vision focalisée (aide si l'élément est peu visible).
 @export var show_marker := false
+## Léger halo chaud qui « respire » sur les éléments fixes à observer (lisibilité par
+## l'éclairage, sans icône). Jamais sur les créatures ; éteint une fois identifié.
+@export var glint := true
 
 var is_identified := false
+var _glint_light: OmniLight3D
+var _glint_time := 0.0
 
 
 func _ready() -> void:
 	add_to_group(&"focus_targets")
+	if glint and species == null:
+		_glint_light = OmniLight3D.new()
+		_glint_light.light_color = Color(1.0, 0.86, 0.6)
+		_glint_light.omni_range = clampf(radius * 2.2, 0.6, 2.5)
+		_glint_light.light_energy = 0.0
+		_glint_light.shadow_enabled = false
+		add_child(_glint_light)
+		_glint_time = randf() * TAU
+
+
+func _process(delta: float) -> void:
+	if _glint_light == null:
+		set_process(false)
+		return
+	_glint_time += delta
+	var on := enabled and not is_identified
+	var target := (0.22 + 0.12 * sin(_glint_time * 1.6)) if on else 0.0
+	_glint_light.light_energy = lerpf(_glint_light.light_energy, target, 1.0 - exp(-3.0 * delta))
+	if not on and _glint_light.light_energy < 0.01:
+		_glint_light.light_energy = 0.0
 
 
 func mark_identified(silent := false) -> void:

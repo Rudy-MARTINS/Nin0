@@ -972,12 +972,12 @@ func _open_door() -> void:
 
 
 ## Chute en cascade (gag) : projeté sur le coin de l'étagère, Nin0 glisse, rebondit
-## sur le coussin de sol et atterrit ; la gomme délogée au passage lui tombe sur la
+## sur un chausson et atterrit ; la gomme délogée au passage lui tombe sur la
 ## tête. Trajectoires en arcs lisibles, rythmées par des sons cartoon.
 func _cascade_fall() -> void:
 	var visual := nino.get_visual()
 	var shelf_corner := Vector3(-13.35, 9.85, 0.25)
-	var cushion_top := Vector3(-13.3, 1.32, 1.85)
+	var slipper_top := Vector3(-12.4, 0.62, 6.6)
 	var floor_spot := _checkpoint("FallSpot").origin
 	var follow := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
 	follow.tween_property(camera, "pitch", deg_to_rad(-26.0), 0.9)
@@ -992,12 +992,12 @@ func _cascade_fall() -> void:
 	# 2. Il vacille, glisse et tombe.
 	visual.set_tilt(30.0)
 	Sfx.play(&"cartoon_fall", -6.0, 1.15)
-	await _arc(nino, shelf_corner, cushion_top, 0.3, 0.68)
-	# 3. Rebond sur le coussin.
+	await _arc(nino, shelf_corner, slipper_top, 0.6, 0.78)
+	# 3. Rebond sur le chausson.
 	Sfx.play(&"boing", -4.0)
 	visual.react_to_landing(14.0)
 	visual.set_tilt(-40.0)
-	await _arc(nino, cushion_top, floor_spot, 1.3, 0.55)
+	await _arc(nino, slipper_top, floor_spot, 1.2, 0.55)
 	# 4. Au sol : petite glissade.
 	Sfx.play(&"thud", -4.0)
 	visual.react_to_landing(16.0)
@@ -1033,8 +1033,7 @@ func _eraser_bonk() -> void:
 	if eraser == null:
 		return
 	var head := nino.global_position + Vector3(0.0, 0.62, 0.0)
-	await _arc(eraser, eraser.global_position, eraser.global_position + Vector3(0.05, -8.2, 1.4), 0.2, 0.5)
-	await _arc(eraser, eraser.global_position, head, 0.6, 0.35)
+	await _arc(eraser, eraser.global_position, head, 0.4, 0.75)
 	Sfx.play(&"bonk", -2.0, 1.6)
 	var visual := nino.get_visual()
 	visual.react_to_landing(8.0)
