@@ -97,6 +97,44 @@ func _process(delta: float) -> void:
 	_update_head(delta)
 	_update_squash(delta)
 	_update_legs(delta)
+	_update_antenna(delta)
+
+
+## Antenne à ressort (glow-up) : elle fouette un peu aux accélérations, aux sauts et
+## aux atterrissages, et oscille à peine au repos. Pivot à sa base, modèle inchangé.
+const ANTENNA_BASE := Vector3(0.07, 0.2, 0.03)
+var _antenna_nodes: Array[Node3D] = []
+var _antenna_rest: Array[Transform3D] = []
+var _antenna_angle := Vector2.ZERO
+var _antenna_velocity := Vector2.ZERO
+var _antenna_last_speed := 0.0
+var _antenna_time := 0.0
+
+
+func _update_antenna(delta: float) -> void:
+	if _antenna_nodes.is_empty():
+		for path in ["Rig/Head/Antenna", "Rig/Head/AntennaTip"]:
+			var node := get_node_or_null(path) as Node3D
+			if node:
+				_antenna_nodes.append(node)
+				_antenna_rest.append(node.transform)
+		if _antenna_nodes.is_empty():
+			return
+	if delta <= 0.0:
+		return
+	_antenna_time += delta
+	var accel := (_speed - _antenna_last_speed) / delta
+	_antenna_last_speed = _speed
+	var drive := Vector2(clampf(-accel * 0.02, -3.0, 3.0), 0.0)
+	drive.y += _squash_velocity * 0.04
+	drive += Vector2(sin(_antenna_time * 1.7), sin(_antenna_time * 1.1 + 0.6)) * 0.35 * _power
+	_antenna_velocity += (drive - _antenna_angle * 120.0 - _antenna_velocity * 9.0) * delta
+	_antenna_angle += _antenna_velocity * delta
+	_antenna_angle = _antenna_angle.clamp(Vector2(-0.35, -0.35), Vector2(0.35, 0.35))
+	var swing := Basis.from_euler(Vector3(_antenna_angle.x, 0.0, _antenna_angle.y))
+	var pivot := Transform3D(Basis.IDENTITY, ANTENNA_BASE) * Transform3D(swing, Vector3.ZERO) * Transform3D(Basis.IDENTITY, -ANTENNA_BASE)
+	for i in _antenna_nodes.size():
+		_antenna_nodes[i].transform = pivot * _antenna_rest[i]
 
 
 # --- API appelée par le contrôleur -------------------------------------------

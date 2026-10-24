@@ -49,11 +49,12 @@ il se rejoint désormais par une **règle en bois posée en pente**. Le fragment
   araignée en chasse sous les meubles, mouvements derrière le réfrigérateur ; une **puce** saute
   aux pieds de Nin0 puis bondit d'un coup sur le couvercle de la poubelle. Dangers suspendus.
 - **Puce** (nouvelle espèce, pacifique) : perchoirs, petits bonds, grands sauts, fuit si l'on s'approche.
-  Le joueur doit l'analyser lui-même → réflexion de Nin0 → plan **Saut chargé**.
-- **Saut chargé** (amélioration majeure permanente, 4 filaments, à l'imprimante) :
+  Le joueur doit l'analyser lui-même → réflexion de Nin0 → **technique Saut chargé** apprise.
+- **Saut chargé** (technique apprise en observant la puce — *plus fabriquée à l'imprimante
+  depuis les correctifs du lot 7*, voir plus bas) :
   appui bref = saut normal (1 u) ; appui maintenu (jambes, au sol) = Nin0 se ramasse, frémit,
   son montant, petit arc de charge à l'écran ; au relâchement, saut jusqu'à 3,4 u.
-  Jamais de charge en l'air. Court tutoriel après l'installation.
+  Jamais de charge en l'air. Court tutoriel juste après l'apprentissage.
 - **Parcours repensés** (sans escalade) :
   - sol → caisse (0,7, saut normal) → carton (3,4) → carton (6,2) → plan de travail (9,0) ;
   - autre accès : packs d'eau (2,6 puis 5,0) → tiroir resté ouvert (6,3) → plan de travail ;
@@ -247,3 +248,41 @@ déjà mérité. Annonce discrète (« Trophée : … »), onglet **Trophées** 
 | Espace (maintenir, jambes) | Saut chargé |
 | A | Changer de munition (billes / billes pointues) |
 | G | Ordres à Nathan, puis 1 à 4 |
+
+## Lot 7 — Correctifs après test manuel et glow-up visuel
+
+### Correctifs (étape 1)
+
+- **Fin du chapitre 2** : le bouton « Quitter » devient **« Rester dans le sas »** ; il annule
+  l'entrée de la cuisine sans rien perdre (Nin0 est replacé devant la porte, face au sas).
+  Pendant l'écran, Nin0 est immobilisé et les dangers sont suspendus.
+- **Saut chargé = technique** apprise en analysant la puce (cinématique d'observation,
+  accroupissement, schéma « TECHNIQUE APPRISE »). Aucun coût, aucune fabrication. Drapeau
+  `charged_jump_learned` ; les anciennes sauvegardes (amélioration ou plan) sont converties.
+  Section **Techniques** dans l'onglet Équipement de l'inventaire.
+- **Installation du canon** : Nin0 saute en arc jusqu'à une place d'attente calculée devant
+  la machine (raycast au sol) au lieu d'être téléporté de travers.
+- **Après le canon** : pensée en deux temps sur le crochet du sas, objectif « Retourner à la
+  porte de la cuisine, dans le sas ».
+- **Labyrinthe** : trois soldates de plus ; présentation cinématique unique à la première
+  entrée (dangers suspendus).
+- **Sas** : les éclats de plâtre gris (« taches ») sont retirés.
+- **Audio** : limiteur sur le bus Master (−1 dB), bus Music −1 dB, volumes des morceaux
+  rapprochés (cible ≈ −26 LUFS, boss −25), corrections par effet sonore (`Sfx.LEVELS`).
+
+### Glow-up visuel (étapes 2 à 5)
+
+Voir **docs/DIRECTION_ARTISTIQUE.md** (palette, matériaux, lumière par pièce, interface).
+
+- Écran titre : logo vectoriel « Nin0 » (le 0 est l'écran-visage), Nin0 en veille dont
+  l'écran respire, faisceau chaud, menu aligné à gauche avec liseré orange.
+- Réveil : plan large puis lent rapprochement, pénombre qui s'éclaire, yeux qui s'allument
+  par à-coups avec une lueur cyan sur la tête ; le tutoriel et la durée sont inchangés.
+- Atelier : textures procédurales sur bois, tissus, métal, plastique ; faisceaux de fenêtre
+  adoucis (estompés près de la caméra).
+- Imprimante : silhouette et palette conservées ; coque grainée, montants en alu brossé,
+  halo de l'écran, volutes à la buse pendant l'extrusion.
+- Ambiances par pièce : refuge chaud, sas neutre, salle de bain froide, cuisine contrastée,
+  salon doux (fondus de 2,4 s).
+- Interface : thème commun bleu-gris profond à liseré orange, focus clavier cyan.
+- Nin0 : antenne à ressort (accélérations, sauts, oscillation au repos).
