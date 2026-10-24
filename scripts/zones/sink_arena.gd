@@ -155,6 +155,7 @@ func _cine_begin() -> void:
 	_cam.fov = 58.0
 	add_child(_cam)
 	_cam.make_current()
+	GameState.suspend_hazards(&"arena_cinematic")
 	cinematic_changed.emit(true)
 
 
@@ -167,6 +168,7 @@ func _cine_end() -> void:
 		_previous_cam.make_current()
 	_cam.queue_free()
 	_cam = null
+	GameState.resume_hazards(&"arena_cinematic")
 	cinematic_changed.emit(false)
 
 

@@ -17,6 +17,8 @@ signal species_added(id: StringName)
 signal modules_changed
 ## Première découverte d'un type de ressource (explication affichée une seule fois).
 signal resource_discovered(kind: StringName)
+## Dangers suspendus (séquence non interactive) ou rétablis.
+signal hazards_changed(suspended: bool)
 
 ## Sauvegarde du joueur. Les tests automatiques utilisent TEST_SAVE_PATH (voir
 ## `save_path`) pour ne jamais toucher à la sauvegarde personnelle.
@@ -214,6 +216,7 @@ func load_save() -> void:
 
 
 func reset_progress() -> void:
+	_hazard_locks.clear()
 	woke_up = false
 	tutorial_done = false
 	printer_seen = false
@@ -364,6 +367,33 @@ func is_pickup_available(pickup_id: StringName, respawn_delay := 0.0) -> bool:
 
 
 ## Plastique donné hors ramassage (premier chargement du canon, mode développement).
+# --- Suspension des dangers ----------------------------------------------------------------
+## Pendant une séquence où le joueur n'a pas le contrôle (souvenir, mise en scène,
+## installation…), les ennemis cessent d'attaquer et de se déplacer, les projectiles et
+## pièges ne blessent plus, les terrains n'enlisent plus. L'interface et les effets
+## visuels continuent (pas de pause globale). Chaque séquence pose son propre verrou.
+var _hazard_locks := {}
+
+
+func suspend_hazards(reason: StringName) -> void:
+	var was := hazards_suspended()
+	_hazard_locks[reason] = true
+	if not was:
+		hazards_changed.emit(true)
+
+
+func resume_hazards(reason: StringName) -> void:
+	if not _hazard_locks.has(reason):
+		return
+	_hazard_locks.erase(reason)
+	if not hazards_suspended():
+		hazards_changed.emit(false)
+
+
+func hazards_suspended() -> bool:
+	return not _hazard_locks.is_empty()
+
+
 func add_plastic(amount: int) -> void:
 	ammo_plastic = clampi(ammo_plastic + amount, 0, PLASTIC_MAX)
 	_save_if_started()

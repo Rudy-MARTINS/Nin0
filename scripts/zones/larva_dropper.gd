@@ -5,6 +5,9 @@ extends Node3D
 ## bruissement et ombre au sol. La larve devient un obstacle temporaire qui gêne et
 ## ralentit Nin0 (jamais mortelle), puis repart. Nombre limité (aucune accumulation).
 
+## Une larve est tombée tout près de Nin0.
+signal landed_near(point: Vector3)
+
 @export var interval := Vector2(3.5, 6.5)
 @export var warning_time := 1.1
 @export var max_active := 3
@@ -29,7 +32,7 @@ func _physics_process(delta: float) -> void:
 	if _nino == null:
 		_nino = get_tree().get_first_node_in_group(&"nino") as NinoController
 		return
-	if _points.is_empty() or _nino.global_position.distance_to(global_position) > active_distance:
+	if GameState.hazards_suspended() or _points.is_empty() or _nino.global_position.distance_to(global_position) > active_distance:
 		return
 	_timer -= delta
 	if _timer <= 0.0 and active.size() < max_active:
@@ -54,8 +57,9 @@ func drop(point: Vector3) -> void:
 	fall.tween_property(larva, "global_position", point, 0.55)
 	await fall.finished
 	Sfx.play(&"larva_drop", -8.0, randf_range(0.9, 1.1))
-	if _nino and _nino.global_position.distance_to(point) < 0.45:
+	if _nino and _nino.global_position.distance_to(point) < 0.45 and not GameState.hazards_suspended():
 		_nino.apply_slow(0.45, 1.2)
+		landed_near.emit(point)
 		var away := _nino.global_position - point
 		away.y = 0.0
 		_nino.velocity += (away.normalized() if away.length() > 0.01 else Vector3.FORWARD) * 1.5

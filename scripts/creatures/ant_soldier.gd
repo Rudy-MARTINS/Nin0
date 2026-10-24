@@ -98,6 +98,17 @@ func calm(seconds: float) -> void:
 	_calm = seconds
 
 
+## Séquence non interactive : le soldat s'immobilise ; une morsure en préparation est
+## annulée. À la reprise, il reprend sa poursuite ou sa patrouille après un instant.
+func _hold_still() -> void:
+	velocity = Vector3.ZERO
+	body.motion_speed = 0.0
+	if state in [State.WINDUP, State.ATTACK]:
+		body.rear = 0.0
+		_set_state(State.RECOVER)
+	_calm = maxf(_calm, 1.0)
+
+
 func reset_to_post() -> void:
 	health = max_health
 	global_position = patrol_points[0] if not patrol_points.is_empty() else _home
@@ -113,6 +124,9 @@ func _physics_process(delta: float) -> void:
 		_integrity = get_tree().get_first_node_in_group(&"nino_integrity") as NinoIntegrity
 		if _nino == null:
 			return
+	if GameState.hazards_suspended():
+		_hold_still()
+		return
 	_timer -= delta
 	_calm = maxf(_calm - delta, 0.0)
 	var desired := Vector3.ZERO
