@@ -36,6 +36,7 @@ func any_soldier_engaged() -> bool:
 func reset_creatures() -> void:
 	for soldier in get_soldiers():
 		soldier.reset_to_post()
+		soldier.calm(2.5)
 
 
 func marker(name: String) -> Transform3D:

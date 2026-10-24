@@ -44,6 +44,7 @@ var _integrity: NinoIntegrity
 var _emote: Label3D
 var _home: Vector3
 var _hit_done := false
+var _calm := 0.0
 
 
 func _ready() -> void:
@@ -92,6 +93,11 @@ func is_engaged() -> bool:
 
 
 ## Remet le soldat à son poste (réinitialisation de zone, réapparition).
+## Ignore Nin0 un instant (retour au point sûr après une mise en veille).
+func calm(seconds: float) -> void:
+	_calm = seconds
+
+
 func reset_to_post() -> void:
 	health = max_health
 	global_position = patrol_points[0] if not patrol_points.is_empty() else _home
@@ -108,6 +114,7 @@ func _physics_process(delta: float) -> void:
 		if _nino == null:
 			return
 	_timer -= delta
+	_calm = maxf(_calm - delta, 0.0)
 	var desired := Vector3.ZERO
 	var speed := 0.0
 	match state:
@@ -277,7 +284,7 @@ func on_projectile_hit(projectile: Node3D) -> void:
 
 
 func _can_see_nino(chasing := false) -> bool:
-	if _nino == null or not _nino.visible:
+	if _nino == null or not _nino.visible or _calm > 0.0:
 		return false
 	var to := _nino.global_position - global_position
 	var flat := Vector3(to.x, 0.0, to.z)
