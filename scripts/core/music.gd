@@ -11,19 +11,24 @@ extends Node
 ##   projet (il est alors remplacé par du silence, sans erreur bloquante).
 ## Les morceaux sont des prototypes internes (droits commerciaux non confirmés).
 
-## Identifiant → fichier et bouclage. Les fichiers absents sont signalés une fois.
+## Identifiant → fichier, bouclage, point de reprise de la boucle (s) et volume (dB,
+## réglé d'après la sonie mesurée de chaque piste pour un niveau homogène).
+## Pistes du pack musical (lot 5.1, prototypes Suno retravaillés, usage interne) :
+## - hub, labyrinthe : intro + boucle assemblées ; la boucle reprend juste après l'intro ;
+## - boss : intro + deux sections, coupé avant la fin du morceau ; la boucle reprend à
+##   l'attaque de la première section (48,00 s), la fin n'est jamais jouée.
 const TRACKS := {
-	&"intro": {"path": "res://assets/music/intro_prototype.ogg", "loop": false},
+	&"intro": {"path": "res://assets/music/intro_prototype.ogg", "loop": false, "volume": -4.0},
 	# « Petit Refuge » : placard-hub et sas.
-	&"hub": {"path": "res://assets/music/petit_refuge.ogg", "loop": true},
-	# « ant labyrinth - Nin0 », V3 (raccord fin/début corrigé) : salle de bain.
-	&"labyrinth": {"path": "res://assets/music/ant_labyrinth.ogg", "loop": true},
-	# « boss fight - Nin0 », V2 (≈ 2 min 58) : reine des fourmis.
-	&"boss": {"path": "res://assets/music/boss_fight.ogg", "loop": true},
+	&"hub": {"path": "res://assets/music/petit_refuge.ogg", "loop": true, "loop_offset": 164817.0 / 44100.0, "volume": -3.2},
+	# « ant labyrinth - Nin0 », V3 : salle de bain.
+	&"labyrinth": {"path": "res://assets/music/ant_labyrinth.ogg", "loop": true, "loop_offset": 92610.0 / 44100.0, "volume": -4.6},
+	# « boss fight - Nin0 », V2 : reine des fourmis.
+	&"boss": {"path": "res://assets/music/boss_fight.ogg", "loop": true, "loop_offset": 47.984, "volume": -3.3},
 	# « kitchen - Nin0 » : cuisine (lot 6).
-	&"kitchen": {"path": "res://assets/music/kitchen.ogg", "loop": true},
-	# « living room - Nin0 » : salon, à ne pas utiliser avant son ouverture.
-	&"living_room": {"path": "res://assets/music/living_room.ogg", "loop": true},
+	&"kitchen": {"path": "res://assets/music/kitchen.ogg", "loop": true, "loop_offset": 0.0, "volume": 3.0},
+	# « living room - Nin0 » : salon, conservé hors du jeu (assets/music/_reserve), pas avant son ouverture.
+	&"living_room": {"path": "res://assets/music/living_room.ogg", "loop": true, "volume": -4.0},
 }
 const DEFAULT_VOLUME := -6.0
 const CROSSFADE := 0.8
@@ -59,7 +64,7 @@ func has_track(id: StringName) -> bool:
 
 
 ## Joue un morceau une seule fois par lancement (renvoie false s'il a déjà été joué).
-func play_once(id: StringName, volume_db := -4.0) -> bool:
+func play_once(id: StringName, volume_db := INF) -> bool:
 	if _played_once.has(id):
 		return false
 	_played_once.append(id)
@@ -67,7 +72,7 @@ func play_once(id: StringName, volume_db := -4.0) -> bool:
 
 
 ## Change de morceau. Sans effet si `id` est déjà demandé (aucun redémarrage).
-func play(id: StringName, volume_db := DEFAULT_VOLUME, fade := CROSSFADE) -> bool:
+func play(id: StringName, volume_db := INF, fade := CROSSFADE) -> bool:
 	if id == desired and (current == id or not has_track(id)):
 		return current == id
 	desired = id
@@ -79,11 +84,15 @@ func play(id: StringName, volume_db := DEFAULT_VOLUME, fade := CROSSFADE) -> boo
 		_fade_out(_active, fade)
 		current = &""
 		return false
+	if is_inf(volume_db):
+		volume_db = float(TRACKS[id].get("volume", DEFAULT_VOLUME))
 	var stream := load(TRACKS[id].path) as AudioStream
 	if stream is AudioStreamOggVorbis:
 		(stream as AudioStreamOggVorbis).loop = TRACKS[id].loop
+		(stream as AudioStreamOggVorbis).loop_offset = float(TRACKS[id].get("loop_offset", 0.0))
 	elif stream is AudioStreamMP3:
 		(stream as AudioStreamMP3).loop = TRACKS[id].loop
+		(stream as AudioStreamMP3).loop_offset = float(TRACKS[id].get("loop_offset", 0.0))
 	# Fondu enchaîné : l'ancien lecteur s'éteint, l'autre démarre.
 	_fade_out(_active, fade)
 	_active = 1 - _active
