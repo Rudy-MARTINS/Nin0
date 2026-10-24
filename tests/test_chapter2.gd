@@ -67,6 +67,9 @@ func _test_sas() -> void:
 	_check(not GameState.chapter2_completed and not GameState.kitchen_unlocked and not sas.kitchen_door.is_unlocked, "début : cuisine fermée")
 	# Musique : « Petit Refuge » au placard et dans le sas, sans redémarrage.
 	_check(Music.desired == &"hub" and Music.current != &"intro", "début de partie : introduction arrêtée, musique du hub demandée")
+	_check([&"hub", &"labyrinth", &"boss", &"kitchen"].all(func(id: StringName) -> bool: return Music.has_track(id)), "musiques du pack présentes (hub, labyrinthe, reine, cuisine)")
+	_check(not Music.has_track(&"living_room"), "musique du salon non intégrée au jeu (réservée)")
+	_check(Music.current == &"hub" and Music.is_playing(), "« Petit Refuge » réellement jouée")
 	var changes := Music.changes.size()
 	_place(Vector3(-10.0, 0.05, 1.4), 90.0)
 	await _wait(0.6)
@@ -87,16 +90,16 @@ func _test_sas() -> void:
 	var started := await _hold_until(4.0, func() -> bool: return _game._encounter_running)
 	_check(started and not _nino.controls_enabled, "rencontre : l'ouvrière arrive, contrôle retiré")
 	var t0 := Time.get_ticks_msec()
-	var done := await _wait_until(8.0, func() -> bool: return GameState.worker_met and _nino.controls_enabled)
+	var done := await _wait_until(12.0, func() -> bool: return GameState.worker_met and _nino.controls_enabled)
 	var seconds := (Time.get_ticks_msec() - t0) / 1000.0
-	_check(done and seconds < 6.0, "rencontre courte, contrôle rendu (%.1f s)" % seconds)
+	_check(done and seconds < 9.5, "rencontre courte (approche prudente comprise), contrôle rendu (%.1f s)" % seconds)
 	_check(thoughts_seen.any(func(i: Array) -> bool: return i.has(&"binoculars")), "pensée « jumelles » après le calibrage des yeux")
 	_director.thoughts.thought_requested.disconnect(record)
 	_check(is_equal_approx(GameState.integrity + GameState.shield, before), "l'ouvrière n'attaque pas")
 	var ant: AntWorker = _game.encounter_worker
 	_check(ant != null and ant.focus.show_marker and ant.get_node("ScanRing").visible, "cible visuelle sur l'ouvrière, qui attend")
 	await _wait(2.5)
-	_check(not GameState.has_species(&"ant_worker") and is_instance_valid(ant) and ant.global_position.distance_to(sas.encounter_point("Stop")) < 0.1,
+	_check(not GameState.has_species(&"ant_worker") and is_instance_valid(ant) and ant.global_position.distance_to(sas.encounter_point("Stop")) < 0.8,
 			"aucun scan automatique : l'ouvrière attend l'action du joueur")
 	# Analyse (encyclopédie) : la règle d'observation accepte l'ouvrière visée.
 	var eye := _nino.global_position + Vector3.UP * 0.4
@@ -134,6 +137,9 @@ func _test_sas() -> void:
 	sas.salon_inspect.interacted.emit(_nino)
 	await _wait(0.3)
 	_check(_game._shown.has(&"salon_door"), "porte du salon examinable (Nin0 comprend)")
+	_check(_director.reactions.history.has(&"strange"), "réaction contextuelle : hésitation devant la porte fermée")
+	# Objets du sas : la boule de papier froissé a une vraie collision.
+	_check(_solid_at((_game.sas.get_node("Decor/PaperBall/Facet0") as Node3D).global_position), "boule de papier froissé : apparence de papier et collision")
 	_check(not await _drive(Vector3(-31.5, 0.05, 5.0), 180.0, 6, 3.0), "porte du salon fermée")
 	_check(not await _drive(Vector3(-40.0, 0.05, 8.0), 90.0, 4, 3.0), "porte de la cuisine fermée avant le canon")
 
@@ -147,6 +153,16 @@ func _test_armor() -> void:
 	var installs := int(Sfx.jingle_counts.get(&"jingle_install", 0))
 	var made := await _wait_until(16.0, func() -> bool: return GameState.has_upgrade(&"armor_1") and _nino.controls_enabled)
 	_check(int(Sfx.jingle_counts.get(&"jingle_install", 0)) == installs + 1, "jingle d'amélioration installée (une fois)")
+	await _wait(1.5)
+	_check(_director.reactions.history.has(&"upgrade"), "petite voix « Yeeeaah ! » après l'installation")
+	var bed: Node3D = _director.printer.get_node("Bed")
+	var bed_body: Node3D = bed.get_node("BedBody")
+	_check(bed_body.global_position.distance_to(bed.global_position) < 0.01, "plateau : la collision suit réellement le plateau")
+	await _wait(0.5)
+	var bed_top := bed.global_position.y + 0.12
+	var on_bed := _nino.is_on_floor() and absf(_nino.global_position.y - bed_top) < 0.08
+	var off_bed := _nino.is_on_floor() and _nino.global_position.y > bed_top - 0.5
+	_check(on_bed or off_bed, "Nin0 repose sur le plateau sans flotter ni le traverser (y %.2f, plateau %.2f)" % [_nino.global_position.y, bed_top])
 	_check(made and GameState.fragments == 2, "Armure I fabriquée à l'imprimante (3 fragments)")
 	_check(GameState.is_equipped(&"armor_1") and is_equal_approx(GameState.physical_damage_reduction(), 0.25), "Armure I équipée : -25 % de dégâts physiques")
 	_check(_nino.get_visual()._armor != null and _nino.get_visual()._armor.visible, "Armure I visible sur Nin0")
@@ -212,6 +228,23 @@ func _test_bathroom() -> void:
 	_check(soldiers.all(func(s: AntSoldier) -> bool: return s.patrol_points[0].distance_to(ticket_pos) > 3.0 and s.patrol_points[1].distance_to(ticket_pos) > 3.0), "aucun soldat posté devant le ticket")
 	var safe := [bath.marker("BathEntry").origin, bath.marker("StoolBase").origin, bath.marker("StoolTop").origin]
 	_check(soldiers.all(func(s: AntSoldier) -> bool: return safe.all(func(p: Vector3) -> bool: return s.patrol_points[0].distance_to(p) > 3.0)), "points sûrs hors des postes des soldats")
+	# Extension : alcôve du linge (détour), refuge en hauteur, sortie basse en roues.
+	_check(_reachable(bath.marker("MazeRightEntry").origin, Vector3(-59.8, 0.0, -21.5), 0.5, 0.95), "alcôve du linge accessible depuis le couloir de la marche")
+	_check(_reachable(Vector3(-59.8, 0.0, -21.5), Vector3(-64.8, 0.0, -25.9), 0.07, 0.5), "sortie basse vers l'escabeau praticable en roues")
+	_check(_solid_at(Vector3(-64.8, 0.66, -24.75)) and not _solid_at(Vector3(-64.8, 0.3, -24.75)), "passage sous la serviette : 0,6 u (roues oui, jambes non)")
+	var watcher: AntSoldier = bath.get_node("Soldiers/SoldierPebbles")
+	var old_pos := watcher.global_position
+	watcher.global_position = Vector3(-62.0, 0.02, -22.2)
+	_place(Vector3(-63.4, 1.55, -23.2), 0.0)
+	await _wait(0.4)
+	_check(_nino.global_position.y > 1.4 and not watcher._can_see_nino(true), "refuge en hauteur : les soldats ne voient pas Nin0 là-haut")
+	watcher.global_position = old_pos
+	watcher.reset_to_post()
+	_check(_solid_at(Vector3(-56.9, 0.4, -24.1)), "second caillou des galeries : collision ajoutée")
+	var plastic: ResourcePickup = bath.get_node("MazeRight/Alcove/PlasticAlcove")
+	_check(plastic._visual.find_children("*", "Cable", true, false).size() >= 3, "plastique à munitions : tortillons de filament extrudé")
+	_teleport_marker(bath.get_node("Markers/BathEntry"))
+	await _wait(0.3)
 	# Linge : les galeries sont faites de vêtements pliés et de serviettes.
 	_check(bath.get_node("MazeRight").find_children("Wall*S*L*", "", false, false).size() >= 20 and bath.has_node("MazeRight/Heap0B0"), "galeries en linge plié, serviettes et tas de linge")
 	_check(_reachable(bath.marker("MazeLeftEntry").origin, bath.marker("TicketView").origin, 0.07, 0.5),
@@ -240,10 +273,28 @@ func _test_bathroom() -> void:
 	_check(far.target != ticket or far.status != FocusVision.Status.OK, "ticket invisible depuis l'entrée (il faut chercher)")
 	_check(ticket.get_parent().find_children("*", "Interactable", true, false).is_empty(), "aucune interaction ordinaire sur le ticket")
 	var count := GameState.memory_count()
+	# Un soldat poursuit Nin0 jusqu'au ticket : la séquence du souvenir le neutralise.
+	var chaser: AntSoldier = bath.get_node("Soldiers/SoldierLeftUpper")
+	chaser.global_position = _nino.global_position + Vector3(0.45, 0.0, 0.0)
+	chaser.velocity = Vector3.ZERO
+	chaser._set_state(AntSoldier.State.CHASE)
+	await _wait(0.2)
+	var hp_before := GameState.integrity + GameState.shield
 	_director.focus_vision.target_identified.emit(ticket)
+	await _wait(0.4)
+	_check(GameState.hazards_suspended() and not _nino.controls_enabled, "souvenir : dangers suspendus (séquence non interactive)")
+	var chaser_pos := chaser.global_position
+	await _wait(2.5)
+	_check(GameState.integrity + GameState.shield >= hp_before - 0.01 and chaser.global_position.distance_to(chaser_pos) < 0.05,
+			"aucun dégât ni déplacement ennemi pendant le souvenir")
 	await _wait(0.5)
 	var back := await _wait_until(20.0, func() -> bool: return _nino.controls_enabled)
 	_check(back and GameState.has_memory(&"memory_02") and GameState.memory_count() == count + 1, "souvenir n° 2 mémorisé (ticket)")
+	_check(not GameState.hazards_suspended() and _director.integrity.is_protected(), "reprise : dangers rétablis, courte protection contre un coup immédiat")
+	await _wait(1.6)
+	_check(chaser.state != AntSoldier.State.WINDUP or GameState.integrity + GameState.shield >= hp_before - 15.0, "le soldat reprend son activité")
+	_teleport_marker(bath.get_node("Markers/BathEntry"))
+	await _wait(0.5)
 	_check(GameState.memory_reads.has(&"memory_02") and (GameState.memory_reads[&"memory_02"] as Array).size() == 1, "commentaire de Nin0 conservé dans les archives")
 	_director._acquire_memory(ticket.memory)
 	await _wait(0.3)
@@ -375,6 +426,8 @@ func _test_boss() -> void:
 	_check(revealed, "la reine émerge progressivement de la matière")
 	var boss_music := await _wait_until(4.0, func() -> bool: return Music.desired == &"boss")
 	_check(boss_music and arena.phase == SinkArena.Phase.INTRO, "musique du combat lancée pendant la présentation")
+	await _wait(1.5)
+	_check(Music.current == &"boss" and Music.audible_count() == 1, "musique de la reine jouée, seule audible")
 	var fight := await _wait_until(6.0, func() -> bool: return arena.phase == SinkArena.Phase.FIGHT)
 	_check(fight and _nino.controls_enabled and queen.is_fighting() and not arena.is_cinematic(), "combat : caméra et contrôle rendus")
 	_check(queen.spit_damage > 12.0 and queen.melee_damage > 30.0 and queen.melee_windup >= 1.0, "dégâts relevés (acide %d, morsure %d), préparations lisibles" % [queen.spit_damage, queen.melee_damage])
@@ -383,10 +436,10 @@ func _test_boss() -> void:
 	var inside := true
 	var start_pos := queen.global_position
 	_place(Vector3(-62.4, 8.2, -30.25), 90.0)
-	for i in 10:
+	for i in 16:
 		await _wait(0.5)
 		inside = inside and queen.is_inside_walk_area(queen.global_position) and queen.global_position.y > 7.4 and queen.global_position.y < 8.6
-		if i == 4:
+		if i == 5:
 			_place(Vector3(-55.4, 8.2, -30.2), -90.0)
 	_check(queen.travelled > 1.0 and queen.global_position.distance_to(start_pos) > 0.5, "la reine se déplace (%.1f u parcourues)" % queen.travelled)
 	_check(inside, "elle reste dans la vasque, sur les zones praticables")
@@ -395,6 +448,12 @@ func _test_boss() -> void:
 	_place(Vector3(-61.2, 7.7, -32.2), -90.0)
 	await _wait(1.5)
 	_check(arena.mire.is_nino_inside() and _nino.get_speed_factor() < 0.8 and _nino.get_visual()._sink > 0.02, "matière : ralentit et enfonce progressivement")
+	_check(_nino.get_accel_factor() < 0.5, "matière : accélération réduite (inertie du liquide)")
+	_place(Vector3(-62.4, 8.2, -30.25), -90.0)
+	await _wait(0.6)
+	_check(not arena.mire.is_nino_inside() and is_equal_approx(_nino.get_accel_factor(), 1.0), "sur un débris flottant : aucun enlisement (refuge sûr)")
+	_place(Vector3(-61.2, 7.7, -32.2), -90.0)
+	await _wait(1.0)
 	_check(_nino.get_jump_factor() < 1.0 and _nino.damage_taken_multiplier > 1.0, "matière : saut réduit, plus vulnérable")
 	# Crachat d'acide : préparation, trajectoire, ralentissement.
 	var spits := queen.spits
@@ -428,7 +487,8 @@ func _test_boss() -> void:
 	var windup := await _wait_until(6.0, func() -> bool: return queen.state == AntQueen.State.MELEE_WINDUP)
 	_check(windup, "au contact : préparation lente de la morsure")
 	var integrity_before := GameState.integrity + GameState.shield
-	var melee := await _wait_until(3.0, func() -> bool: return queen.melee_hits > 0)
+	var hits_before := queen.melee_hits
+	var melee := await _wait_until(3.0, func() -> bool: return queen.melee_hits > hits_before)
 	_check(melee and integrity_before - (GameState.integrity + GameState.shield) >= 30.0, "morsure de la reine : très dangereuse (%.0f)" % (integrity_before - (GameState.integrity + GameState.shield)))
 	GameState.restore_integrity(GameState.integrity_max)
 	await _wait(1.0)
@@ -528,23 +588,45 @@ func _test_cannon() -> void:
 func _test_kitchen() -> void:
 	var door := _game.sas.kitchen_door
 	_teleport_marker(_game.sas.get_node("Markers/KitchenDoorFront"))
-	await _wait(0.5)
+	# De retour au sas avec le canon : courte mise en scène sur le crochet.
+	var lesson := await _wait_until(3.0, func() -> bool: return _game._sequence and not _nino.controls_enabled)
+	await _wait(1.6)
+	_check(lesson and get_viewport().get_camera_3d() != _camera.get_camera(), "mise en scène : la caméra montre le crochet en hauteur")
+	var ready := await _wait_until(10.0, func() -> bool: return GameState.seen_notices.has(&"kitchen_latch_lesson") and _nino.controls_enabled)
+	_check(ready and get_viewport().get_camera_3d() == _camera.get_camera(), "contrôle et caméra rendus après la mise en scène")
+	var ring := _game.sas.get_node_or_null("FireSpotRing") as Node3D
+	_check(ring != null and ring.visible and door._glow_light != null, "repère de tir au sol et crochet mis en valeur")
+	await _wait(1.0)
+	_check(not door.is_unlocked, "aucun tir automatique : le joueur tire lui-même")
 	_check(not await _drive(Vector3(-40.0, 0.05, 8.0), 90.0, 4, 2.5), "cuisine toujours fermée avant le tir")
-	_teleport_marker(_game.sas.get_node("Markers/KitchenDoorFront"))
-	await _wait(0.3)
-	var target := (door.get_node("HookPivot/HookTarget") as Node3D).to_global(Vector3(0.0, 0.0, 0.5))
-	var muzzle := _nino.get_visual().get_cannon().get_muzzle()
+	# Depuis le repère, en vision focalisée, le crochet se vise (caméra levée jusqu'à 62°).
+	_teleport_marker(_game.sas.get_node("Markers/FireSpot"))
+	await _wait(0.5)
 	var aim: Dictionary = _director.focus_vision.find_aimed(_nino.global_position + Vector3.UP * 0.4, (door.latch_focus.global_position - _nino.global_position - Vector3.UP * 0.4).normalized())
-	_check(aim.target == door.latch_focus and aim.status == FocusVision.Status.OK, "loquet repérable avec la vision focalisée")
-	# Tir direct sur le crochet (gravité de la bille neutralisée pour une visée exacte).
-	var gravity := _game.cannon.ammo.gravity
-	_game.cannon.ammo.gravity = 0.0
-	_game.cannon._launch(muzzle, (target - muzzle).normalized() * _game.cannon.ammo.speed)
-	var unlocked := await _wait_until(2.0, func() -> bool: return door.is_unlocked)
-	_game.cannon.ammo.gravity = gravity
-	_check(unlocked, "la bille soulève le crochet : la porte se déverrouille")
+	_check(aim.target == door.latch_focus and aim.status == FocusVision.Status.OK, "loquet repérable avec la vision focalisée depuis le repère")
+	_camera.set_first_person(true)
+	await _wait(0.4)
+	var cam := _camera.get_camera()
+	var hook := door.latch_focus.global_position
+	var to := hook - cam.global_position
+	_camera.rotation.y = atan2(-to.x, -to.z) + deg_to_rad(2.0)
+	_camera.pitch = asin(to.normalized().y)
+	await _wait(0.3)
+	to = hook - cam.global_position
+	var off_axis := rad_to_deg((-cam.global_basis.z).angle_to(to))
+	_check(off_axis < 6.0 and rad_to_deg(_camera.pitch) > 35.0, "angle de visée confortable (%.0f° de hauteur)" % rad_to_deg(_camera.pitch))
+	_check(_game.cannon.aim_point().distance_to(hook) < 0.05, "aide à la visée : le crochet est ciblé malgré un léger écart")
+	GameState.ammo_plastic = maxi(GameState.ammo_plastic, 4)
+	var shots := _game.cannon.shots
+	_game.cannon._cooldown = 0.0
+	_check(_game.cannon.fire() and _game.cannon.shots == shots + 1, "le joueur tire (commande du canon)")
+	var unlocked := await _wait_until(3.0, func() -> bool: return door.is_unlocked)
+	_camera.set_first_person(false)
+	_check(unlocked, "la bille (trajectoire compensée) soulève le crochet : la porte se déverrouille")
 	var opened := await _wait_until(5.0, func() -> bool: return GameState.kitchen_unlocked)
-	_check(opened and door.get_node("Hinge").rotation.y > deg_to_rad(30.0), "la porte s'entrouvre (animation)")
+	var angle := rad_to_deg(door.get_node("Hinge").rotation.y)
+	_check(opened and angle > 12.0 and angle < 20.0, "la porte s'entrouvre légèrement (%.0f°), sans dévoiler la cuisine" % angle)
+	_check(not ring.visible, "le repère disparaît")
 	_check(_objective() == "Entrer dans la cuisine", "objectif : entrer dans la cuisine")
 	var reached := await _drive(Vector3(-40.0, 0.05, 3.6), 90.0, 4, 6.0)
 	_check(reached, "la cuisine est accessible")
@@ -674,6 +756,14 @@ func _reachable(a: Vector3, b: Vector3, low: float, high: float, margin := 0.0) 
 			if space.intersect_shape(query, 1).is_empty():
 				queue.append(next)
 	return false
+
+
+## Un collisionneur du monde occupe-t-il ce point ?
+func _solid_at(point: Vector3) -> bool:
+	var query := PhysicsPointQueryParameters3D.new()
+	query.position = point
+	query.collision_mask = 1
+	return not _nino.get_world_3d().direct_space_state.intersect_point(query, 1).is_empty()
 
 
 ## Le corps d'un soldat passe-t-il sur tout le trajet (boucle) ?

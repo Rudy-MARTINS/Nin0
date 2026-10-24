@@ -40,7 +40,18 @@ func _run() -> void:
 	# 1. Réveil interactif et pensées.
 	_check(not _nino.controls_enabled and _level._waiting_wake_input, "Nin0 attend le réveil (commandes bloquées)")
 	await _hold(["move_forward"], 0.1)
-	await _wait(6.5)
+	await _wait(1.0)
+	var frames := 60
+	_check(Music.desired == &"hub" and not _nino.controls_enabled, "l'éveil commence : la musique du hub prend le relais en fondu pendant le réveil")
+	var awake := false
+	for i in 900:
+		await get_tree().physics_frame
+		frames += 1
+		if GameState.woke_up and _nino.controls_enabled:
+			awake = true
+			break
+	var boot_seconds := frames / 60.0
+	_check(awake and boot_seconds > 6.0 and boot_seconds < 14.0, "réveil progressif (%.1f s), sans longueur excessive" % boot_seconds)
 	_check(GameState.woke_up and _nino.controls_enabled, "Nin0 s'est réveillé et répond aux commandes")
 	_check(Music.desired == &"hub" and Music.current != &"intro", "début du jeu : l'introduction s'arrête, la musique du hub prend le relais")
 	_check(_saw_thought([&"ellipsis"]) and _saw_thought([&"question"]), "pensées du réveil : confusion puis interrogation")
@@ -53,6 +64,15 @@ func _run() -> void:
 	await _hold(["move_forward"], 1.2)
 	_check(_level._tutorial == _level.Tutorial.BACK, "tutoriel : reculer")
 	await _hold(["move_back"], 1.6)
+	_check(_level._tutorial == _level.Tutorial.TURN, "tutoriel : tourner")
+	var tray: Node3D = _level.get_node("StartTray")
+	var start_spot: Vector3 = (_level.get_node("Checkpoints/Start") as Node3D).global_position
+	_check(is_zero_approx((tray.get_node("Ramp") as Node3D).rotation.z), "le bac de recharge est fermé pendant l'apprentissage")
+	await _hold(["move_forward"], 2.0)
+	_check(Vector2(_nino.global_position.x - start_spot.x, _nino.global_position.z - start_spot.z).length() < 1.4 and _nino.global_position.y > 7.9,
+			"Nin0 ne peut pas quitter le bac avant la fin du tutoriel")
+	await _hold(["move_left"], 0.8)
+	await _hold(["move_right"], 0.8)
 	_check(_level._tutorial == _level.Tutorial.CAMERA, "tutoriel : orienter la caméra")
 	# Sans affichage, la souris ne peut pas être capturée : on reproduit l'effet
 	# d'un mouvement de souris (rotation progressive de la caméra).
@@ -61,6 +81,8 @@ func _run() -> void:
 		await get_tree().physics_frame
 	await _wait(0.2)
 	_check(GameState.tutorial_done and GameState.get_objective() == "Explorer l'établi", "tutoriel terminé, objectif « Explorer l'établi »")
+	await _wait(1.0)
+	_check(absf((tray.get_node("Ramp") as Node3D).rotation.z - PI / 2.0) < 0.05, "la rampe du bac s'abaisse : Nin0 peut partir")
 
 	# 3. Découvertes (facultatives).
 	var interactor: Interactor = _nino.get_node("Interactor")
