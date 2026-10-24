@@ -1,4 +1,6 @@
-# Appartement — blockout 3D (lot 4)
+# Appartement — blockout 3D (lot 4, mis à jour au lot 5)
+
+> **Lot 5 :** le sas et la salle de bain sont désormais **jouables** (scènes `scenes/zones/`, voir `docs/CHAPITRE2.md`) ; leurs volumes provisoires ont été retirés du blockout. La porte **sas ↔ cuisine** existe (loquet, ouverte au canon) ; les portes **sas ↔ salon** et **salon ↔ cuisine** sont **fermées** (ouverture du salon À DÉFINIR). La scène principale est maintenant `scenes/levels/game.tscn`.
 
 Première matérialisation **jouable en mode développement** de l'appartement complet, autour du placard-hub existant. C'est un *blockout* : volumes, sols, murs, plafonds, ouvertures et collisions, avec des couleurs provisoires par pièce et quelques volumes de mobilier gris pour juger l'échelle. Aucune décoration définitive, aucune énigme, aucune créature, aucun contenu narratif.
 
@@ -8,9 +10,10 @@ Première matérialisation **jouable en mode développement** de l'appartement c
 
 | Fichier | Rôle |
 |---|---|
-| `scenes/levels/workshop.tscn` | Placard-hub (zone 1) et **première démo**, inchangés. Reste la scène principale du jeu. |
+| `scenes/levels/workshop.tscn` | Placard-hub (zone 1) et **première démo**, inchangés. |
+| `scenes/levels/game.tscn` | **Jeu complet** (scène principale depuis le lot 5) : placard + blockout + sas + salle de bain. |
 | `scenes/levels/apartment_blockout.tscn` | Zones 2 à 7 : sols, murs, plafonds, ouvertures, volumes, lumières, étiquettes, zones, points d'apparition, connexions. |
-| `scenes/levels/apartment.tscn` | **Mode développement** : instancie le placard tel quel + le blockout. |
+| `scenes/levels/apartment.tscn` | **Mode développement** : instancie le jeu complet (`game.tscn`), sans sauvegarde. |
 | `scripts/dev/apartment_dev.gd` | Outils du mode développement (zones, carte, plafonds, caméra libre). |
 | `tests/test_apartment.tscn` | Test automatique de la carte. |
 
@@ -38,6 +41,8 @@ z 57  └────────────┴──────────�
 ```
 
 D = passage ouvert · ⊘ = raccourci futur, porte fermée · ≋ = rideau japonais, verrouillé · ▒ = porte-fenêtre fermée.
+
+**État au lot 5 :** sas ↔ cuisine = porte à loquet (ouverte au canon) ; sas ↔ salon et salon ↔ cuisine = **portes fermées** pendant le chapitre 2.
 
 ## Schéma des connexions
 
@@ -83,7 +88,7 @@ Aucune autre ouverture n'existe. Le placard partage des murs pleins avec le salo
 
 ## Mode développement
 
-Ouvrir `scenes/levels/apartment.tscn` et lancer la scène courante (**F6**). La scène principale (**F5**) reste la démo du placard.
+Ouvrir `scenes/levels/apartment.tscn` et lancer la scène courante (**F6**). La scène principale (**F5**) est le jeu complet. Scénarios du chapitre 2 : Ctrl + 1 à 7 (voir `docs/CHAPITRE2.md`).
 
 | Touche | Action |
 |---|---|
@@ -96,8 +101,8 @@ Ouvrir `scenes/levels/apartment.tscn` et lancer la scène courante (**F6**). La 
 - Démarrer dans une zone : propriété **Start Zone** du nœud racine, ou argument `-- --zone=6`.
 - Nin0 démarre complet (roues, jambes, vision focalisée), énigmes du placard résolues, porte entrouverte.
 - **Aucune sauvegarde** n'est écrite ni effacée (`GameState.dev_mode`), et la progression du joueur n'est pas modifiée. La chambre reste physiquement verrouillée ; la touche 7 permet seulement de vérifier ses dimensions en développement.
-- Le décor provisoire du sas et le seuil bloqué de la démo sont retirés **uniquement dans cette scène**.
-- Les étiquettes 3D (numéro, nom, état) n'existent que dans le blockout.
+- Le décor provisoire du sas et le seuil bloqué de la démo sont retirés dans le jeu complet (le seuil s'ouvre après la réparation, comme dans la démo).
+- Les étiquettes 3D (numéro, nom, état) ne s'affichent qu'en mode développement.
 
 ## Hypothèses architecturales à valider
 
@@ -111,12 +116,12 @@ Ouvrir `scenes/levels/apartment.tscn` et lancer la scène courante (**F6**). La 
 
 ## Tests
 
-`tests/test_apartment.tscn` (51 vérifications, Godot 4.7, sans affichage) :
+`tests/test_apartment.tscn` (Godot 4.7, sans affichage) :
 
 - placard intact, démo inchangée ;
 - sept zones, dimensions, sol à 0 et plafond à 2,39 m ;
-- **passages réels sur roues** : placard → sas (porte entrouverte), sas → salon, sas → salle de bain, salon → cuisine, retours vers le sas et le placard, étape A → étape B ;
-- accès bloqués : raccourci, rideau (même en sautant), porte-fenêtre ;
+- **passages réels sur roues** : placard → sas (porte entrouverte), sas → salle de bain, retours vers le sas et le placard, étape A → étape B ;
+- accès bloqués (lot 5) : sas → salon, salon → cuisine, salon → sas, porte de la cuisine (même en sautant), rideau (même en sautant), porte-fenêtre ;
 - téléportation dans chaque zone avec la caméra hors des murs ; touches 3, F2, F3, F4 ;
 - aucune sauvegarde écrite, sauvegarde personnelle intacte.
 

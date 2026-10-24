@@ -7,7 +7,7 @@ Ce document décrit la démo telle qu'elle est implémentée : déroulement, lev
 ## Lancer la démo
 
 1. Ouvrir le projet dans **Godot 4.7** (version officielle du projet depuis la migration ; voir [MIGRATION_GODOT_4_7.md](MIGRATION_GODOT_4_7.md)).
-2. Appuyer sur **F5**. L'écran titre apparaît au-dessus de Nin0 endormi.
+2. Ouvrir `scenes/levels/workshop.tscn` et appuyer sur **F6** (démo seule, inchangée). Depuis le lot 5, **F5** lance le jeu complet (`game.tscn`) : le placard se joue de la même façon, mais le seuil ne termine plus rien et mène au chapitre 2 (`docs/CHAPITRE2.md`). L'écran titre apparaît au-dessus de Nin0 endormi.
 3. **Commencer** lance une nouvelle partie. **Continuer** n'apparaît que si les jambes ont déjà été obtenues ; la reprise se fait au bon endroit (imprimante, ou pied de la porte si Nin0 attend sa réparation).
 4. **Échap** ouvre la pause : reprendre, **recommencer la démo** (efface la progression), quitter. La pause indique aussi les découvertes et, après le premier souvenir, les **archives fragmentées** (consultables).
 
