@@ -74,6 +74,7 @@ func _ready() -> void:
 	cannon.camera = camera
 	add_child(cannon)
 	cannon.empty.connect(func() -> void:
+		director.reactions.react(&"failure")
 		_hint_once(&"ammo_empty", "Plus de billes : ramassez du [color=#7fb8ff]plastique à projectiles[/color]", 4.0))
 	director.resume_resolver = _resume_transform
 	director.play_began.connect(_on_play_began)
@@ -88,6 +89,9 @@ func _ready() -> void:
 	bath.entered.connect(func() -> void: pass)
 	for soldier in bath.get_soldiers():
 		soldier.alerted.connect(_on_soldier_alerted)
+	bath.larvae.landed_near.connect(func(point: Vector3) -> void: director.reactions.react(&"puzzled", point + Vector3.UP * 3.0))
+	integrity.shutdown_finished.connect(func() -> void: director.reactions.react(&"failure", null, true))
+	GameState.resource_discovered.connect(func(_kind: StringName) -> void: director.reactions.react(&"discovery"))
 	var arena := bath.arena
 	arena.intro_started.connect(_on_arena_intro)
 	arena.boss_music_started.connect(func() -> void:
@@ -136,6 +140,10 @@ func _apply_saved_world() -> void:
 	_update_hub_blocker()
 	if GameState.kitchen_unlocked:
 		sas.kitchen_door.set_unlocked_immediately()
+		_show_fire_spot(false)
+	elif GameState.has_cannon() and GameState.seen_notices.has(&"kitchen_latch_lesson"):
+		sas.kitchen_door.highlight(true)
+		_show_fire_spot(true)
 	bath.arena.apply_saved_state()
 	bath.reset_creatures()
 	for node in get_tree().get_nodes_in_group(&"resource_pickups"):
@@ -194,6 +202,15 @@ func _physics_process(delta: float) -> void:
 	_update_music()
 	if current_zone == ZONE_BATH and GameState.woke_up and nino.is_on_floor():
 		_update_bath_checkpoints()
+	# Ouvrière croisée de près : intérêt (rarement, voir NinoReactions).
+	if current_zone == ZONE_SAS and GameState.worker_met and not _sequence:
+		for worker in sas.column.workers:
+			if worker.global_position.distance_to(nino.global_position) < 0.7:
+				director.reactions.react(&"peaceful", worker.global_position)
+				break
+	if current_zone == ZONE_SAS and GameState.has_cannon() and not GameState.kitchen_unlocked and not _sequence \
+			and not GameState.seen_notices.has(&"kitchen_latch_lesson") and nino.is_on_floor() and nino.controls_enabled:
+		play_latch_lesson()
 
 
 ## Une seule musique de zone : combat de la reine > salle de bain (labyrinthes) >
@@ -216,7 +233,7 @@ func _update_music() -> void:
 		return
 	var id := music_for_state()
 	if id != &"" and id != Music.desired:
-		Music.play(id, Music.DEFAULT_VOLUME, 1.2 if id == &"boss" else Music.CROSSFADE)
+		Music.play(id, INF, 1.2 if id == &"boss" else Music.CROSSFADE)
 
 
 func zone_at(point: Vector3) -> int:
@@ -290,6 +307,7 @@ func play_encounter() -> void:
 	var visual := nino.get_visual()
 	nino.controls_enabled = false
 	nino.velocity = Vector3.ZERO
+	GameState.suspend_hazards(&"encounter")
 	await _walk_ant(ant, stop, 0.5)
 	# Découverte : arrêt net, antennes agitées, tête penchée.
 	ant.face_direction(nino.global_position - ant.global_position, 1.0)
@@ -303,7 +321,26 @@ func play_encounter() -> void:
 	ant.body.excitement = 0.3
 	create_tween().tween_property(ant.body, "head_tilt", 0.45, 0.4)
 	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 1.4)
+	Sfx.play(&"curious", -10.0)
 	await _wait(1.0)
+	# Curiosité réciproque : elle s'approche prudemment, antennes tendues vers Nin0…
+	var careful := ant.global_position.lerp(nino.global_position, 0.22)
+	careful.y = ant.global_position.y
+	ant.body.head_tilt = 0.0
+	ant.body.excitement = 1.0
+	await _walk_ant(ant, careful, 0.18)
+	Sfx.play(&"ant_chitter", -12.0, 1.3)
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 0.8)
+	visual.react_to_landing(2.0)
+	await _wait(0.6)
+	# … puis recule d'un pas.
+	var back_step := careful.lerp(stop, 0.6)
+	ant.body.excitement = 0.4
+	var retreat := create_tween()
+	retreat.tween_property(ant, "global_position", back_step, 0.5)
+	await retreat.finished
+	ant.face_direction(nino.global_position - ant.global_position, 1.0)
+	await _wait(0.3)
 	# Nin0 force sa vue : petit calibrage optique, pensée « jumelles ».
 	for i in 2:
 		visual.show_emotion(NinoVisual.Emotion.FOCUSED, 0.5)
@@ -316,6 +353,7 @@ func play_encounter() -> void:
 	ant.body.excitement = 0.0
 	Sfx.set_loop(&"ambience", &"ambience", -18.0)
 	nino.controls_enabled = true
+	GameState.resume_hazards(&"encounter")
 	visual.look_target = null
 	GameState.set_flag(&"worker_met")
 	encounter_finished.emit()
@@ -323,10 +361,10 @@ func play_encounter() -> void:
 	var analyzed := GameState.has_species(&"ant_worker")
 	if not analyzed:
 		_mark_scan_target(ant, true)
-		hud.show_hint("Maintenez %s : vision focalisée — visez la fourmi" % Hud.key("clic droit"), 7.0)
+		hud.show_hint("Maintenez %s : vision focalisée — visez la fourmi" % Hud.key("clic droit"), 9.0)
 		# Elle reste là, curieuse, le temps d'être analysée (ou que Nin0 s'éloigne).
 		var waited := 0.0
-		while waited < 14.0 and is_instance_valid(ant) and not GameState.has_species(&"ant_worker") \
+		while waited < 25.0 and is_instance_valid(ant) and not GameState.has_species(&"ant_worker") \
 				and nino.global_position.distance_to(ant.global_position) < 3.5:
 			ant.body.excitement = 0.15 + 0.15 * sin(waited * 3.0)
 			await get_tree().physics_frame
@@ -448,7 +486,7 @@ func _armor_reflection() -> void:
 # --- Portes du sas --------------------------------------------------------------------
 
 func _on_salon_door_examined() -> void:
-	nino.get_visual().show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	director.reactions.react(&"strange", null, true)
 	if _shown.has(&"salon_door"):
 		thoughts.think([&"door", &"lock"], "", 2.0, true)
 		return
@@ -463,14 +501,91 @@ func _on_kitchen_door_examined() -> void:
 	var hook := sas.kitchen_door.latch_focus.global_position
 	if GameState.has_cannon():
 		thoughts.think([&"lock", &"up"], "Ce crochet…", 2.0, true)
-		thoughts.think([&"cannon", &"arrow", &"lock"], "D'ici, en visant ?", 2.6)
+		thoughts.think([&"cannon", &"arrow", &"lock"], "Depuis le repère, en visant ?", 2.6)
+		sas.kitchen_door.highlight(true)
+		_show_fire_spot(true)
 	else:
+		director.reactions.react(&"strange", null, true)
 		thoughts.think([&"door", &"lock"], "Bloquée…", 2.0, true)
 		thoughts.think([&"up", &"question"], "Quelque chose, là-haut ?", 2.4)
 	_glance(hook, 2.0)
 
 
+## Retour au sas avec le canon : Nin0 examine la porte, la caméra montre le crochet en
+## hauteur, il comprend qu'il peut l'atteindre avec son canon ; un repère de tir apparaît.
+## Le joueur vise et tire lui-même.
+func play_latch_lesson() -> void:
+	_sequence = true
+	GameState.seen_notices.append(&"kitchen_latch_lesson")
+	GameState.save()
+	var door := sas.kitchen_door
+	var hook := door.latch_focus.global_position
+	var visual := nino.get_visual()
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	GameState.suspend_hazards(&"latch_lesson")
+	visual.look_target = door.global_position + Vector3(0.0, 4.0, -4.0)
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	thoughts.think([&"door", &"lock"], "", 1.6, true)
+	await _wait(1.2)
+	door.highlight(true)
+	var cam := Camera3D.new()
+	cam.fov = 55.0
+	add_child(cam)
+	var previous := get_viewport().get_camera_3d()
+	cam.make_current()
+	hud.set_gameplay_visible(false)
+	var from := hook + Vector3(5.6, -4.8, 4.2)
+	var to := hook + Vector3(3.6, -2.6, 2.8)
+	var push := create_tween().set_trans(Tween.TRANS_SINE)
+	push.tween_method(func(k: float) -> void:
+		cam.global_position = from.lerp(to, k)
+		cam.look_at(hook), 0.0, 1.0, 2.2)
+	visual.look_target = hook
+	thoughts.think([&"lock", &"up"], "Ce crochet…", 1.8, true)
+	await _wait(2.4)
+	visual.show_emotion(NinoVisual.Emotion.HAPPY, 1.6)
+	thoughts.think([&"cannon", &"arrow", &"lock"], "Avec mon canon !", 2.4, true)
+	Sfx.play(&"curious", -6.0)
+	await _wait(1.6)
+	if is_instance_valid(previous):
+		previous.make_current()
+	cam.queue_free()
+	hud.set_gameplay_visible(true)
+	visual.look_target = null
+	_show_fire_spot(true)
+	nino.controls_enabled = true
+	GameState.resume_hazards(&"latch_lesson")
+	_sequence = false
+	hud.show_hint("Repère au sol : maintenez %s pour viser le crochet, puis %s pour tirer" % [Hud.key("clic droit"), Hud.key("clic gauche / X")], 8.0)
+
+
+## Cercle lumineux au sol : d'ici, le crochet se vise confortablement.
+func _show_fire_spot(on: bool) -> void:
+	var ring := sas.get_node_or_null("FireSpotRing") as MeshInstance3D
+	if on and ring == null:
+		ring = MeshInstance3D.new()
+		ring.name = "FireSpotRing"
+		var torus := TorusMesh.new()
+		torus.inner_radius = 0.42
+		torus.outer_radius = 0.5
+		ring.mesh = torus
+		var material := StandardMaterial3D.new()
+		material.albedo_color = Color(1.0, 0.75, 0.35, 0.85)
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		ring.material_override = material
+		sas.add_child(ring)
+		ring.global_position = sas.marker("FireSpot").origin + Vector3.UP * 0.02
+		var pulse := ring.create_tween().set_loops()
+		pulse.tween_property(ring, "scale", Vector3.ONE * 1.15, 0.6)
+		pulse.tween_property(ring, "scale", Vector3.ONE, 0.6)
+	if ring:
+		ring.visible = on
+
+
 func _on_kitchen_unlocked() -> void:
+	_show_fire_spot(false)
 	GameState.set_flag(&"kitchen_unlocked")
 	var visual := nino.get_visual()
 	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.2)
@@ -493,8 +608,9 @@ func _complete_chapter() -> void:
 
 # --- Salle de bain : soldats, reine ----------------------------------------------------
 
-func _on_soldier_alerted(_soldier: AntSoldier) -> void:
+func _on_soldier_alerted(soldier: AntSoldier) -> void:
 	if _shown.has(&"soldier_alert"):
+		director.reactions.react(&"danger", soldier.global_position + Vector3.UP * 0.1)
 		return
 	_shown[&"soldier_alert"] = true
 	nino.get_visual().show_emotion(NinoVisual.Emotion.SURPRISED, 1.2)
@@ -540,6 +656,7 @@ func _on_queen_defeated() -> void:
 	back.tween_property(camera, "arm_length", 1.8, 1.0)
 	await _wait(1.0)
 	nino.controls_enabled = false
+	GameState.suspend_hazards(&"reflection")
 	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 2.0)
 	thoughts.think([&"acid", &"arrow"], "Elle projetait…", 2.2, true)
 	await _wait(2.4)
@@ -552,6 +669,7 @@ func _on_queen_defeated() -> void:
 	hud.show_toast("Plan découvert : canon à billes", 3.0)
 	visual.show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
 	nino.controls_enabled = true
+	GameState.resume_hazards(&"reflection")
 	_sequence = false
 	thoughts.think([&"printer", &"question"], "", 2.4)
 	# Fin du combat : retour à la musique des labyrinthes.

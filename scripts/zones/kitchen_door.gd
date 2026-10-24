@@ -7,10 +7,13 @@ extends Node3D
 signal unlocked
 signal examined
 
-@export var open_angle := 34.0
+## Entrouverte juste assez pour laisser passer Nin0 (lot 5.1 : 34° → 16°).
+@export var open_angle := 16.0
 @export var open_duration := 2.4
 
 var is_unlocked := false
+var _glow: Tween
+var _glow_light: OmniLight3D
 
 @onready var interactable: Interactable = $KitchenDoorInspect
 @onready var _hinge: Node3D = $Hinge
@@ -23,6 +26,9 @@ func _ready() -> void:
 	# Le battant suit la charnière (voir ClosetDoor).
 	($Hinge/Panel as AnimatableBody3D).sync_to_physics = false
 	$HookPivot/HookTarget.set_meta("projectile_receiver", self)
+	var target := $HookPivot/HookTarget as Node3D
+	target.add_to_group(&"cannon_targets")
+	target.set_meta("aim_point", latch_focus.global_position)
 	interactable.interacted.connect(func(_by: Node3D) -> void: examined.emit())
 
 
@@ -31,10 +37,31 @@ func on_projectile_hit(_projectile: Node3D) -> void:
 	unlock()
 
 
+## Met le crochet en valeur (lueur pulsante) tant qu'il reste à viser.
+func highlight(on: bool) -> void:
+	if on and _glow_light == null:
+		_glow_light = OmniLight3D.new()
+		_glow_light.light_color = Color(1.0, 0.85, 0.45)
+		_glow_light.omni_range = 1.4
+		_glow_light.light_energy = 0.0
+		_hook.add_child(_glow_light)
+		_glow_light.position = Vector3(0.3, 0.0, 0.5)
+		_glow = create_tween().set_loops()
+		_glow.tween_property(_glow_light, "light_energy", 1.6, 0.6)
+		_glow.tween_property(_glow_light, "light_energy", 0.3, 0.6)
+	elif not on and _glow_light:
+		if _glow:
+			_glow.kill()
+		_glow_light.queue_free()
+		_glow_light = null
+
+
 func unlock() -> void:
 	if is_unlocked:
 		return
 	is_unlocked = true
+	highlight(false)
+	($HookPivot/HookTarget as Node3D).remove_from_group(&"cannon_targets")
 	interactable.enabled = false
 	latch_focus.enabled = false
 	Sfx.play(&"impact_small", -4.0, 1.3)
@@ -46,7 +73,7 @@ func unlock() -> void:
 	Sfx.play(&"door_creak", -6.0, 1.2)
 	var swing := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	swing.tween_property(_hinge, "rotation:y", deg_to_rad(open_angle), open_duration)
-	swing.tween_property(_light, "light_energy", 0.8, open_duration)
+	swing.tween_property(_light, "light_energy", 0.45, open_duration)
 	await swing.finished
 	unlocked.emit()
 
@@ -58,4 +85,5 @@ func set_unlocked_immediately() -> void:
 	latch_focus.enabled = false
 	_hook.rotation.x = deg_to_rad(-85.0)
 	_hinge.rotation.y = deg_to_rad(open_angle)
-	_light.light_energy = 0.8
+	_light.light_energy = 0.45
+	($HookPivot/HookTarget as Node3D).remove_from_group(&"cannon_targets")

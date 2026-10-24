@@ -111,6 +111,7 @@ var _mode_blend := 0.0
 var _speed_mods := {}
 var _wheels_mods := {}
 var _jump_mods := {}
+var _accel_mods := {}
 var _slow_timer := 0.0
 var _slow_factor := 1.0
 ## Multiplicateur des dégâts reçus (ex. enlisé dans la matière du lavabo).
@@ -233,7 +234,20 @@ func set_jump_modifier(key: StringName, factor: float) -> void:
 	_jump_mods[key] = factor
 
 
+## Accélération et freinage réduits (liquide du lavabo : on démarre et on tourne mal).
+func set_accel_modifier(key: StringName, factor: float) -> void:
+	_accel_mods[key] = factor
+
+
+func get_accel_factor() -> float:
+	var factor := 1.0
+	for value in _accel_mods.values():
+		factor *= value
+	return factor
+
+
 func clear_modifier(key: StringName) -> void:
+	_accel_mods.erase(key)
 	_speed_mods.erase(key)
 	_wheels_mods.erase(key)
 	_jump_mods.erase(key)
@@ -318,6 +332,7 @@ func _process_free(delta: float) -> void:
 		rate = acceleration if has_input else deceleration
 		if not on_floor:
 			rate *= air_control
+	rate *= get_accel_factor()
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z).move_toward(target_velocity, rate * delta)
 	velocity.x = horizontal.x
 	velocity.z = horizontal.z

@@ -272,7 +272,8 @@ func on_projectile_hit(_projectile: Node3D) -> void:
 
 func _physics_process(delta: float) -> void:
 	_collider.global_transform = global_transform
-	if not is_fighting():
+	if not is_fighting() or GameState.hazards_suspended():
+		body.motion_speed = 0.0
 		return
 	if _nino == null:
 		_nino = get_tree().get_first_node_in_group(&"nino") as NinoController
@@ -338,7 +339,10 @@ func _physics_process(delta: float) -> void:
 
 ## Décision en garde : venir chercher Nin0, cracher, ou se replacer.
 func _choose_action(distance: float) -> void:
-	if _linger >= linger_time or distance > 4.6:
+	# À distance, elle préfère cracher dès que possible ; sinon elle vient chercher Nin0.
+	if _spit_timer <= 0.0 and distance > 2.2:
+		_set_state(State.SPIT_WINDUP)
+	elif _linger >= linger_time or distance > 4.6:
 		_start_move(_nino.global_position, true)
 	elif _spit_timer <= 0.0:
 		_set_state(State.SPIT_WINDUP)
@@ -581,7 +585,8 @@ func _make_puddle(point: Vector3) -> void:
 		elapsed += 0.25
 		if not is_instance_valid(puddle):
 			return
-		if _nino and _nino.global_position.distance_to(puddle.global_position) < spit_radius * 0.8 and not _nino.is_slowed():
+		if _nino and _nino.global_position.distance_to(puddle.global_position) < spit_radius * 0.8 and not _nino.is_slowed() \
+				and not GameState.hazards_suspended():
 			_nino.apply_slow(0.7, 0.6)
 		material.albedo_color.a = 0.75 * (1.0 - elapsed / puddle_time)
 	if is_instance_valid(puddle):

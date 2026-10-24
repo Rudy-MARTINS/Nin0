@@ -8,7 +8,7 @@ extends Resource
 @export var speed := 14.0
 @export var gravity := 2.5
 ## Portée (u) : 2 m à l'échelle de Nin0, assez pour un crochet de porte.
-@export var max_range := 20.0
+@export var max_range := 26.0
 @export var damage := 1
 @export var radius := 0.035
 @export var color := Color(0.3, 0.55, 0.95)

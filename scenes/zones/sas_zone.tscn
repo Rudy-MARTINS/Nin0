@@ -157,11 +157,17 @@ height = 0.24
 radial_segments = 14
 rings = 7
 
-[sub_resource type="SphereMesh" id="Sph_0_75"]
-radius = 0.75
-height = 1.5
-radial_segments = 14
-rings = 7
+[sub_resource type="StandardMaterial3D" id="Mat_paper_b"]
+albedo_color = Color(0.8, 0.78, 0.72, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_ink"]
+albedo_color = Color(0.25, 0.25, 0.32, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderShape3D" id="ColCyl_PaperBallCol"]
+radius = 0.651
+height = 1.054
 
 [sub_resource type="Curve3D" id="Curve_Path"]
 _data = {
@@ -305,7 +311,7 @@ cast_shadow = 0
 mesh = SubResource("Quad_CrackCeiling")
 
 [node name="DirtPile" type="MeshInstance3D" parent="Decor"]
-transform = Transform3D(1.4, 0, 0, 0, 0.35, 0, 0, 0, 1, -44.3, 0.05, 11.2)
+transform = Transform3D(1.4, 0, 0, 0, 0.2, 0, 0, 0, 1, -44.3, 0, 11.2)
 material_override = SubResource("Mat_dirt")
 mesh = SubResource("Sph_0_7")
 
@@ -465,10 +471,113 @@ bevel = 0.03
 material = SubResource("Mat_wood_dark")
 collide = false
 
-[node name="PaperBall" type="MeshInstance3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 0.85, 0, 0, 0, 1.1, -38, 0.7, -5.5)
-material_override = SubResource("Mat_paper")
-mesh = SubResource("Sph_0_75")
+[node name="PaperBall" type="Node3D" parent="Decor"]
+
+[node name="Facet0" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.204779, -0.192752, 0.959642, 0.932693, 0.335814, -0.131577, -0.2969, 0.921995, 0.248546, -38.0571, 0.538424, -5.43655)
+script = ExtResource("1_prop_block")
+size = Vector3(0.559049, 0.614528, 0.662748)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet1" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.241159, -0.00684605, 0.970461, 0.906976, 0.357388, -0.222862, -0.345305, 0.933931, 0.0923967, -37.9108, 0.513462, -5.47566)
+script = ExtResource("1_prop_block")
+size = Vector3(0.57567, 0.688225, 0.565088)
+bevel = 0.04
+material = SubResource("Mat_paper_b")
+collide = false
+
+[node name="Facet2" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.356648, -0.883458, 0.303816, 0.17868, -0.254695, -0.950371, 0.916993, 0.393234, 0.0670199, -37.8668, 0.638424, -5.54824)
+script = ExtResource("1_prop_block")
+size = Vector3(0.560814, 0.457988, 0.614085)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet3" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.120568, -0.365642, 0.922914, 0.984874, 0.160604, -0.0650336, -0.124445, 0.916795, 0.379475, -37.8885, 0.441949, -5.3618)
+script = ExtResource("1_prop_block")
+size = Vector3(0.667986, 0.576526, 0.798437)
+bevel = 0.04
+material = SubResource("Mat_paper_b")
+collide = false
+
+[node name="Facet4" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.10225, -0.85468, 0.508987, 0.187367, -0.485963, -0.853659, 0.976954, 0.182654, 0.110449, -37.986, 0.501802, -5.55679)
+script = ExtResource("1_prop_block")
+size = Vector3(0.586266, 0.530904, 0.747357)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet5" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.00497687, -0.0012906, 0.999987, 0.972616, 0.232373, -0.00454074, -0.232364, 0.972626, 0.00241174, -38.1399, 0.648114, -5.48961)
+script = ExtResource("1_prop_block")
+size = Vector3(0.613018, 0.465793, 0.604149)
+bevel = 0.04
+material = SubResource("Mat_paper_b")
+collide = false
+
+[node name="Facet6" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.594969, -0.464142, 0.656189, 0.663993, -0.176206, -0.726681, 0.452907, 0.868058, 0.20335, -38.1377, 0.632787, -5.64486)
+script = ExtResource("1_prop_block")
+size = Vector3(0.683825, 0.505259, 0.742128)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet7" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.0432077, -0.0658674, 0.996892, 0.841031, -0.53619, -0.0718799, 0.539258, 0.841523, 0.032229, -37.9107, 0.457139, -5.52029)
+script = ExtResource("1_prop_block")
+size = Vector3(0.711005, 0.65433, 0.598477)
+bevel = 0.04
+material = SubResource("Mat_paper_b")
+collide = false
+
+[node name="Facet8" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.00025292, -0.00107016, 0.999999, 0.887118, -0.461542, -0.000718293, 0.461543, 0.887118, 0.000832622, -37.8524, 0.532418, -5.50367)
+script = ExtResource("1_prop_block")
+size = Vector3(0.604266, 0.655894, 0.649392)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Ink0" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.610365, 0, 0.79212, 0, 1, 0, -0.79212, 0, 0.610365, -37.9146, 1.0044, -5.5078)
+script = ExtResource("1_prop_block")
+size = Vector3(0.558, 0.012, 0.05)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Ink1" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(0.376869, 0, 0.926267, 0, 1, 0, -0.926267, 0, 0.376869, -38.0358, 1.0044, -5.6315)
+script = ExtResource("1_prop_block")
+size = Vector3(0.558, 0.012, 0.05)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Ink2" type="StaticBody3D" parent="Decor/PaperBall"]
+transform = Transform3D(-0.388379, 0, 0.9215, 0, 1, 0, -0.9215, 0, -0.388379, -37.8183, 1.0044, -5.32895)
+script = ExtResource("1_prop_block")
+size = Vector3(0.558, 0.012, 0.05)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="PaperBallCol" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38, 0.527, -5.5)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Decor/PaperBallCol"]
+shape = SubResource("ColCyl_PaperBallCol")
 
 [node name="DeadLeaf" type="StaticBody3D" parent="Decor"]
 transform = Transform3D(0.819152, 0, 0.573576, 0, 1, 0, -0.573576, 0, 0.819152, -25, 0.03, 4)
@@ -479,57 +588,57 @@ material = SubResource("Mat_leaf")
 collide = false
 
 [node name="PlasterChip0" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.281226, 0, 0.959642, 0, 1, 0, -0.959642, 0, 0.281226, -33.8105, 0.06, -6.76017)
+transform = Transform3D(0.335752, 0, 0.94195, 0, 1, 0, -0.94195, 0, 0.335752, -35.0543, 0.06, -6.91076)
 script = ExtResource("1_prop_block")
-size = Vector3(0.201353, 0.12, 0.40338)
+size = Vector3(0.399729, 0.12, 0.301544)
 bevel = 0.03
 material = SubResource("Mat_plaster")
 collide = false
 
 [node name="PlasterChip1" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.995994, 0, 0.0894173, 0, 1, 0, -0.0894173, 0, 0.995994, -33.0939, 0.06, -5.18132)
+transform = Transform3D(0.461536, 0, 0.887121, 0, 1, 0, -0.887121, 0, 0.461536, -31.5699, 0.06, -4.90041)
 script = ExtResource("1_prop_block")
-size = Vector3(0.392298, 0.12, 0.294738)
+size = Vector3(0.546955, 0.12, 0.308398)
 bevel = 0.03
 material = SubResource("Mat_plaster")
 collide = false
 
 [node name="PlasterChip2" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.999597, 0, 0.0283766, 0, 1, 0, -0.0283766, 0, 0.999597, -31.751, 0.06, -4.62048)
+transform = Transform3D(0.904256, 0, 0.42699, 0, 1, 0, -0.42699, 0, 0.904256, -33.6828, 0.06, -5.18212)
 script = ExtResource("1_prop_block")
-size = Vector3(0.59004, 0.12, 0.20686)
+size = Vector3(0.465607, 0.12, 0.427892)
 bevel = 0.03
 material = SubResource("Mat_plaster")
 collide = false
 
 [node name="PlasterChip3" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.997308, 0, 0.0733329, 0, 1, 0, -0.0733329, 0, 0.997308, -32.6074, 0.06, -7.96369)
+transform = Transform3D(0.0854294, 0, 0.996344, 0, 1, 0, -0.996344, 0, 0.0854294, -32.0456, 0.06, -6.82459)
 script = ExtResource("1_prop_block")
-size = Vector3(0.515095, 0.12, 0.309855)
+size = Vector3(0.394274, 0.12, 0.430924)
 bevel = 0.03
 material = SubResource("Mat_plaster")
 collide = false
 
 [node name="PlasterChip4" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.110272, 0, 0.993901, 0, 1, 0, -0.993901, 0, 0.110272, -34.5174, 0.06, -4.97705)
+transform = Transform3D(0.923463, 0, 0.383688, 0, 1, 0, -0.383688, 0, 0.923463, -35.4421, 0.06, -5.81204)
 script = ExtResource("1_prop_block")
-size = Vector3(0.272368, 0.12, 0.486554)
+size = Vector3(0.459877, 0.12, 0.374198)
 bevel = 0.03
 material = SubResource("Mat_plaster")
 collide = false
 
 [node name="PlasterChip5" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.345228, 0, 0.938519, 0, 1, 0, -0.938519, 0, 0.345228, -33.726, 0.06, -5.90119)
+transform = Transform3D(0.312561, 0, 0.949898, 0, 1, 0, -0.949898, 0, 0.312561, -31.4166, 0.06, -5.41025)
 script = ExtResource("1_prop_block")
-size = Vector3(0.576818, 0.12, 0.303315)
+size = Vector3(0.468657, 0.12, 0.338882)
 bevel = 0.03
 material = SubResource("Mat_plaster")
 collide = false
 
 [node name="PlasterChip6" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.998345, 0, 0.057509, 0, 1, 0, -0.057509, 0, 0.998345, -31.5139, 0.06, -4.56122)
+transform = Transform3D(0.852603, 0, 0.522559, 0, 1, 0, -0.522559, 0, 0.852603, -31.8109, 0.06, -4.68725)
 script = ExtResource("1_prop_block")
-size = Vector3(0.243221, 0.12, 0.424519)
+size = Vector3(0.339154, 0.12, 0.393219)
 bevel = 0.03
 material = SubResource("Mat_plaster")
 collide = false
@@ -795,3 +904,6 @@ transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -19.5, 0
 
 [node name="KitchenDoorFront" type="Marker3D" parent="Markers"]
 transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -38, 0.05, 6.5)
+
+[node name="FireSpot" type="Marker3D" parent="Markers"]
+transform = Transform3D(0.139173, 0, 0.990268, 0, 1, 0, -0.990268, 0, 0.139173, -33.5, 0.05, 3.2)
