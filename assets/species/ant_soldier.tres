@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpeciesData" format=3 uid="uid://w9ap2shcecs3"]
+
+[ext_resource type="Script" uid="uid://huvtoujplpbv" path="res://scripts/creatures/species_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"ant_soldier"
+display_name = "Fourmi soldat"
+classification = "Insecte social — caste défensive"
+description = "Garde les galeries de la colonie et chasse les intrus."
+behavior = "Hostile près des galeries ; abandonne vite une poursuite"
+traits = PackedStringArray("Tête large, mandibules puissantes", "Prépare chaque morsure avant de frapper")
+mechanical_inspiration = ""
+icon = &"ant_soldier"
+color = Color(0.42, 0.18, 0.14, 1)

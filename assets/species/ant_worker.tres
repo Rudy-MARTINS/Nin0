@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SpeciesData" format=3 uid="uid://0pf5wp5g91qh"]
+
+[ext_resource type="Script" uid="uid://huvtoujplpbv" path="res://scripts/creatures/species_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"ant_worker"
+display_name = "Fourmi ouvrière"
+classification = "Insecte social"
+description = "Construit les galeries, entretient le nid et transporte les ressources."
+behavior = "Non hostile"
+traits = PackedStringArray("Exosquelette protecteur", "Travail en file, communication par les antennes")
+mechanical_inspiration = "Une coque rigide qui protège sans gêner les mouvements."
+unlocks_plan = &"plan_armor_1"
+icon = &"ant"
+color = Color(0.55, 0.32, 0.22, 1)
