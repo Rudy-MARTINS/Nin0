@@ -57,11 +57,29 @@ var _rider: Node3D
 @onready var _spark: OmniLight3D = $Gantry/Head/Spark
 
 
+## Matériaux de la machine (glow-up) : silhouette et palette conservées, surfaces
+## enrichies — coque en plastique grainé, montants en aluminium brossé, plateau métallique.
+const MATERIAL_FAMILIES := {"Mat_body": &"plastic", "Mat_dark": &"plastic", "Mat_accent": &"plastic",
+	"Mat_alu": &"metal", "Mat_sheet": &"plastic"}
+
+
+func _dress_materials() -> void:
+	for node in find_children("*", "MeshInstance3D", true, false):
+		var standard := (node as MeshInstance3D).material_override as StandardMaterial3D
+		if standard == null or standard.has_meta(&"nino_dressed"):
+			continue
+		var id := standard.resource_path.get_slice("::", 1)
+		standard.set_meta(&"nino_dressed", true)
+		if MATERIAL_FAMILIES.has(id):
+			MaterialLibrary.apply_family(standard, MATERIAL_FAMILIES[id])
+
+
 func _ready() -> void:
 	_screen_material = ($Body/Screen as MeshInstance3D).material_override
 	_nozzle_material = ($Gantry/Head/Nozzle as MeshInstance3D).material_override
 	_led_material = ($Body/PowerLed as MeshInstance3D).material_override
 	_gantry_rest_y = _gantry.position.y
+	_dress_materials()
 	# Le corps de collision du plateau suit réellement le plateau (sinon, synchronisé
 	# à la physique, il restait en arrière : Nin0 flottait ou traversait le plateau).
 	($Bed/BedBody as AnimatableBody3D).sync_to_physics = false
@@ -72,6 +90,7 @@ func _ready() -> void:
 	_set_cut(-1.0)
 	_printed_legs.visible = false
 	_spark.light_energy = 0.0
+	_build_fx()
 	_apply_power_visuals(false)
 
 
@@ -87,6 +106,60 @@ func _process(delta: float) -> void:
 		var hip_offset := _carried.global_basis * _carried_offset
 		_carried.global_position = _nozzle_tip() - hip_offset
 	_update_filament()
+	# Buse chaude : fines volutes et lueur orangée pendant l'extrusion.
+	var hot := _nozzle_material.emission_energy_multiplier > 1.5
+	if _nozzle_fx.emitting != hot:
+		_nozzle_fx.emitting = hot
+
+
+## Effets du glow-up : volutes de la buse et halo de l'écran sur la machine.
+var _nozzle_fx: CPUParticles3D
+var _screen_glow: OmniLight3D
+
+
+func _build_fx() -> void:
+	_nozzle_fx = CPUParticles3D.new()
+	_nozzle_fx.name = "NozzleWisps"
+	_nozzle_fx.emitting = false
+	_nozzle_fx.amount = 14
+	_nozzle_fx.lifetime = 1.4
+	_nozzle_fx.local_coords = false
+	_nozzle_fx.direction = Vector3.UP
+	_nozzle_fx.spread = 25.0
+	_nozzle_fx.gravity = Vector3(0, 0.05, 0)
+	_nozzle_fx.initial_velocity_min = 0.03
+	_nozzle_fx.initial_velocity_max = 0.08
+	_nozzle_fx.scale_amount_min = 0.6
+	_nozzle_fx.scale_amount_max = 1.4
+	var curve := Curve.new()
+	curve.add_point(Vector2(0, 0.3))
+	curve.add_point(Vector2(0.4, 1.0))
+	curve.add_point(Vector2(1, 0.0))
+	_nozzle_fx.scale_amount_curve = curve
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.012
+	mesh.height = 0.024
+	mesh.radial_segments = 6
+	mesh.rings = 3
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.vertex_color_use_as_albedo = true
+	mesh.material = material
+	_nozzle_fx.mesh = mesh
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1.0, 0.7, 0.4, 0.5))
+	ramp.set_color(1, Color(0.85, 0.85, 0.85, 0.0))
+	_nozzle_fx.color_ramp = ramp
+	$Gantry/Head/Nozzle.add_child(_nozzle_fx)
+	_nozzle_fx.position = Vector3(0, -0.08, 0)
+	_screen_glow = OmniLight3D.new()
+	_screen_glow.name = "ScreenGlow"
+	_screen_glow.light_color = Color(0.5, 0.9, 1.0)
+	_screen_glow.omni_range = 0.6
+	_screen_glow.light_energy = 0.0
+	$Body/Screen.add_child(_screen_glow)
+	_screen_glow.position = Vector3(0, 0, 0.08)
 
 
 func set_powered(on: bool) -> void:
@@ -446,6 +519,8 @@ func _apply_power_visuals(on: bool) -> void:
 	_screen_material.set_shader_parameter("power", 1.0 if on else 0.0)
 	_screen_material.set_shader_parameter("mode", 0)
 	_led_material.emission_energy_multiplier = 2.5 if on else 0.0
+	if _screen_glow:
+		_screen_glow.light_energy = 0.35 if on else 0.0
 	_led_material.albedo_color = Color(0.3, 1.0, 0.4) if on else Color(0.15, 0.2, 0.15)
 	_nozzle_material.emission_energy_multiplier = 0.0
 

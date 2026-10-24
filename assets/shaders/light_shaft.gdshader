@@ -4,7 +4,7 @@ render_mode blend_add, unshaded, cull_disabled, depth_draw_never, shadows_disabl
 #include "res://assets/shaders/noise.gdshaderinc"
 
 uniform vec3 color : source_color = vec3(1.0, 0.85, 0.6);
-uniform float intensity = 0.07;
+uniform float intensity = 0.035;
 
 void fragment() {
 	float along = UV.y;
@@ -13,5 +13,7 @@ void fragment() {
 	float flicker = 0.85 + value_noise(vec2(UV.x * 6.0 + TIME * 0.2, along * 3.0)) * 0.3;
 	// Atténuation aux angles rasants pour éviter les arêtes visibles.
 	float facing = abs(dot(NORMAL, VIEW));
-	ALBEDO = color * intensity * fade * side * flicker * facing;
+	// Estompé près de la caméra : un faisceau traversé ne voile plus tout l'écran.
+	float near = smoothstep(1.5, 8.0, length(VERTEX));
+	ALBEDO = color * intensity * fade * side * flicker * facing * near;
 }

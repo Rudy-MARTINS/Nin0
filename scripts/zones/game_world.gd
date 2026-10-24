@@ -47,14 +47,12 @@ var _tick := 0.0
 ## Musique d'exploration autorisée (après le début de la partie, pas à l'écran titre).
 var _music_on := false
 var _boss_music := false
-var _mood_tween: Tween
 ## Caméra des mises en scène du lot 7 (entrée de la cuisine, puce, souvenirs…).
 var cine: CineCamera
 ## Lot 7 : sous-titres (Nin0 / Nathan), ordres donnés à Nathan.
 var subtitles: Subtitles
 var commands: CompanionCommands
 var _charge_tutorial := false
-var _base_ambient := -1.0
 
 @onready var workshop: Node3D = $Workshop
 @onready var blockout: Node3D = $Blockout
@@ -65,6 +63,7 @@ var _base_ambient := -1.0
 
 
 func _ready() -> void:
+	MaterialLibrary.dress(self)
 	director = workshop
 	nino = workshop.get_node("Nino")
 	camera = workshop.get_node("ThirdPersonCamera")
@@ -351,7 +350,7 @@ func zone_at(point: Vector3) -> int:
 
 
 func _on_zone_changed(_previous: int, zone: int) -> void:
-	_set_kitchen_mood(zone == ZONE_KITCHEN)
+	_set_zone_mood(zone)
 	if not GameState.woke_up or GameState.dev_mode and not GameState.legs_installed:
 		return
 	match zone:
@@ -438,20 +437,14 @@ func _update_bath_checkpoints() -> void:
 
 ## Ambiance de la cuisine : lumière ambiante plus faible (la fenêtre éclaire, les
 ## dessous de meubles restent sombres), brume un peu plus froide. Retour progressif.
-func _set_kitchen_mood(on: bool) -> void:
-	var world := workshop.get_node_or_null("WorldEnvironment") as WorldEnvironment
-	if world == null or world.environment == null:
+## Identité lumineuse de la pièce (voir Atmosphere) : refuge chaud, sas neutre, salle de
+## bain froide, cuisine contrastée, salon doux.
+func _set_zone_mood(zone: int) -> void:
+	var atmosphere: Atmosphere = director.atmosphere
+	if atmosphere == null:
 		return
-	if _base_ambient < 0.0:
-		# Copie propre à cette partie : la ressource de la scène reste intacte.
-		world.environment = world.environment.duplicate()
-		_base_ambient = world.environment.ambient_light_energy
-	var env := world.environment
-	if _mood_tween:
-		_mood_tween.kill()
-	_mood_tween = create_tween().set_parallel(true)
-	_mood_tween.tween_property(env, "ambient_light_energy", _base_ambient * (0.5 if on else 1.0), 2.0)
-	_mood_tween.tween_property(env, "fog_density", 0.004 if on else 0.0025, 2.0)
+	var moods := {ZONE_HUB: &"hub", ZONE_SAS: &"sas", ZONE_BATH: &"bath", ZONE_KITCHEN: &"kitchen", ZONE_SALON: &"salon"}
+	atmosphere.set_mood(moods.get(zone, &"hub"), 2.4)
 
 
 ## Points sûrs de la cuisine : entrée, plan de travail (ouest).

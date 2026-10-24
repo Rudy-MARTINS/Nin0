@@ -80,6 +80,15 @@ var _tray_walls: Array[StaticBody3D] = []
 @onready var _checkpoints: Node3D = $Checkpoints
 ## Réactions contextuelles de Nin0 (personnalité).
 var reactions: NinoReactions
+## Ambiance lumineuse par pièce et vignettage (lot 7, glow-up).
+var atmosphere: Atmosphere
+## Réveil (glow-up) : lueur cyan du visage, lumière de mise en scène, veille « qui respire ».
+var _face_light: OmniLight3D
+var _intro_key: SpotLight3D
+var _standby := false
+var _standby_time := 0.0
+var _wake_push: Tween
+var _face_power := 0.0
 
 
 func _ready() -> void:
@@ -120,6 +129,14 @@ func _ready() -> void:
 	GameState.modules_changed.connect(_refresh_equipment)
 
 	thoughts.avoid = hud.text_controls()
+	MaterialLibrary.dress(self)
+	atmosphere = Atmosphere.new()
+	atmosphere.name = "Atmosphere"
+	add_child(atmosphere)
+	var fill_lights: Array[Light3D] = [$FillRoom as Light3D, $FillBench as Light3D]
+	atmosphere.setup($WorldEnvironment as WorldEnvironment, $Sun as DirectionalLight3D, fill_lights)
+	atmosphere.set_mood(&"hub", 0.0)
+	_build_intro_lights()
 	Sfx.stop_all_loops()
 	Sfx.set_loop(&"ambience", &"ambience", -18.0)
 	nino.set_checkpoint(_checkpoint("Start"))
@@ -139,6 +156,11 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _standby:
+		# Veille : l'écran du visage « respire » à peine (un peu plus visible au titre).
+		_standby_time += delta
+		var low := 0.1 if _title_active else 0.04
+		set_face_power(low + low * 1.2 * (0.5 + 0.5 * sin(_standby_time * 1.3)))
 	if _title_active:
 		_title_time += delta
 		camera.rotation.y = TITLE_CAMERA_YAW + sin(_title_time * 0.2) * 0.18
@@ -162,6 +184,9 @@ func _physics_process(_delta: float) -> void:
 
 func _show_title() -> void:
 	_title_active = true
+	_standby = true
+	atmosphere.set_mood(&"title", 0.0)
+	_intro_key.light_energy = 2.4
 	hud.set_gameplay_visible(false)
 	hud.set_fade(1.0)
 	hud.fade_to(0.0, 1.5)
@@ -185,13 +210,21 @@ func _on_start_requested(resume: bool) -> void:
 func _start_new_game() -> void:
 	GameState.reset_progress()
 	_set_sleeping()
+	_standby = true
+	atmosphere.set_mood(&"sleep", 1.2)
+	_intro_key.light_energy = 2.4
 	hud.set_gameplay_visible(false)
-	camera.arm_length = 1.1
-	camera.pitch = deg_to_rad(-6.0)
-	camera.rotation.y = TITLE_CAMERA_YAW
+	# Plan large d'abord (Nin0 minuscule dans l'atelier), puis lent rapprochement.
+	camera.arm_length = 2.8
+	camera.pitch = deg_to_rad(-3.0)
+	camera.rotation.y = TITLE_CAMERA_YAW + 0.4
 	camera.snap_to_target()
+	_wake_push = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_wake_push.tween_property(camera, "arm_length", 1.15, 7.0)
+	_wake_push.tween_property(camera, "pitch", deg_to_rad(-6.0), 7.0)
+	_wake_push.tween_property(camera, "rotation:y", TITLE_CAMERA_YAW, 7.0)
 	hud.set_fade(1.0)
-	await hud.fade_to(0.0, 1.2).finished
+	await hud.fade_to(0.0, 1.3).finished
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	hud.set_gameplay_visible(true)
 	hud.show_hint("Appuyez sur %s pour réveiller Nin0" % Hud.key("Z Q S D"))
@@ -234,6 +267,11 @@ func _apply_progress_world() -> void:
 
 
 func _begin_play_at(spot: Transform3D) -> void:
+	atmosphere.set_mood(&"hub", 1.2)
+	_standby = false
+	if _intro_key:
+		_intro_key.light_energy = 0.0
+	set_face_power(1.0)
 	_title_active = false
 	title_screen.visible = false
 	nino.global_transform = spot
@@ -283,6 +321,39 @@ func _refresh_equipment() -> void:
 	visual.set_armor_visible(GameState.is_equipped(&"armor_1"))
 
 
+## Lumières du réveil : lueur cyan de l'écran-visage (suit l'allumage des yeux) et
+## faisceau chaud qui isole Nin0 dans la pénombre (titre, réveil), puis s'efface.
+func _build_intro_lights() -> void:
+	_face_light = OmniLight3D.new()
+	_face_light.name = "FaceGlow"
+	_face_light.light_color = Color(0.45, 0.92, 1.0)
+	_face_light.omni_range = 0.9
+	_face_light.light_energy = 0.0
+	_face_light.shadow_enabled = false
+	nino.add_child(_face_light)
+	_face_light.position = Vector3(0.0, 0.42, -0.22)
+	_intro_key = SpotLight3D.new()
+	_intro_key.name = "IntroKey"
+	_intro_key.light_color = Color(1.0, 0.86, 0.66)
+	_intro_key.spot_angle = 16.0
+	_intro_key.spot_range = 9.0
+	_intro_key.spot_attenuation = 0.6
+	_intro_key.light_energy = 0.0
+	_intro_key.shadow_enabled = true
+	add_child(_intro_key)
+	var start := _checkpoint("Start").origin
+	_intro_key.global_position = start + Vector3(-2.6, 5.2, 2.2)
+	_intro_key.look_at(start + Vector3.UP * 0.3)
+
+
+## Allumage de l'écran-visage : visage et lueur cyan ensemble.
+func set_face_power(value: float) -> void:
+	_face_power = value
+	nino.get_visual().set_power(value)
+	if _face_light:
+		_face_light.light_energy = value * 0.9
+
+
 func _set_sleeping() -> void:
 	nino.controls_enabled = false
 	camera.input_enabled = false
@@ -298,10 +369,20 @@ func _boot_nino() -> void:
 	hud.clear_hint()
 	var visual := nino.get_visual()
 	_start_exploration_music(4.0)
+	# La lumière de l'atelier revient doucement pendant que Nin0 s'éveille.
+	atmosphere.set_mood(&"hub", 7.0)
 	Sfx.play(&"boot", -6.0, 0.8)
+	_standby = false
+	if _wake_push and _wake_push.is_valid() and _wake_push.is_running():
+		# Réveil avant la fin du rapprochement : on le termine en douceur.
+		_wake_push.kill()
+		var settle := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		settle.tween_property(camera, "arm_length", 1.15, 1.6)
+		settle.tween_property(camera, "pitch", deg_to_rad(-6.0), 1.6)
+		settle.tween_property(camera, "rotation:y", TITLE_CAMERA_YAW, 1.6)
 	var flicker := create_tween()
 	for value in [0.25, 0.0, 0.45, 0.1, 0.6, 0.3, 0.8, 0.55, 1.0]:
-		flicker.tween_callback(visual.set_power.bind(value))
+		flicker.tween_callback(set_face_power.bind(value))
 		flicker.tween_interval(0.16)
 	await flicker.finished
 	Sfx.play(&"boot", -4.0)
@@ -331,6 +412,7 @@ func _boot_nino() -> void:
 	visual.show_emotion(NinoVisual.Emotion.HAPPY, 1.2)
 	Sfx.play(&"happy", -6.0)
 	var move_camera := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	move_camera.tween_property(_intro_key, "light_energy", 0.0, 3.0)
 	move_camera.tween_property(camera, "rotation:y", nino.rotation.y, 2.0)
 	move_camera.tween_property(camera, "arm_length", GAMEPLAY_ARM, 2.0)
 	move_camera.tween_property(camera, "pitch", deg_to_rad(-18.0), 2.0)
