@@ -11,4 +11,4 @@ category = 0
 family = &"weapon"
 cost_fragments = 3
 required_discovery = &"plan_sting_bead"
-effect_text = "Q : changer de munition. Une bille pointue coûte 2 plastiques, frappe deux fois plus fort et perce les mécanismes à goupille."
+effect_text = "A : changer de munition. Une bille pointue coûte 2 plastiques, frappe deux fois plus fort et perce les mécanismes à goupille."

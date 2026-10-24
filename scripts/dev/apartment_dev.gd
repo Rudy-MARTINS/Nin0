@@ -14,10 +14,10 @@ extends Node3D
 @export_range(1, 7) var start_zone := 1
 @export var free_camera_speed := 14.0
 ## Scénario de test préparé au démarrage (vide = aucun).
-## sas, maze, right, stool, boss, cannon, kitchen, kitchen_inside, wasps, salon_door (voir SCENARIOS).
+## sas, maze, right, stool, boss, cannon, kitchen, kitchen_inside, wasps, salon_door, salon (voir SCENARIOS).
 @export var scenario := ""
 
-const SCENARIOS := [&"sas", &"maze", &"right", &"stool", &"boss", &"cannon", &"kitchen", &"kitchen_inside", &"wasps", &"salon_door"]
+const SCENARIOS := [&"sas", &"maze", &"right", &"stool", &"boss", &"cannon", &"kitchen", &"kitchen_inside", &"wasps", &"salon_door", &"salon"]
 
 const ZONE_COLORS := {
 	1: Color(0.85, 0.7, 0.45), 2: Color(0.72, 0.66, 0.56), 3: Color(0.55, 0.72, 0.8), 4: Color(0.78, 0.5, 0.38),

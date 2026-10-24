@@ -118,7 +118,7 @@ se terre pendant le combat et revient après.
 
 - Plan « plan_sting_bead » (victoire) → amélioration « Chargeur de billes pointues »
   (3 filaments) à l'imprimante.
-- **Q** : changer de munition (billes / billes pointues). Choix sauvegardé.
+- **A** (AZERTY ; Q en QWERTY, même touche physique) : changer de munition. Choix sauvegardé.
 - Bille pointue : 2 plastiques par tir, dégâts ×2, trajectoire plus tendue, **perce**.
   Les billes ordinaires restent utilisables et coûtent toujours 1 plastique.
 - Interface : petite étiquette à côté du compteur de plastique, seulement quand on possède
@@ -143,3 +143,107 @@ remplacé par ce vrai battant.
 
 Ctrl+9 : guêpes (plan de travail, canon, saut chargé, plastique) · Ctrl+0 : porte du salon
 (billes pointues fabriquées).
+
+## Lot 7C — Début du salon, Nathan, box internet, trophées
+
+### Salon, première partie (x < 0)
+
+Pièce vécue et stylisée, entièrement originale (aucune photo du créateur) :
+canapé contre le mur ouest (il bloque la porte de la cuisine, toujours fermée), coussin
+tombé et pouf, table basse et table gigogne sur un tapis, meuble TV bas avec télévision,
+deux consoles, manettes et jeux, porte vitrée fumée sur une niche ; bureau avec écran,
+clavier, lampe, tour d'ordinateur et chaise à roulettes écartée ; meuble à casiers et
+panier ; porte-fenêtre lumineuse (soleil au sol, poussière dans le rayon) ; étendoir avec
+serviettes et chaussettes, panier de linge.
+
+Gameplay :
+- **Sous les meubles** : dessous du canapé (1,2 u, cafards, miettes), table basse, bureau.
+- **Par-dessus** : coussin (1,0) → pouf (2,6) → table basse (4,0) au saut chargé ; tour
+  d'ordinateur → bureau (7,5) ; panier → étendoir (6,1 puis 9,3) ; casier haut (filament).
+- **Tir et couverture** : le dessus du meuble TV domine la pièce (séquence de protection).
+- Le meuble TV (5,0) n'est accessible qu'avec Nathan (voir la bascule).
+
+**Seconde partie barrée** par un encombrement réel, dans le prolongement du meuble de
+séparation : piles de bacs de rangement (16,8 u), paravent replié, grande plante devant la
+porte-fenêtre. Aucun mur invisible. La chambre reste verrouillée (rideau).
+
+Musique : « living room - Nin0 », bouclée proprement (voir `assets/music/LISEZMOI.md`).
+
+### Nathan (souvenir n° 4)
+
+Figurine articulée originale (≈ 13 cm à l'échelle de la maison, trois fois Nin0) :
+casquette d'explorateur, écharpe rouge, gilet orange, pantalon bleu, rotules apparentes ;
+il bouge par petits à-coups, comme un jouet, avec des clics d'articulations.
+
+- **Rencontre obligatoire, déclenchée seulement par un scan** : Nin0 remarque une figurine
+  inerte contre l'accoudoir ; le joueur l'observe avec la vision focalisée.
+- Courte mise en scène (dangers suspendus) : Nathan s'anime, sursaute, Nin0 aussi. Échange
+  sous-titré (sons de robot pour Nin0, petits sons de jouet pour Nathan). Nathan révèle
+  **seulement** : Nin0 est un robot, lui un jouet ; ils ont été fabriqués pour être utilisés
+  ensemble ; il y a un humain qu'il appelle « le géant », dont la place est la chambre ; il ne
+  l'a pas vu depuis longtemps ; il n'était pas méchant ; Nathan commence à s'inquiéter.
+- **Archive 04/07** accordée à la fin ; réobserver Nathan ne redéclenche rien.
+- **Compagnon** : **G** ouvre une petite barre d'ordres, **1** Suis-moi · **2** Attends ·
+  **3** Va là-bas (point au centre de l'écran) · **4** Interagis (objet visé ou le plus proche).
+  Rappel discret de l'ordre en cours en bas à gauche. Le jeu continue pendant le choix.
+- Nathan ne meurt jamais et ne se perd pas : coincé plus de 3,5 s ou trop loin, il réapparaît
+  près de Nin0, **hors du champ de la caméra**, sur un sol libre. Effrayé, il fuit vers un abri
+  (sous la table basse), se calme, puis reprend son ordre.
+
+### Première coopération : la bascule
+
+Une grande règle sur un rouleau de ruban adhésif, devant le meuble TV. Au repos, le bout
+côté meuble touche le sol. Nin0 seul est trop léger pour la faire basculer (il le comprend
+en l'examinant). Ordre **Interagis** : Nathan monte sur la règle, dépasse le point d'appui,
+elle bascule ; il s'assoit au bout et la tient. L'autre bout se lève à 4,4 u contre la porte
+vitrée du meuble : Nin0 gravit la règle et saute sur le meuble TV (5,0).
+
+### Séquence de protection
+
+Dès que Nin0 arrive sur le meuble TV pendant que Nathan tient la règle, des cafards sortent
+de sous le canapé et filent vers Nathan (au plus deux à la fois). Nin0 tire depuis sa
+hauteur : deux billes (ou une pointue) par cafard. Un cafard qui atteint Nathan lui fait peur
+(il lâche la règle, fuit à l'abri puis revient la tenir) : jamais de dégât, jamais d'échec
+définitif. Trois cafards mis KO : Nathan remercie Nin0, la box devient observable.
+
+### Box internet (souvenir n° 5)
+
+Scan obligatoire (possible seulement une fois la protection réussie). Nin0 se connecte au
+réseau de la maison ; **interface de recherche fictive** (pas de vrai navigateur, aucune
+marque réelle) : recherche « NIN0 », résultats, puis fiche « Nin0 — compagnon robotique ·
+Modèle de série · Série 0 » où s'alignent trois rangées de robots identiques. Nin0 comprend
+qu'il est un modèle commercial, **pas pourquoi il est ici**. Aucune information sur les
+habitants. Archive 05/07.
+
+### Archives
+
+Souvenirs 1 (dessin), 2 (ticket), 3 (liste), 4 (Nathan), 5 (box) ; **6 et 7 : à définir**.
+Les souvenirs 3, 4 et 5 exigent un vrai scan. Contenu des archives inchangé (objet, lignes
+dégradées, interprétations successives de Nin0).
+
+### Trophées internes
+
+Autoload `Achievements`, identifiants stables, sauvegarde séparée (`user://nino_trophies.cfg`,
+conservée après « Nouvelle partie » ; fichier distinct pour les tests). La progression ne
+dépend jamais d'un trophée. Les anciennes sauvegardes débloquent silencieusement ce qui est
+déjà mérité. Annonce discrète (« Trophée : … »), onglet **Trophées** dans l'inventaire
+(secrets masqués).
+
+| Catégorie | Trophées |
+|---|---|
+| Progression | jambes, canon, reine, entrée de la cuisine, saut chargé, grosse guêpe, billes pointues, entrée du salon |
+| Découverte | toutes les espèces, sept souvenirs, toutes les améliorations |
+| Coopération | première énigme avec Nathan (bascule) |
+| Secrets | la gomme sur la tête, le dessus des placards de la cuisine, dix créatures KO dans la cuisine, une bille ronde sur l'élastique |
+
+### Mode développement
+
+`--scenario=salon` : salon ouvert, améliorations installées, Nathan encore inerte.
+
+### Commandes ajoutées (lot 7)
+
+| Touche (AZERTY) | Action |
+|---|---|
+| Espace (maintenir, jambes) | Saut chargé |
+| A | Changer de munition (billes / billes pointues) |
+| G | Ordres à Nathan, puis 1 à 4 |

@@ -12,7 +12,7 @@ signal ammo_changed(ammo: AmmoData)
 
 const AMMO: AmmoData = preload("res://assets/upgrades/ammo_bead.tres")
 const AMMO_STING: AmmoData = preload("res://assets/upgrades/ammo_sting.tres")
-## Munitions connues, dans l'ordre du changement (Q).
+## Munitions connues, dans l'ordre du changement (touche A en AZERTY).
 const AMMO_TYPES: Array[AmmoData] = [AMMO, AMMO_STING]
 ## Monde, créatures, cibles de projectiles.
 const HIT_MASK := 1 | 16 | 32
@@ -83,7 +83,7 @@ func select_ammo(id: StringName, notify := true) -> bool:
 	return false
 
 
-## Munition suivante (Q) ; false s'il n'y en a qu'une.
+## Munition suivante (touche A en AZERTY) ; false s'il n'y en a qu'une.
 func cycle_ammo() -> bool:
 	var list := available_ammo()
 	if list.size() < 2:

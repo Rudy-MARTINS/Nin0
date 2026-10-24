@@ -76,9 +76,11 @@ func _run() -> void:
 	_check(not await _drive(Vector3(-31.5, 0.05, 5.0), 180.0, 6, 3.0) and _dev.zone_at(_nino.global_position) == 2, "porte sas → salon fermée")
 	_check(not await _drive(Vector3(-38.0, 0.05, 31.5), 90.0, 4, 3.0) and _dev.zone_at(_nino.global_position) == 6, "passage salon → cuisine fermé")
 	_check(not await _drive(Vector3(-31.5, 0.05, 18.0), 0.0, 2, 3.0) and _dev.zone_at(_nino.global_position) == 6, "salon → sas fermé")
-	_place(Vector3(-20.0, 0.05, 40.0), -90.0)
-	var crossed := await _hold_until(12.0, func() -> bool: return _nino.global_position.x > 8.0)
-	_check(crossed and _dev.zone_at(_nino.global_position) == 6, "salon : passage de l'étape A à l'étape B dans la même pièce")
+	# Lot 7 : une seule pièce, mais l'étape B est barrée par un encombrement physique
+	# (bacs empilés, paravent, plante) tant que la suite n'est pas développée.
+	_place(Vector3(-6.0, 0.05, 37.0), -90.0)
+	var crossed := await _hold_until(6.0, func() -> bool: return _nino.global_position.x > 1.0)
+	_check(not crossed and _dev.zone_at(_nino.global_position) == 6, "salon : étape B barrée par l'encombrement (même pièce, pas de mur invisible)")
 
 	# 4. Accès bloqués.
 	_check(not await _drive(Vector3(-40.0, 0.05, 8.0), 90.0, 4, 3.0) and _dev.zone_at(_nino.global_position) == 2, "porte sas → cuisine fermée (loquet)")

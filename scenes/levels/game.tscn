@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bt01v2y6r0esy" path="res://scenes/zones/sas_zone.tscn" id="4_sas"]
 [ext_resource type="PackedScene" uid="uid://6b1cg52t0a7e" path="res://scenes/zones/bathroom_zone.tscn" id="5_bath"]
 [ext_resource type="PackedScene" uid="uid://bwisxbrplnui7" path="res://scenes/zones/kitchen_zone.tscn" id="6_kitchen"]
+[ext_resource type="PackedScene" uid="uid://eb5aoab32kmm" path="res://scenes/zones/salon_zone.tscn" id="7_salon"]
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_world")
@@ -20,3 +21,5 @@ embedded = true
 [node name="BathroomZone" parent="." instance=ExtResource("5_bath")]
 
 [node name="KitchenZone" parent="." instance=ExtResource("6_kitchen")]
+
+[node name="SalonZone" parent="." instance=ExtResource("7_salon")]

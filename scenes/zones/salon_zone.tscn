@@ -1,0 +1,2183 @@
+[gd_scene format=3 uid="uid://eb5aoab32kmm"]
+
+[ext_resource type="Script" path="res://scripts/props/prop_block.gd" id="1_prop_block"]
+[ext_resource type="Script" path="res://scripts/props/resource_pickup.gd" id="2_resource_pic"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="3_interactable"]
+[ext_resource type="Script" path="res://scripts/focus/focus_target.gd" id="4_focus_target"]
+[ext_resource type="Script" path="res://scripts/zones/salon_zone.gd" id="5_salon_zone"]
+[ext_resource type="Script" path="res://scripts/interaction/examinable.gd" id="6_examinable"]
+[ext_resource type="Script" path="res://scripts/discovery/discovery_data.gd" id="7_discovery_da"]
+[ext_resource type="Resource" path="res://assets/observation/landmark.tres" id="8_landmark"]
+[ext_resource type="Resource" path="res://assets/observation/memory_detail.tres" id="9_memory_detai"]
+[ext_resource type="Resource" path="res://assets/memories/memory_05.tres" id="10_memory_05"]
+[ext_resource type="Script" path="res://scripts/zones/seesaw.gd" id="11_seesaw"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_sofa"]
+albedo_color = Color(0.36, 0.42, 0.5, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_sofa_dark"]
+albedo_color = Color(0.28, 0.33, 0.4, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_cushion"]
+albedo_color = Color(0.85, 0.62, 0.3, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_cushion_b"]
+albedo_color = Color(0.62, 0.72, 0.6, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_throw"]
+albedo_color = Color(0.72, 0.36, 0.3, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.62, 0.46, 0.3, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood_light"]
+albedo_color = Color(0.78, 0.64, 0.46, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood_dark"]
+albedo_color = Color(0.34, 0.24, 0.16, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_white"]
+albedo_color = Color(0.9, 0.9, 0.88, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_black"]
+albedo_color = Color(0.07, 0.07, 0.08, 1)
+roughness = 0.35
+metallic = 0.2
+
+[sub_resource type="StandardMaterial3D" id="Mat_screen"]
+albedo_color = Color(0.04, 0.05, 0.07, 1)
+roughness = 0.15
+metallic = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_grey"]
+albedo_color = Color(0.5, 0.51, 0.53, 1)
+roughness = 0.5
+metallic = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_steel"]
+albedo_color = Color(0.72, 0.74, 0.76, 1)
+roughness = 0.3
+metallic = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_chair"]
+albedo_color = Color(0.18, 0.2, 0.24, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_rug"]
+albedo_color = Color(0.72, 0.6, 0.42, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rug_band"]
+albedo_color = Color(0.44, 0.3, 0.22, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_paper"]
+albedo_color = Color(0.93, 0.92, 0.86, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_mag_a"]
+albedo_color = Color(0.8, 0.3, 0.3, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_mag_b"]
+albedo_color = Color(0.3, 0.5, 0.75, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_mag_c"]
+albedo_color = Color(0.9, 0.8, 0.35, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_mug"]
+albedo_color = Color(0.85, 0.85, 0.82, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_console"]
+albedo_color = Color(0.12, 0.12, 0.14, 1)
+roughness = 0.4
+metallic = 0.2
+
+[sub_resource type="StandardMaterial3D" id="Mat_pad"]
+albedo_color = Color(0.2, 0.22, 0.26, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_pad_red"]
+albedo_color = Color(0.75, 0.2, 0.2, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_pad_blue"]
+albedo_color = Color(0.2, 0.4, 0.8, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_led_green"]
+albedo_color = Color(0.3, 1.0, 0.45, 1)
+roughness = 0.5
+emission_enabled = true
+emission = Color(0.3, 1, 0.45, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_led_blue"]
+albedo_color = Color(0.35, 0.6, 1.0, 1)
+roughness = 0.5
+emission_enabled = true
+emission = Color(0.35, 0.6, 1, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_box_case"]
+albedo_color = Color(0.9, 0.9, 0.9, 1)
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_glass_dark"]
+albedo_color = Color(0.2, 0.22, 0.26, 1)
+roughness = 0.1
+transparency = 1
+albedo_color = Color(0.2, 0.22, 0.26, 0.55)
+
+[sub_resource type="StandardMaterial3D" id="Mat_crate"]
+albedo_color = Color(0.55, 0.62, 0.68, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_crate_lid"]
+albedo_color = Color(0.35, 0.42, 0.5, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_screen_panel"]
+albedo_color = Color(0.86, 0.8, 0.66, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_pot"]
+albedo_color = Color(0.7, 0.42, 0.3, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_leaf"]
+albedo_color = Color(0.3, 0.5, 0.26, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_leaf_dark"]
+albedo_color = Color(0.22, 0.38, 0.2, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_towel"]
+albedo_color = Color(0.9, 0.85, 0.7, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_towel_b"]
+albedo_color = Color(0.5, 0.66, 0.78, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_sock"]
+albedo_color = Color(0.45, 0.45, 0.48, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_basket"]
+albedo_color = Color(0.78, 0.66, 0.44, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_tape"]
+albedo_color = Color(0.85, 0.8, 0.62, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_ruler"]
+albedo_color = Color(0.86, 0.72, 0.42, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_ink"]
+albedo_color = Color(0.25, 0.22, 0.2, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_cable"]
+albedo_color = Color(0.08, 0.08, 0.08, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_lamp"]
+albedo_color = Color(0.92, 0.86, 0.7, 1)
+roughness = 0.5
+emission_enabled = true
+emission = Color(1, 0.86, 0.6, 1)
+emission_energy_multiplier = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_crumb"]
+albedo_color = Color(0.82, 0.64, 0.36, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_sky"]
+albedo_color = Color(0.92, 0.96, 1.0, 1)
+roughness = 1.0
+shading_mode = 0
+emission_enabled = true
+emission = Color(0.92, 0.96, 1, 1)
+emission_energy_multiplier = 1.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_sunpatch"]
+albedo_color = Color(1.0, 0.92, 0.7, 1)
+roughness = 1.0
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.92, 0.7, 0.22)
+cull_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_dust"]
+albedo_color = Color(0.55, 0.52, 0.46, 1)
+roughness = 1.0
+transparency = 1
+albedo_color = Color(0.55, 0.52, 0.46, 0.3)
+cull_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_shadow"]
+albedo_color = Color(0.02, 0.02, 0.03, 1)
+roughness = 1.0
+transparency = 1
+albedo_color = Color(0.02, 0.02, 0.03, 0.5)
+cull_mode = 2
+
+[sub_resource type="QuadMesh" id="Quad_UnderSofaDark"]
+size = Vector2(7.0, 19.0)
+
+[sub_resource type="SphereMesh" id="Sph_0_05"]
+radius = 0.05
+height = 0.1
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_35"]
+radius = 0.35
+height = 0.7
+radial_segments = 14
+rings = 7
+
+[sub_resource type="BoxShape3D" id="BoxShape_11p6_0p24_1p4"]
+size = Vector3(11.6, 0.24, 1.4)
+
+[sub_resource type="BoxShape3D" id="InterShape_SeesawInspect"]
+size = Vector3(3, 2, 2.6)
+
+[sub_resource type="CylinderShape3D" id="ColCyl_BinPaperCol"]
+radius = 0.3675
+height = 0.595
+
+[sub_resource type="QuadMesh" id="Quad_SunPatch"]
+size = Vector2(12.0, 16.0)
+
+[sub_resource type="BoxShape3D" id="ColBox_ScreenCol"]
+size = Vector3(1.6, 17, 6.8)
+
+[sub_resource type="SphereMesh" id="Sph_0_8"]
+radius = 0.8
+height = 1.6
+radial_segments = 14
+rings = 7
+
+[sub_resource type="CylinderShape3D" id="ColCyl_PlantCol"]
+radius = 2.2
+height = 17.0
+
+[sub_resource type="Resource" id="Disc_RemoteSpot"]
+script = ExtResource("7_discovery_da")
+id = &"salon_remote"
+title = "Télécommande"
+thought_icons = Array[StringName]([&"eye", &"question"])
+thought_text = "Tant de boutons…"
+conclusion_icons = Array[StringName]([&"robot", &"ellipsis"])
+conclusion_text = ""
+
+[sub_resource type="BoxShape3D" id="DiscShape_RemoteSpot"]
+size = Vector3(2.6, 1.4, 3)
+
+[sub_resource type="Resource" id="Disc_PadSpot"]
+script = ExtResource("7_discovery_da")
+id = &"salon_pad"
+title = "Manette oubliée"
+thought_icons = Array[StringName]([&"eye", &"gear"])
+thought_text = "Pour jouer ?"
+conclusion_icons = Array[StringName]([&"question"])
+conclusion_text = ""
+
+[sub_resource type="BoxShape3D" id="DiscShape_PadSpot"]
+size = Vector3(2.4, 1.2, 2)
+
+[sub_resource type="Resource" id="Disc_MugSpot"]
+script = ExtResource("7_discovery_da")
+id = &"salon_mug"
+title = "Tasse"
+thought_icons = Array[StringName]([&"eye", &"sun"])
+thought_text = "Vide. Et froide."
+conclusion_icons = Array[StringName]([&"ellipsis"])
+conclusion_text = ""
+
+[sub_resource type="BoxShape3D" id="DiscShape_MugSpot"]
+size = Vector3(2, 1.6, 2)
+
+[sub_resource type="Resource" id="Disc_ClutterSpot"]
+script = ExtResource("7_discovery_da")
+id = &"salon_clutter"
+title = "Bacs empilés"
+thought_icons = Array[StringName]([&"eye", &"up"])
+thought_text = "Tout est entassé ici."
+conclusion_icons = Array[StringName]([&"cross"])
+conclusion_text = "Impossible de passer."
+
+[sub_resource type="BoxShape3D" id="DiscShape_ClutterSpot"]
+size = Vector3(2.6, 3, 12)
+
+[sub_resource type="QuadMesh" id="DustQuad"]
+size = Vector2(0.03, 0.03)
+
+[sub_resource type="StandardMaterial3D" id="DustMat"]
+transparency = 1
+shading_mode = 0
+billboard_mode = 1
+albedo_color = Color(1, 0.95, 0.82, 0.55)
+
+[node name="SalonZone" type="Node3D"]
+script = ExtResource("5_salon_zone")
+
+[node name="Furniture" type="Node3D" parent="."]
+
+[node name="Decor" type="Node3D" parent="."]
+
+[node name="Clutter" type="Node3D" parent="."]
+
+[node name="SofaSeat" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.5, 2.4, 32)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 2.4, 19)
+bevel = 0.3
+material = SubResource("Mat_sofa")
+
+[node name="SofaBack" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.8, 5.1, 32)
+script = ExtResource("1_prop_block")
+size = Vector3(1.6, 7.8, 21)
+bevel = 0.3
+material = SubResource("Mat_sofa_dark")
+
+[node name="SofaArmNorth" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.3, 3.7, 21.75)
+script = ExtResource("1_prop_block")
+size = Vector3(8.6, 5, 1.5)
+bevel = 0.3
+material = SubResource("Mat_sofa_dark")
+
+[node name="SofaArmSouth" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.3, 3.7, 42.25)
+script = ExtResource("1_prop_block")
+size = Vector3(8.6, 5, 1.5)
+bevel = 0.3
+material = SubResource("Mat_sofa_dark")
+
+[node name="SofaFoot0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5, 0.6, 21.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.6, 1.2, 0.6)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="SofaFoot1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5, 0.6, 42.6)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.6, 1.2, 0.6)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="SofaFoot2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.2, 0.6, 21.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.6, 1.2, 0.6)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="SofaFoot3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.2, 0.6, 42.6)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.6, 1.2, 0.6)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="SeatCushion0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.4, 3.85, 26.8)
+script = ExtResource("1_prop_block")
+size = Vector3(6.6, 0.6, 9.2)
+bevel = 0.25
+material = SubResource("Mat_sofa")
+collide = false
+
+[node name="SeatCushion1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.4, 3.85, 37.2)
+script = ExtResource("1_prop_block")
+size = Vector3(6.6, 0.6, 9.2)
+bevel = 0.25
+material = SubResource("Mat_sofa")
+collide = false
+
+[node name="PillowBack" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.978148, 0.207912, 0, -0.207912, 0.978148, 0, 0, 0, 1, -42.4, 5.6, 25)
+script = ExtResource("1_prop_block")
+size = Vector3(1.2, 3, 3.2)
+bevel = 0.4
+material = SubResource("Mat_cushion")
+collide = false
+
+[node name="PillowBackB" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 0, 0, 1, -42.4, 5.4, 39)
+script = ExtResource("1_prop_block")
+size = Vector3(1.2, 2.6, 3)
+bevel = 0.4
+material = SubResource("Mat_cushion_b")
+collide = false
+
+[node name="Throw" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.990268, 0, 0.139173, 0, 1, 0, -0.139173, 0, 0.990268, -39.8, 4.3, 31)
+script = ExtResource("1_prop_block")
+size = Vector3(5.2, 0.2, 4)
+bevel = 0.08
+material = SubResource("Mat_throw")
+collide = false
+
+[node name="UnderSofaDark" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -39.5, 0.01, 32)
+material_override = SubResource("Mat_shadow")
+cast_shadow = 0
+mesh = SubResource("Quad_UnderSofaDark")
+
+[node name="SofaCrumb0" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.1398, 0.03, 39.3967)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb1" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.742, 0.03, 35.2771)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb2" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.9889, 0.03, 27.9591)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb3" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.5052, 0.03, 27.3504)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb4" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.6488, 0.03, 31.3461)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb5" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.7812, 0.03, 31.9197)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb6" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.3466, 0.03, 37.2883)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb7" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.9626, 0.03, 27.7469)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb8" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42.3801, 0.03, 28.2683)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="SofaCrumb9" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.054, 0.03, 38.433)
+material_override = SubResource("Mat_crumb")
+mesh = SubResource("Sph_0_05")
+
+[node name="DustBunny" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1, -41.5, 0.2, 27)
+material_override = SubResource("Mat_dust")
+mesh = SubResource("Sph_0_35")
+
+[node name="FloorPillow" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.951057, 0, 0.309017, 0, 1, 0, -0.309017, 0, 0.951057, -34.9, 0.5, 34.5)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 1, 2.2)
+bevel = 0.4
+material = SubResource("Mat_cushion")
+
+[node name="Pouf" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.3, 1.3, 34.5)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.4, 2.6, 2.4)
+bevel = 0.3
+material = SubResource("Mat_throw")
+
+[node name="Rug" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0.025, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(18, 0.05, 20)
+bevel = 0.0
+material = SubResource("Mat_rug")
+collide = false
+
+[node name="RugBand0" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0.028, 24.6)
+script = ExtResource("1_prop_block")
+size = Vector3(17, 0.055, 0.4)
+bevel = 0.0
+material = SubResource("Mat_rug_band")
+collide = false
+
+[node name="RugBand1" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0.028, 43.4)
+script = ExtResource("1_prop_block")
+size = Vector3(17, 0.055, 0.4)
+bevel = 0.0
+material = SubResource("Mat_rug_band")
+collide = false
+
+[node name="RugBand2" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.6, 0.028, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 0.055, 19.2)
+bevel = 0.0
+material = SubResource("Mat_rug_band")
+collide = false
+
+[node name="RugBand3" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.4, 0.028, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 0.055, 19.2)
+bevel = 0.0
+material = SubResource("Mat_rug_band")
+collide = false
+
+[node name="CoffeeTop" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 3.8, 33)
+script = ExtResource("1_prop_block")
+size = Vector3(10, 0.4, 8)
+bevel = 0.08
+material = SubResource("Mat_wood_light")
+
+[node name="CoffeeLeg0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.6, 1.8, 29.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 3.6, 0.5)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="CoffeeLeg1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.6, 1.8, 36.6)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 3.6, 0.5)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="CoffeeLeg2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.4, 1.8, 29.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 3.6, 0.5)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="CoffeeLeg3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.4, 1.8, 36.6)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 3.6, 0.5)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="CoffeeShelf" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 1.3, 33)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 0.2, 7)
+bevel = 0.04
+material = SubResource("Mat_wood_light")
+collide = false
+
+[node name="Magazine0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.998254, 0, -0.0590605, 0, 1, 0, 0.0590605, 0, 0.998254, -28.6, 4.1, 31)
+script = ExtResource("1_prop_block")
+size = Vector3(2.4, 0.18, 3.2)
+bevel = 0.02
+material = SubResource("Mat_mag_a")
+
+[node name="Magazine1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.982236, 0, -0.187648, 0, 1, 0, 0.187648, 0, 0.982236, -28.6, 4.28, 31)
+script = ExtResource("1_prop_block")
+size = Vector3(2.4, 0.16, 3.2)
+bevel = 0.02
+material = SubResource("Mat_mag_b")
+
+[node name="Magazine2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.993036, 0, -0.117815, 0, 1, 0, 0.117815, 0, 0.993036, -28.6, 4.46, 31)
+script = ExtResource("1_prop_block")
+size = Vector3(2.4, 0.2, 3.2)
+bevel = 0.02
+material = SubResource("Mat_mag_c")
+
+[node name="Mug" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.2, 4.5, 35)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 1, 0.9)
+bevel = 0.1
+material = SubResource("Mat_mug")
+
+[node name="MugHandle" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.65, 4.5, 35)
+script = ExtResource("1_prop_block")
+size = Vector3(0.15, 0.6, 0.5)
+bevel = 0.05
+material = SubResource("Mat_mug")
+collide = false
+
+[node name="Remote" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.913545, 0, 0.406737, 0, 1, 0, -0.406737, 0, 0.913545, -24.6, 4.12, 31.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.7, 0.25, 2.2)
+bevel = 0.06
+material = SubResource("Mat_black")
+
+[node name="RemoteKey0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.913545, 0, 0.406737, 0, 1, 0, -0.406737, 0, 0.913545, -24.71, 4.27, 31)
+script = ExtResource("1_prop_block")
+size = Vector3(0.16, 0.06, 0.16)
+bevel = 0.02
+material = SubResource("Mat_grey")
+collide = false
+
+[node name="RemoteKey1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.913545, 0, 0.406737, 0, 1, 0, -0.406737, 0, 0.913545, -24.49, 4.27, 31)
+script = ExtResource("1_prop_block")
+size = Vector3(0.16, 0.06, 0.16)
+bevel = 0.02
+material = SubResource("Mat_grey")
+collide = false
+
+[node name="RemoteKey2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.913545, 0, 0.406737, 0, 1, 0, -0.406737, 0, 0.913545, -24.71, 4.27, 31.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.16, 0.06, 0.16)
+bevel = 0.02
+material = SubResource("Mat_grey")
+collide = false
+
+[node name="RemoteKey3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.913545, 0, 0.406737, 0, 1, 0, -0.406737, 0, 0.913545, -24.49, 4.27, 31.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.16, 0.06, 0.16)
+bevel = 0.02
+material = SubResource("Mat_grey")
+collide = false
+
+[node name="RemoteKey4" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.913545, 0, 0.406737, 0, 1, 0, -0.406737, 0, 0.913545, -24.71, 4.27, 31.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.16, 0.06, 0.16)
+bevel = 0.02
+material = SubResource("Mat_grey")
+collide = false
+
+[node name="RemoteKey5" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.913545, 0, 0.406737, 0, 1, 0, -0.406737, 0, 0.913545, -24.49, 4.27, 31.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.16, 0.06, 0.16)
+bevel = 0.02
+material = SubResource("Mat_grey")
+collide = false
+
+[node name="Bowl" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.8, 4.35, 31)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2, 0.7, 2)
+bevel = 0.2
+material = SubResource("Mat_pot")
+
+[node name="NestTop" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 2.75, 45.5)
+script = ExtResource("1_prop_block")
+size = Vector3(5, 0.3, 4)
+bevel = 0.06
+material = SubResource("Mat_wood_light")
+
+[node name="NestLeg0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.3, 1.3, 43.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.35, 2.6, 0.35)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="NestLeg1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.3, 1.3, 47.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.35, 2.6, 0.35)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="NestLeg2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.7, 1.3, 43.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.35, 2.6, 0.35)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="NestLeg3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.7, 1.3, 47.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.35, 2.6, 0.35)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="Coaster" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 2.94, 45)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1, 0.08, 1)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+collide = false
+
+[node name="TvStandTop" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 4.8, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 0.4, 14)
+bevel = 0.06
+material = SubResource("Mat_wood_dark")
+
+[node name="TvStandBottom" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 0.6, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 0.4, 14)
+bevel = 0.06
+material = SubResource("Mat_wood_dark")
+
+[node name="TvStandBack" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.65, 2.7, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(0.3, 4.6, 14)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="TvStandSide0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 2.7, 27.2)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 3.8, 0.4)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="TvStandSide1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 2.7, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 3.8, 0.4)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="TvStandSide2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 2.7, 40.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 3.8, 0.4)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+
+[node name="TvStandDoor" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.48, 2.7, 37.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.1, 3.8, 6.4)
+bevel = 0.02
+material = SubResource("Mat_glass_dark")
+
+[node name="TvStandDoorKnob" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.56, 2.9, 34.9)
+script = ExtResource("1_prop_block")
+size = Vector3(0.15, 0.6, 0.15)
+bevel = 0.03
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="ConsoleA" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.3, 1.2, 30.4)
+script = ExtResource("1_prop_block")
+size = Vector3(3, 0.8, 2.6)
+bevel = 0.1
+material = SubResource("Mat_console")
+
+[node name="ConsoleALed" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.82, 1.2, 30.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.05, 0.12, 0.6)
+bevel = 0.0
+material = SubResource("Mat_led_blue")
+collide = false
+
+[node name="ConsoleB" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.3, 1.6, 37.4)
+script = ExtResource("1_prop_block")
+size = Vector3(2.6, 1.6, 2.2)
+bevel = 0.2
+material = SubResource("Mat_white")
+
+[node name="GameCase0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.4, 2.1, 38.9)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 2.6, 0.25)
+bevel = 0.02
+material = SubResource("Mat_pad_red")
+
+[node name="GameCase1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.4, 2.1, 39.22)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 2.6, 0.25)
+bevel = 0.02
+material = SubResource("Mat_pad_blue")
+
+[node name="GameCase2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.4, 2.1, 39.54)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 2.6, 0.25)
+bevel = 0.02
+material = SubResource("Mat_mag_c")
+
+[node name="GameCase3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.4, 2.1, 39.86)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 2.6, 0.25)
+bevel = 0.02
+material = SubResource("Mat_black")
+
+[node name="TvFoot" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.3, 5.15, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(2.4, 0.3, 4)
+bevel = 0.05
+material = SubResource("Mat_black")
+
+[node name="TvNeck" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5.9, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 1.4, 0.8)
+bevel = 0.05
+material = SubResource("Mat_black")
+
+[node name="Tv" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 9.8, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 7, 12)
+bevel = 0.1
+material = SubResource("Mat_black")
+
+[node name="TvScreen" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.27, 9.8, 34)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 6.4, 11.4)
+bevel = 0.0
+material = SubResource("Mat_screen")
+collide = false
+
+[node name="PadA" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, -16.6, 0.2, 29)
+script = ExtResource("1_prop_block")
+size = Vector3(1.6, 0.4, 1)
+bevel = 0.15
+material = SubResource("Mat_pad")
+
+[node name="PadB" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.642788, 0, -0.766044, 0, 1, 0, 0.766044, 0, 0.642788, -17.4, 0.2, 39.4)
+script = ExtResource("1_prop_block")
+size = Vector3(1.6, 0.4, 1)
+bevel = 0.15
+material = SubResource("Mat_pad_red")
+
+[node name="Cable0" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(0.773528, 0, 0.633762, 0, 1, 0, -0.633762, 0, 0.773528, -14.8, 0.06, 30)
+script = ExtResource("1_prop_block")
+size = Vector3(0.12, 0.12, 2.6)
+bevel = 0.04
+material = SubResource("Mat_cable")
+collide = false
+cast_shadow = false
+
+[node name="Cable1" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(0.819623, 0, -0.572903, 0, 1, 0, 0.572903, 0, 0.819623, -15.2, 0.06, 32.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.12, 0.12, 2.6)
+bevel = 0.04
+material = SubResource("Mat_cable")
+collide = false
+cast_shadow = false
+
+[node name="Cable2" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(0.985957, 0, 0.167, 0, 1, 0, -0.167, 0, 0.985957, -15.6, 0.06, 34.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.12, 0.12, 2.6)
+bevel = 0.04
+material = SubResource("Mat_cable")
+collide = false
+cast_shadow = false
+
+[node name="Cable3" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(0.985338, 0, -0.170615, 0, 1, 0, 0.170615, 0, 0.985338, -16, 0.06, 36.6)
+script = ExtResource("1_prop_block")
+size = Vector3(0.12, 0.12, 2.6)
+bevel = 0.04
+material = SubResource("Mat_cable")
+collide = false
+cast_shadow = false
+
+[node name="Cable4" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(0.974888, 0, 0.222696, 0, 1, 0, -0.222696, 0, 0.974888, -16.4, 0.06, 38.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.12, 0.12, 2.6)
+bevel = 0.04
+material = SubResource("Mat_cable")
+collide = false
+cast_shadow = false
+
+[node name="InternetBox" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.6, 6, 39.2)
+script = ExtResource("1_prop_block")
+size = Vector3(1.6, 2, 3)
+bevel = 0.15
+material = SubResource("Mat_box_case")
+
+[node name="BoxLedA" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.42, 6.6, 38.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.14, 0.14)
+bevel = 0.0
+material = SubResource("Mat_led_green")
+collide = false
+
+[node name="BoxLedB" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.42, 6.6, 38.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.14, 0.14)
+bevel = 0.0
+material = SubResource("Mat_led_green")
+collide = false
+
+[node name="BoxLedC" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.42, 6.6, 39.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.14, 0.14)
+bevel = 0.0
+material = SubResource("Mat_led_blue")
+collide = false
+
+[node name="BoxGlow" type="OmniLight3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.8, 6.6, 38.8)
+light_color = Color(0.4, 1, 0.6, 1)
+light_energy = 0.35
+omni_range = 1.6
+
+[node name="BoxFocus" type="Marker3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 6.2, 39.2)
+script = ExtResource("4_focus_target")
+id = &"internet_box"
+radius = 0.9
+profile = ExtResource("9_memory_detai")
+memory = ExtResource("10_memory_05")
+facing = Vector3(-1, 0, 0)
+thought_icons = Array[StringName]([&"eye", &"energy"])
+
+[node name="Seesaw" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 40)
+script = ExtResource("11_seesaw")
+
+[node name="Fulcrum" type="StaticBody3D" parent="Seesaw"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 1.05, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.1, 1.6, 2.1)
+bevel = 0.2
+material = SubResource("Mat_tape")
+
+[node name="FulcrumHole" type="StaticBody3D" parent="Seesaw"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 1.05, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1, 1.62, 1)
+bevel = 0.0
+material = SubResource("Mat_wood_dark")
+collide = false
+
+[node name="Pivot" type="Node3D" parent="Seesaw"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+
+[node name="Board" type="AnimatableBody3D" parent="Seesaw/Pivot"]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+shape = SubResource("BoxShape_11p6_0p24_1p4")
+
+[node name="Ruler" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(11.6, 0.24, 1.4)
+bevel = 0.03
+material = SubResource("Mat_ruler")
+collide = false
+
+[node name="Tick0" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.8)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick1" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.5)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick2" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.8)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick3" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.5)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick4" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.8)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick5" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.5)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick6" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.8)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick7" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.5)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick8" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.8)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick9" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.5)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick10" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.8)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="Tick11" type="StaticBody3D" parent="Seesaw/Pivot/Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0.25, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 0.02, 0.5)
+bevel = 0.0
+material = SubResource("Mat_ink")
+collide = false
+cast_shadow = false
+
+[node name="HoldSpot" type="Marker3D" parent="Seesaw"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -5.2, 0, 0)
+
+[node name="ClimbSpot" type="Marker3D" parent="Seesaw"]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, 4.6, 0, 1.3)
+
+[node name="SeesawInspect" type="Area3D" parent="Seesaw"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 0)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("3_interactable")
+prompt = "Examiner la règle"
+
+[node name="Shape" type="CollisionShape3D" parent="Seesaw/SeesawInspect"]
+shape = SubResource("InterShape_SeesawInspect")
+
+[node name="SeesawFocus" type="Marker3D" parent="Seesaw"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+script = ExtResource("4_focus_target")
+id = &"seesaw"
+radius = 1.0
+profile = ExtResource("8_landmark")
+thought_icons = Array[StringName]([&"eye", &"up"])
+
+[node name="DeskTop" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 7.3, 16)
+script = ExtResource("1_prop_block")
+size = Vector3(12, 0.4, 6)
+bevel = 0.06
+material = SubResource("Mat_wood")
+
+[node name="DeskLeg0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.2, 3.55, 13.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.45, 7.1, 0.45)
+bevel = 0.03
+material = SubResource("Mat_steel")
+
+[node name="DeskLeg1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.2, 3.55, 18.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.45, 7.1, 0.45)
+bevel = 0.03
+material = SubResource("Mat_steel")
+
+[node name="DeskLeg2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.8, 3.55, 13.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.45, 7.1, 0.45)
+bevel = 0.03
+material = SubResource("Mat_steel")
+
+[node name="DeskLeg3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.8, 3.55, 18.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.45, 7.1, 0.45)
+bevel = 0.03
+material = SubResource("Mat_steel")
+
+[node name="PcTower" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.6, 2.5, 15.6)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 5, 4.4)
+bevel = 0.1
+material = SubResource("Mat_black")
+
+[node name="PcLed" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.6, 4.4, 17.82)
+script = ExtResource("1_prop_block")
+size = Vector3(0.05, 0.15, 0.15)
+bevel = 0.0
+material = SubResource("Mat_led_blue")
+collide = false
+
+[node name="Bin" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1.2, 20.2)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2, 2.4, 2)
+bevel = 0.1
+material = SubResource("Mat_grey")
+
+[node name="BinPaper" type="Node3D" parent="Furniture"]
+
+[node name="Facet0" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.0942776, -0.12215, 0.988024, 0.928506, -0.347241, -0.131528, 0.359149, 0.929787, 0.0806796, -11.0626, 2.65289, 20.2781)
+script = ExtResource("1_prop_block")
+size = Vector3(0.374227, 0.348782, 0.402077)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet1" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.0767823, -0.40583, 0.910718, 0.737095, -0.59199, -0.325944, 0.671413, 0.696312, 0.25368, -11.0375, 2.6887, 20.2662)
+script = ExtResource("1_prop_block")
+size = Vector3(0.400517, 0.27914, 0.480558)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet2" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.0353841, -0.449595, 0.892531, 0.528134, -0.749782, -0.398625, 0.848424, 0.485481, 0.210916, -10.9399, 2.70669, 20.1471)
+script = ExtResource("1_prop_block")
+size = Vector3(0.338621, 0.359001, 0.332083)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet3" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.105826, -0.108322, 0.988467, 0.788133, 0.615272, -0.0169536, -0.606339, 0.780837, 0.150484, -10.9648, 2.67194, 20.1552)
+script = ExtResource("1_prop_block")
+size = Vector3(0.341278, 0.326021, 0.404213)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet4" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.213526, -0.801841, 0.558083, 0.848995, -0.130324, -0.512077, 0.483336, 0.583152, 0.652932, -10.9315, 2.66647, 20.1818)
+script = ExtResource("1_prop_block")
+size = Vector3(0.317085, 0.300052, 0.361697)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet5" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.319547, -0.162846, 0.933472, 0.690685, 0.714462, -0.111797, -0.648725, 0.68046, 0.34078, -11.0852, 2.73863, 20.1723)
+script = ExtResource("1_prop_block")
+size = Vector3(0.344082, 0.344844, 0.485598)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet6" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.605505, -0.46658, 0.644722, 0.794743, 0.397038, -0.459069, -0.0417862, 0.790357, 0.61122, -10.9845, 2.68037, 20.1291)
+script = ExtResource("1_prop_block")
+size = Vector3(0.344777, 0.312985, 0.355551)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet7" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.208725, -0.211979, 0.954724, 0.960601, 0.227631, -0.159469, -0.183521, 0.950394, 0.25114, -10.9636, 2.76506, 20.1235)
+script = ExtResource("1_prop_block")
+size = Vector3(0.32992, 0.266913, 0.406165)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="Facet8" type="StaticBody3D" parent="Furniture/BinPaper"]
+transform = Transform3D(0.333541, -0.205437, 0.920079, 0.939738, 0.150218, -0.307127, -0.0751175, 0.967073, 0.243161, -10.9186, 2.64536, 20.2587)
+script = ExtResource("1_prop_block")
+size = Vector3(0.317965, 0.271655, 0.382608)
+bevel = 0.04
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="BinPaperCol" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 2.6975, 20.2)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Furniture/BinPaperCol"]
+shape = SubResource("ColCyl_BinPaperCol")
+
+[node name="MonitorFoot" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 7.6, 14.2)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 0.2, 1.6)
+bevel = 0.05
+material = SubResource("Mat_black")
+
+[node name="MonitorNeck" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 8.3, 14)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 1.4, 0.4)
+bevel = 0.05
+material = SubResource("Mat_black")
+
+[node name="Monitor" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 10.8, 13.9)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 4.2, 0.35)
+bevel = 0.08
+material = SubResource("Mat_black")
+
+[node name="MonitorScreen" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 10.8, 14.09)
+script = ExtResource("1_prop_block")
+size = Vector3(6.6, 3.8, 0.04)
+bevel = 0.0
+material = SubResource("Mat_screen")
+collide = false
+
+[node name="Keyboard" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.6, 7.62, 16.6)
+script = ExtResource("1_prop_block")
+size = Vector3(5, 0.25, 1.6)
+bevel = 0.05
+material = SubResource("Mat_grey")
+
+[node name="Mouse" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.8, 7.65, 16.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 0.3, 0.9)
+bevel = 0.15
+material = SubResource("Mat_grey")
+collide = false
+
+[node name="PenPot" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23, 8.2, 14.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 1.4, 0.9)
+bevel = 0.05
+material = SubResource("Mat_steel")
+
+[node name="DeskLampBase" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.6, 7.6, 18.2)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1.2, 0.2, 1.2)
+bevel = 0.05
+material = SubResource("Mat_black")
+
+[node name="DeskLampArm" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 0, 0, 1, -22, 9.4, 17.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.18, 4, 0.18)
+bevel = 0.02
+material = SubResource("Mat_black")
+collide = false
+
+[node name="DeskLampHead" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, -21, 11.2, 17.4)
+script = ExtResource("1_prop_block")
+size = Vector3(1.6, 0.8, 1)
+bevel = 0.2
+material = SubResource("Mat_lamp")
+collide = false
+
+[node name="ChairSeat" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.4, 4.5, 23)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(4, 0.6, 4)
+bevel = 0.2
+material = SubResource("Mat_chair")
+
+[node name="ChairBack" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 0.990268, 0.139173, 0, -0.139173, 0.990268, -18.4, 7.4, 25)
+script = ExtResource("1_prop_block")
+size = Vector3(3.6, 4.4, 0.5)
+bevel = 0.3
+material = SubResource("Mat_chair")
+
+[node name="ChairColumn" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.4, 2.4, 23)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.5, 3.6, 0.5)
+bevel = 0.03
+material = SubResource("Mat_steel")
+
+[node name="ChairLeg0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -17.3, 0.5, 23)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 0.3, 0.35)
+bevel = 0.05
+material = SubResource("Mat_black")
+collide = false
+
+[node name="Caster0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, -16.3, 0.2, 23)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.4, 0.4, 0.4)
+bevel = 0.03
+material = SubResource("Mat_black")
+collide = false
+
+[node name="ChairLeg1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.309017, 0, -0.951057, 0, 1, 0, 0.951057, 0, 0.309017, -18.0601, 0.5, 24.0462)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 0.3, 0.35)
+bevel = 0.05
+material = SubResource("Mat_black")
+collide = false
+
+[node name="Caster1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, -17.7511, 0.2, 24.9972)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.4, 0.4, 0.4)
+bevel = 0.03
+material = SubResource("Mat_black")
+collide = false
+
+[node name="ChairLeg2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(-0.809017, 0, -0.587785, 0, 1, 0, 0.587785, 0, -0.809017, -19.2899, 0.5, 23.6466)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 0.3, 0.35)
+bevel = 0.05
+material = SubResource("Mat_black")
+collide = false
+
+[node name="Caster2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, -20.0989, 0.2, 24.2343)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.4, 0.4, 0.4)
+bevel = 0.03
+material = SubResource("Mat_black")
+collide = false
+
+[node name="ChairLeg3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(-0.809017, 0, 0.587785, 0, 1, 0, -0.587785, 0, -0.809017, -19.2899, 0.5, 22.3534)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 0.3, 0.35)
+bevel = 0.05
+material = SubResource("Mat_black")
+collide = false
+
+[node name="Caster3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, -20.0989, 0.2, 21.7657)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.4, 0.4, 0.4)
+bevel = 0.03
+material = SubResource("Mat_black")
+collide = false
+
+[node name="ChairLeg4" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(0.309017, 0, 0.951057, 0, 1, 0, -0.951057, 0, 0.309017, -18.0601, 0.5, 21.9538)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 0.3, 0.35)
+bevel = 0.05
+material = SubResource("Mat_black")
+collide = false
+
+[node name="Caster4" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, -17.7511, 0.2, 21.0028)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.4, 0.4, 0.4)
+bevel = 0.03
+material = SubResource("Mat_black")
+collide = false
+
+[node name="CubbyTop" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.2, 8.8, 55.3)
+script = ExtResource("1_prop_block")
+size = Vector3(12.4, 0.4, 3.4)
+bevel = 0.05
+material = SubResource("Mat_white")
+
+[node name="CubbyMid" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.2, 4.5, 55.3)
+script = ExtResource("1_prop_block")
+size = Vector3(12.4, 0.4, 3.4)
+bevel = 0.05
+material = SubResource("Mat_white")
+
+[node name="CubbyBase" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.2, 0.2, 55.3)
+script = ExtResource("1_prop_block")
+size = Vector3(12.4, 0.4, 3.4)
+bevel = 0.05
+material = SubResource("Mat_white")
+
+[node name="CubbyBack" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.2, 4.5, 56.9)
+script = ExtResource("1_prop_block")
+size = Vector3(12.4, 9, 0.2)
+bevel = 0.02
+material = SubResource("Mat_white")
+
+[node name="CubbySide0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.2, 4.5, 55.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 9, 3.4)
+bevel = 0.03
+material = SubResource("Mat_white")
+
+[node name="CubbySide1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.2, 4.5, 55.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 9, 3.4)
+bevel = 0.03
+material = SubResource("Mat_white")
+
+[node name="CubbySide2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.2, 4.5, 55.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 9, 3.4)
+bevel = 0.03
+material = SubResource("Mat_white")
+
+[node name="CubbySide3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.2, 4.5, 55.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 9, 3.4)
+bevel = 0.03
+material = SubResource("Mat_white")
+
+[node name="BoxInCubby0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42.3, 2.1, 55.4)
+script = ExtResource("1_prop_block")
+size = Vector3(3.4, 3.4, 2.8)
+bevel = 0.2
+material = SubResource("Mat_basket")
+
+[node name="BoxInCubby1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34.1, 6.4, 55.4)
+script = ExtResource("1_prop_block")
+size = Vector3(3.4, 3.4, 2.8)
+bevel = 0.2
+material = SubResource("Mat_crate_lid")
+
+[node name="BooksInCubby" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.2, 2, 55.6)
+script = ExtResource("1_prop_block")
+size = Vector3(2.6, 3, 2.4)
+bevel = 0.05
+material = SubResource("Mat_mag_b")
+
+[node name="FloorBasket" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38, 1, 52.4)
+script = ExtResource("1_prop_block")
+size = Vector3(3, 2, 2.4)
+bevel = 0.3
+material = SubResource("Mat_basket")
+
+[node name="WindowSkyA" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.4, 10.2, 57.02)
+script = ExtResource("1_prop_block")
+size = Vector3(8.4, 19.2, 0.05)
+bevel = 0.0
+material = SubResource("Mat_sky")
+collide = false
+cast_shadow = false
+
+[node name="WindowSkyB" type="StaticBody3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4, 10.2, 57.02)
+script = ExtResource("1_prop_block")
+size = Vector3(8.4, 19.2, 0.05)
+bevel = 0.0
+material = SubResource("Mat_sky")
+collide = false
+cast_shadow = false
+
+[node name="SunPatch" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(0.978148, -0.207912, 0, 1.27309e-17, 5.98943e-17, 1, -0.207912, -0.978148, 6.12323e-17, -6, 0.02, 47)
+material_override = SubResource("Mat_sunpatch")
+cast_shadow = 0
+mesh = SubResource("Quad_SunPatch")
+
+[node name="RackLeg00" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, -10, 4.6, 48.57)
+script = ExtResource("1_prop_block")
+size = Vector3(0.18, 9.6, 0.18)
+bevel = 0.02
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackLeg01" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, -10, 4.6, 51.43)
+script = ExtResource("1_prop_block")
+size = Vector3(0.18, 9.6, 0.18)
+bevel = 0.02
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackLeg10" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, -3, 4.6, 48.57)
+script = ExtResource("1_prop_block")
+size = Vector3(0.18, 9.6, 0.18)
+bevel = 0.02
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackLeg11" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, -3, 4.6, 51.43)
+script = ExtResource("1_prop_block")
+size = Vector3(0.18, 9.6, 0.18)
+bevel = 0.02
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackLow" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 6.1, 48.7)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 0.3, 1.2)
+bevel = 0.04
+material = SubResource("Mat_steel")
+
+[node name="RackHigh" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 9.3, 50)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 0.3, 1.6)
+bevel = 0.04
+material = SubResource("Mat_steel")
+
+[node name="RackBar0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 7.6, 48.4)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 0.1, 0.1)
+bevel = 0.0
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackBar1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 7.6, 49.2)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 0.1, 0.1)
+bevel = 0.0
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackBar2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 7.6, 50)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 0.1, 0.1)
+bevel = 0.0
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackBar3" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 7.6, 50.8)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 0.1, 0.1)
+bevel = 0.0
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="RackBar4" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 7.6, 51.6)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 0.1, 0.1)
+bevel = 0.0
+material = SubResource("Mat_steel")
+collide = false
+
+[node name="TowelA" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.4, 5.6, 50.4)
+script = ExtResource("1_prop_block")
+size = Vector3(2.6, 4, 0.12)
+bevel = 0.05
+material = SubResource("Mat_towel")
+collide = false
+
+[node name="TowelB" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 6, 50.8)
+script = ExtResource("1_prop_block")
+size = Vector3(2.2, 3.2, 0.12)
+bevel = 0.05
+material = SubResource("Mat_towel_b")
+collide = false
+
+[node name="Sock0" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.6, 6.6, 49.6)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 1.4, 0.1)
+bevel = 0.05
+material = SubResource("Mat_sock")
+collide = false
+
+[node name="Sock1" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 6.6, 49.6)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 1.4, 0.1)
+bevel = 0.05
+material = SubResource("Mat_sock")
+collide = false
+
+[node name="Sock2" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 6.6, 49.6)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 1.4, 0.1)
+bevel = 0.05
+material = SubResource("Mat_sock")
+collide = false
+
+[node name="LaundryBasket" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.2, 1.5, 51)
+script = ExtResource("1_prop_block")
+size = Vector3(3, 3, 2.6)
+bevel = 0.3
+material = SubResource("Mat_basket")
+
+[node name="LaundryTop" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.2, 3.1, 51)
+script = ExtResource("1_prop_block")
+size = Vector3(2.6, 0.6, 2.2)
+bevel = 0.25
+material = SubResource("Mat_towel_b")
+collide = false
+
+[node name="Crate0_0" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.75, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.7)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid0_0" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 5.6, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.8)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate0_1" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 8.35, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.7)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid0_1" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 11.2, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.8)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate0_2" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 13.95, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.7)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid0_2" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 16.8, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.8)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate1_0" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.75, 37.3)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.7)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid1_0" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 5.6, 37.3)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.8)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate1_1" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 8.35, 37.3)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.7)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid1_1" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 11.2, 37.3)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.8)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate1_2" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 13.95, 37.3)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.7)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid1_2" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 16.8, 37.3)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.8)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate2_0" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.75, 49.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.5)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid2_0" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 5.6, 49.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.6)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate2_1" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 8.35, 49.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.5)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid2_1" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 11.2, 49.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.6)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Crate2_2" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 13.95, 49.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 5.4, 5.5)
+bevel = 0.15
+material = SubResource("Mat_crate")
+
+[node name="CrateLid2_2" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 16.8, 49.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4.1, 0.3, 5.6)
+bevel = 0.05
+material = SubResource("Mat_crate_lid")
+collide = false
+
+[node name="Screen0" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(0.882948, 0, -0.469472, 0, 1, 0, 0.469472, 0, 0.882948, 0.55, 8.5, 40.9)
+script = ExtResource("1_prop_block")
+size = Vector3(0.2, 17, 1.6)
+bevel = 0.04
+material = SubResource("Mat_screen_panel")
+
+[node name="Screen1" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(0.882948, 0, 0.469472, 0, 1, 0, -0.469472, 0, 0.882948, 1.25, 8.5, 42.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.2, 17, 1.6)
+bevel = 0.04
+material = SubResource("Mat_screen_panel")
+
+[node name="Screen2" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(0.882948, 0, -0.469472, 0, 1, 0, 0.469472, 0, 0.882948, 0.55, 8.5, 43.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.2, 17, 1.6)
+bevel = 0.04
+material = SubResource("Mat_screen_panel")
+
+[node name="Screen3" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(0.882948, 0, 0.469472, 0, 1, 0, -0.469472, 0, 0.882948, 1.25, 8.5, 44.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.2, 17, 1.6)
+bevel = 0.04
+material = SubResource("Mat_screen_panel")
+
+[node name="Screen4" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(0.882948, 0, -0.469472, 0, 1, 0, 0.469472, 0, 0.882948, 0.55, 8.5, 46.1)
+script = ExtResource("1_prop_block")
+size = Vector3(0.2, 17, 1.6)
+bevel = 0.04
+material = SubResource("Mat_screen_panel")
+
+[node name="ScreenCol" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 8.5, 43.6)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Clutter/ScreenCol"]
+shape = SubResource("ColBox_ScreenCol")
+
+[node name="PlantPot" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 54.8)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(4.4, 6, 4.4)
+bevel = 0.3
+material = SubResource("Mat_pot")
+
+[node name="PlantTrunk" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 11, 54.8)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.6, 10, 0.6)
+bevel = 0.03
+material = SubResource("Mat_wood_dark")
+collide = false
+
+[node name="PlantLeaf0" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 0.724361, 16.3142, 52.9325)
+material_override = SubResource("Mat_leaf_dark")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf1" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 4.04672, 15.2141, 56.7618)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf2" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 2.35203, 9.68908, 56.6795)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf3" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 1.74271, 8.79187, 55.2216)
+material_override = SubResource("Mat_leaf_dark")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf4" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 1.98772, 12.4953, 53.4181)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf5" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 0.336897, 13.517, 54.6108)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf6" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 0.356388, 12.1751, 55.7021)
+material_override = SubResource("Mat_leaf_dark")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf7" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 2.94815, 12.4773, 54.375)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf8" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 1.38756, 10.1424, 53.59)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf9" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 1.76337, 9.02774, 55.7006)
+material_override = SubResource("Mat_leaf_dark")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf10" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 2.91661, 13.8094, 52.8905)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf11" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 1.40203, 12.108, 53.1733)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf12" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 4.05826, 15.1785, 54.8103)
+material_override = SubResource("Mat_leaf_dark")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf13" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 2.90275, 9.90643, 53.7177)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf14" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, 2.11326, 15.0675, 55.3891)
+material_override = SubResource("Mat_leaf")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantLeaf15" type="MeshInstance3D" parent="Clutter"]
+transform = Transform3D(1.6, 0, 0, 0, 0.5, 0, 0, 0, 1, -0.170585, 13.8251, 56.4354)
+material_override = SubResource("Mat_leaf_dark")
+mesh = SubResource("Sph_0_8")
+
+[node name="PlantCol" type="StaticBody3D" parent="Clutter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 8.5, 54.8)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Clutter/PlantCol"]
+shape = SubResource("ColCyl_PlantCol")
+
+[node name="Discoveries" type="Node3D" parent="."]
+
+[node name="RemoteSpot" type="Area3D" parent="Discoveries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.6, 4.6, 31.4)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("6_examinable")
+discovery = SubResource("Disc_RemoteSpot")
+
+[node name="Shape" type="CollisionShape3D" parent="Discoveries/RemoteSpot"]
+shape = SubResource("DiscShape_RemoteSpot")
+
+[node name="PadSpot" type="Area3D" parent="Discoveries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.6, 0.6, 29)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("6_examinable")
+discovery = SubResource("Disc_PadSpot")
+
+[node name="Shape" type="CollisionShape3D" parent="Discoveries/PadSpot"]
+shape = SubResource("DiscShape_PadSpot")
+
+[node name="MugSpot" type="Area3D" parent="Discoveries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.2, 5, 35)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("6_examinable")
+discovery = SubResource("Disc_MugSpot")
+
+[node name="Shape" type="CollisionShape3D" parent="Discoveries/MugSpot"]
+shape = SubResource("DiscShape_MugSpot")
+
+[node name="ClutterSpot" type="Area3D" parent="Discoveries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4, 1.5, 36)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("6_examinable")
+discovery = SubResource("Disc_ClutterSpot")
+
+[node name="Shape" type="CollisionShape3D" parent="Discoveries/ClutterSpot"]
+shape = SubResource("DiscShape_ClutterSpot")
+
+[node name="Pickups" type="Node3D" parent="."]
+
+[node name="PlasticUnderSofa" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39, 0.05, 36)
+script = ExtResource("2_resource_pic")
+id = &"s_pl_under_sofa"
+kind = 1
+amount = 3
+respawn_delay = 180.0
+
+[node name="PlasticCoffee" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 4.05, 34.6)
+script = ExtResource("2_resource_pic")
+id = &"s_pl_coffee"
+kind = 1
+amount = 2
+respawn_delay = 120.0
+
+[node name="PlasticTvFloor" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0.05, 41.6)
+script = ExtResource("2_resource_pic")
+id = &"s_pl_tv_floor"
+kind = 1
+amount = 3
+respawn_delay = 60.0
+
+[node name="PlasticDesk" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.8, 7.55, 18)
+script = ExtResource("2_resource_pic")
+id = &"s_pl_desk"
+kind = 1
+amount = 3
+respawn_delay = 0.0
+
+[node name="FilamentCubby" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42.4, 4.75, 55)
+script = ExtResource("2_resource_pic")
+id = &"s_fil_cubby"
+kind = 0
+amount = 1
+respawn_delay = 0.0
+
+[node name="FilamentRack" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 9.5, 50)
+script = ExtResource("2_resource_pic")
+id = &"s_fil_rack"
+kind = 0
+amount = 2
+respawn_delay = 0.0
+
+[node name="FilamentNest" type="Area3D" parent="Pickups"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 2.95, 46.4)
+script = ExtResource("2_resource_pic")
+id = &"s_fil_nest"
+kind = 0
+amount = 1
+respawn_delay = 0.0
+
+[node name="Markers" type="Node3D" parent="."]
+
+[node name="SalonEntry" type="Marker3D" parent="Markers"]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -37.6, 0.05, 15)
+
+[node name="NathanSpot" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -38.2, 0, 19.6)
+
+[node name="NathanSafe" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -26, 0, 33)
+
+[node name="RaiderNest" type="Marker3D" parent="Markers"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -39.5, 0, 30)
+
+[node name="TvTop" type="Marker3D" parent="Markers"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -12.6, 5.05, 31)
+
+[node name="CoffeeTop" type="Marker3D" parent="Markers"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -26, 4.05, 33)
+
+[node name="WindowSun" type="SpotLight3D" parent="."]
+transform = Transform3D(-1, -7.02429e-17, 1.00317e-16, 0, 0.819152, 0.573576, -1.22465e-16, 0.573576, -0.819152, -3, 20, 58.5)
+light_color = Color(1, 0.93, 0.78, 1)
+light_energy = 4.0
+shadow_enabled = true
+spot_range = 50.0
+spot_angle = 48.0
+spot_attenuation = 0.7
+
+[node name="WindowFill" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 12, 52)
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 0.8
+omni_range = 22.0
+
+[node name="RoomFill" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 20, 30)
+light_color = Color(1, 0.94, 0.86, 1)
+light_energy = 0.55
+omni_range = 36.0
+omni_attenuation = 0.9
+
+[node name="DeskLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.6, 10.4, 17.4)
+light_color = Color(1, 0.84, 0.58, 1)
+light_energy = 0.6
+omni_range = 7.0
+
+[node name="DustMotes" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 10, 48)
+material_override = SubResource("DustMat")
+amount = 70
+lifetime = 9.0
+preprocess = 9.0
+mesh = SubResource("DustQuad")
+emission_shape = 3
+emission_box_extents = Vector3(6, 6, 6)
+direction = Vector3(0.2, 0.1, -0.3)
+spread = 180.0
+gravity = Vector3(0, -0.02, 0)
+initial_velocity_min = 0.02
+initial_velocity_max = 0.08

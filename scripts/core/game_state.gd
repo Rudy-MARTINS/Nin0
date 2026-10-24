@@ -17,6 +17,8 @@ signal species_added(id: StringName)
 signal modules_changed
 ## Première découverte d'un type de ressource (explication affichée une seule fois).
 signal resource_discovered(kind: StringName)
+## Partie chargée (avant progress_changed) : rattrapage silencieux des trophées.
+signal save_loaded
 ## Dangers suspendus (séquence non interactive) ou rétablis.
 signal hazards_changed(suspended: bool)
 
@@ -95,6 +97,9 @@ var wasp_phase2 := false
 var wasp_defeated := false
 var salon_opened := false
 var salon_entered := false
+## Nathan : première énigme de coopération (bascule), séquence de protection.
+var seesaw_done := false
+var protection_done := false
 ## Munition choisie pour le canon (identifiant AmmoData).
 var ammo_type: StringName = &"bead"
 ## Espèces analysées (encyclopédie biologique), dans l'ordre.
@@ -171,7 +176,8 @@ func save() -> void:
 ## Indicateurs sauvegardés en plus des jambes (lot 3).
 const SAVED_FLAGS := [&"legs_deployed_once", &"reached_window", &"handle_identified", &"door_opened", &"injured", &"repaired",
 		&"sas_entered", &"worker_met", &"bathroom_entered", &"boss_started", &"queen_defeated", &"kitchen_unlocked", &"chapter2_completed",
-		&"wasp_started", &"wasp_phase2", &"wasp_defeated", &"salon_opened", &"salon_entered"]
+		&"wasp_started", &"wasp_phase2", &"wasp_defeated", &"salon_opened", &"salon_entered",
+		&"seesaw_done", &"protection_done"]
 
 
 func load_save() -> void:
@@ -225,6 +231,7 @@ func load_save() -> void:
 	_recompute_stats()
 	integrity = clampf(float(config.get_value("nino", "integrity", integrity_max)), 1.0, integrity_max)
 	shield = clampf(float(config.get_value("nino", "shield", shield_max)), 0.0, shield_max)
+	save_loaded.emit()
 	progress_changed.emit()
 	stats_changed.emit()
 
@@ -260,6 +267,8 @@ func reset_progress() -> void:
 	wasp_defeated = false
 	salon_opened = false
 	salon_entered = false
+	seesaw_done = false
+	protection_done = false
 	ammo_type = &"bead"
 	species.clear()
 	equipped_modules.clear()
@@ -630,6 +639,14 @@ func get_objective() -> String:
 	# Chapitre 2 (jeu complet) : objectifs au-delà du seuil du placard.
 	if chapter2_completed:
 		if salon_entered:
+			if has_memory(&"memory_05"):
+				return "Explorer le salon"
+			if protection_done:
+				return "Analyser la box internet"
+			if seesaw_done:
+				return "Monter sur le meuble de la télévision"
+			if has_memory(&"memory_04"):
+				return "Atteindre la lumière qui clignote, avec Nathan"
 			return "Explorer le salon"
 		if salon_opened:
 			return "Entrer dans le salon"

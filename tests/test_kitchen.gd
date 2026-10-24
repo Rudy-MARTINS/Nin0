@@ -81,7 +81,7 @@ func _test_layout() -> void:
 	_check(_game.zone_at(_nino.global_position) == GameWorld.ZONE_KITCHEN, "scénario : Nin0 dans la cuisine")
 	await _wait(1.5)
 	_check(Music.desired == &"kitchen" and Music.current == &"kitchen" and Music.audible_count() <= 1, "musique « kitchen - Nin0 » seule audible")
-	_check(Music.TRACKS[&"kitchen"].loop and not Music.has_track(&"living_room"), "musique de la cuisine en boucle ; salon non intégré")
+	_check(Music.TRACKS[&"kitchen"].loop, "musique de la cuisine en boucle")
 	var track: Dictionary = Music.TRACKS[&"kitchen"]
 	var length := (load(track.path) as AudioStream).get_length()
 	_check(track.loop_offset > 20.0 and length - track.loop_offset > 45.0 and length < 80.0,

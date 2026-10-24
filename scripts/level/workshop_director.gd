@@ -1035,6 +1035,7 @@ func _eraser_bonk() -> void:
 	var head := nino.global_position + Vector3(0.0, 0.62, 0.0)
 	await _arc(eraser, eraser.global_position, head, 0.4, 0.75)
 	Sfx.play(&"bonk", -2.0, 1.6)
+	Achievements.unlock(&"bonk")
 	var visual := nino.get_visual()
 	visual.react_to_landing(8.0)
 	visual.show_emotion(NinoVisual.Emotion.DIZZY, 2.0)

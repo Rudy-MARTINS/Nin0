@@ -19,6 +19,9 @@ extends Node
 ##   l'attaque de la première section (48,00 s), la fin n'est jamais jouée ;
 ## - cuisine : coupé à 76,02 s (avant le fondu final) avec un fondu enchaîné de 0,35 s
 ##   vers la reprise à 25,50 s (passage musicalement équivalent, 50,5 s de boucle).
+## - salon : coupé à 76,23 s (le fondu final commence vers 83 s) avec un fondu enchaîné de
+##   0,35 s vers la reprise à 35,84 s (similarité spectrale 0,76 sur 6 s, attaques alignées
+##   à l'échantillon près : 0,81), 40,4 s de boucle.
 const TRACKS := {
 	&"intro": {"path": "res://assets/music/intro_prototype.ogg", "loop": false, "volume": -4.0},
 	# « Petit Refuge » : placard-hub et sas.
@@ -29,8 +32,8 @@ const TRACKS := {
 	&"boss": {"path": "res://assets/music/boss_fight.ogg", "loop": true, "loop_offset": 47.984, "volume": -3.3},
 	# « kitchen - Nin0 » : cuisine (lot 6).
 	&"kitchen": {"path": "res://assets/music/kitchen.ogg", "loop": true, "loop_offset": 1124374.0 / 44100.0, "volume": 3.0},
-	# « living room - Nin0 » : salon, conservé hors du jeu (assets/music/_reserve), pas avant son ouverture.
-	&"living_room": {"path": "res://assets/music/living_room.ogg", "loop": true, "volume": -4.0},
+	# « living room - Nin0 » : salon (lot 7), coupé avant le fondu final, boucle de 40,4 s.
+	&"living_room": {"path": "res://assets/music/living_room.ogg", "loop": true, "loop_offset": 1580653.0 / 44100.0, "volume": 2.4},
 }
 const DEFAULT_VOLUME := -6.0
 const CROSSFADE := 0.8

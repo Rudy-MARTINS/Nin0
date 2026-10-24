@@ -177,6 +177,9 @@ func _build_sounds() -> void:
 	# Lot 7 : guêpes.
 	_streams[&"buzz"] = _buzz(0.7, 210.0, 0.16)
 	_streams[&"buzz_angry"] = _buzz(1.0, 300.0, 0.24)
+	# Lot 7 : Nathan (petite voix de jouet en plastique, pas articulés).
+	_streams[&"toy_voice"] = _tone([[880.0, 1320.0, 0.07], [1240.0, 820.0, 0.06], [980.0, 1460.0, 0.08], [1380.0, 1080.0, 0.07], [1100.0, 1500.0, 0.06]], 0.13)
+	_streams[&"toy_step"] = _tone([[2300.0, 1700.0, 0.025]], 0.12, true)
 	_streams[&"spike_throw"] = _tone([[1400.0, 600.0, 0.12]], 0.14, true)
 	# Lot 6 : cuisine (araignées, cafards).
 	_streams[&"spider_hiss"] = _hiss(0.45)

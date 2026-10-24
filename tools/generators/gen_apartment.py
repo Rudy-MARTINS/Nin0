@@ -45,7 +45,7 @@ ZONES = [
     (2, "sas", "Sas", (-45.0, -15.0, -15.6, 12.0), (0.5, 0.47, 0.42), "Jouable (lot 5) — fourmis ouvrières"),
     (3, "salle_de_bain", "Salle de bain", (-75.0, -35.0, -45.6, -0.6), (0.78, 0.8, 0.78), "Jouable (lot 5) — colonie, reine"),
     (4, "cuisine", "Cuisine", (-75.0, 0.0, -45.6, 57.0), (0.74, 0.58, 0.42), "Jouable (lot 6) — araignées, cafards"),
-    (6, "salon", "Salon", (-45.0, 12.6, 45.0, 57.0), (0.7, 0.58, 0.42), "Fermé — deux étapes d'exploration"),
+    (6, "salon", "Salon", (-45.0, 12.6, 45.0, 57.0), (0.7, 0.58, 0.42), "Étape A jouable (lot 7) — Nathan ; étape B barrée"),
     (7, "chambre", "Chambre", (15.6, -35.0, 45.0, 12.0), (0.58, 0.52, 0.7), "Verrouillée jusqu'à la fin"),
 ]
 for num, zid, title, (x0, z0, x1, z1), color, status in ZONES:
@@ -58,7 +58,7 @@ for num, zid, title, (x0, z0, x1, z1), color, status in ZONES:
             fx1 = -15.6  # le sol du placard (workshop.tscn) commence au seuil de la porte
         box(f"Floor_{zid}", "Floors", (fx1 - fx0, 0.4, d + T), ((fx0 + fx1) / 2, -0.2, cz), f"floor_{zid}")
         box(f"Ceiling_{zid}", "Ceilings", (w + T, 1.0, d + T), (cx, H + 0.4, cz), "ceiling")
-        if zid not in ("sas", "salle_de_bain", "cuisine"):  # zones jouables : éclairage propre (lots 5, 6)
+        if zid not in ("sas", "salle_de_bain", "cuisine", "salon"):  # zones jouables : éclairage propre (lots 5 à 7)
             s.node(f"Light_{zid}", "OmniLight3D", "Lights", f"transform = {tf(I, (cx, H - 3.0, cz))}\nlight_color = Color(1, 0.93, 0.84, 1)\nlight_energy = 0.7\nomni_range = {max(w, d) * 0.85 + 8:.1f}\nomni_attenuation = 0.8")
     shape = s.sub("BoxShape3D", f"ZoneShape_{zid}", f"size = {v3((w, H, d))}")
     s.node(f"Zone{num}", "Area3D", "Zones", f"transform = {tf(I, (cx, H / 2, cz))}\ncollision_layer = 0\ncollision_mask = 4\nmonitorable = false\nmetadata/number = {num}\nmetadata/zone_id = &\"{zid}\"\nmetadata/title = \"{title}\"\nmetadata/status = \"{status}\"")
@@ -166,11 +166,7 @@ V = "Volumes"
 # Sas : meuble à chaussures.
 # Salle de bain : baignoire, meuble lavabo, WC.
 # Cuisine : jouable (lot 6), décor dans kitchen_zone.tscn.
-# Salon, étape A : canapé, table basse, meuble TV.
-box("SofaBase", V, (20.0, 4.5, 9.0), (-30.0, 2.25, 50.5), "mass")
-box("SofaBack", V, (20.0, 8.5, 2.5), (-30.0, 4.25, 55.6), "mass")
-box("CoffeeTable", V, (11.0, 4.0, 6.0), (-30.0, 2.0, 37.0), "mass_dark")
-box("TvStand", V, (12.0, 5.0, 4.5), (-21.0, 2.5, 15.0), "mass_dark")
+# Salon, étape A : jouable (lot 7), décor dans salon_zone.tscn.
 # Séparation partielle entre les deux étapes : meuble bas.
 box("SalonDivider", V, (3.5, 10.0, 16.0), (0.0, 5.0, 20.6), "mass")
 # Salon, étape B : grande bibliothèque, table de repas.

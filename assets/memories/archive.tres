@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="MemoryArchive" load_steps=5 format=3 uid="uid://bu6p751oquhsf"]
+[gd_resource type="Resource" script_class="MemoryArchive" load_steps=7 format=3 uid="uid://bu6p751oquhsf"]
 
 [ext_resource type="Script" uid="uid://bocfd2qg22eq7" path="res://scripts/memory/memory_archive.gd" id="1"]
 [ext_resource type="Resource" uid="uid://unvd3fubvwgv" path="res://assets/memories/memory_01.tres" id="2"]
 [ext_resource type="Script" uid="uid://dd5enw7lqlhs1" path="res://scripts/memory/memory_data.gd" id="3"]
 [ext_resource type="Resource" uid="uid://t847gt2lrz9o" path="res://assets/memories/memory_02.tres" id="4"]
 [ext_resource type="Resource" uid="uid://rkn7s6qiddkd" path="res://assets/memories/memory_03.tres" id="5"]
+[ext_resource type="Resource" uid="uid://bmvzzec8oa85d" path="res://assets/memories/memory_04.tres" id="6"]
+[ext_resource type="Resource" uid="uid://bvx566k09pdj1" path="res://assets/memories/memory_05.tres" id="7"]
 
 [resource]
 script = ExtResource("1")
 total = 7
-entries = Array[ExtResource("3")]([ExtResource("2"), ExtResource("4"), ExtResource("5")])
+entries = Array[ExtResource("3")]([ExtResource("2"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7")])

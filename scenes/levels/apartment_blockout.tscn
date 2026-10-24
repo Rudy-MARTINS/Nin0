@@ -256,13 +256,6 @@ size = Vector3(90.6, 1, 45)
 bevel = 0.02
 material = SubResource("Mat_ceiling")
 
-[node name="Light_salon" type="OmniLight3D" parent="Lights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21, 34.8)
-light_color = Color(1, 0.93, 0.84, 1)
-light_energy = 0.7
-omni_range = 84.5
-omni_attenuation = 0.8
-
 [node name="Zone6" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 34.8)
 collision_layer = 0
@@ -271,7 +264,7 @@ monitorable = false
 metadata/number = 6
 metadata/zone_id = &"salon"
 metadata/title = "Salon"
-metadata/status = "Fermé — deux étapes d'exploration"
+metadata/status = "Étape A jouable (lot 7) — Nathan ; étape B barrée"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/Zone6"]
 shape = SubResource("ZoneShape_salon")
@@ -283,7 +276,7 @@ billboard = 1
 modulate = Color(1, 0.95, 0.85, 0.9)
 outline_size = 10
 font_size = 72
-text = "6 · SALON\nFermé — deux étapes d'exploration"
+text = "6 · SALON\nÉtape A jouable (lot 7) — Nathan ; étape B barrée"
 
 [node name="Floor_chambre" type="StaticBody3D" parent="Floors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, -0.2, -11.5)
@@ -791,34 +784,6 @@ script = ExtResource("1_prop_block")
 size = Vector3(2, 3, 44.4)
 bevel = 0.02
 material = SubResource("Mat_wall")
-
-[node name="SofaBase" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 2.25, 50.5)
-script = ExtResource("1_prop_block")
-size = Vector3(20, 4.5, 9)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
-[node name="SofaBack" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.25, 55.6)
-script = ExtResource("1_prop_block")
-size = Vector3(20, 8.5, 2.5)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
-[node name="CoffeeTable" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 2, 37)
-script = ExtResource("1_prop_block")
-size = Vector3(11, 4, 6)
-bevel = 0.02
-material = SubResource("Mat_mass_dark")
-
-[node name="TvStand" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21, 2.5, 15)
-script = ExtResource("1_prop_block")
-size = Vector3(12, 5, 4.5)
-bevel = 0.02
-material = SubResource("Mat_mass_dark")
 
 [node name="SalonDivider" type="StaticBody3D" parent="Volumes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 20.6)

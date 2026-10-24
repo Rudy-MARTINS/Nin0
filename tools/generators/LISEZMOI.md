@@ -9,6 +9,7 @@ en code (positions en unités de jeu, 1 u = 10 cm). Ils ne sont pas utilisés pa
 | `gen_sas.py` | `scenes/zones/sas_zone.tscn` |
 | `gen_bathroom.py` | `scenes/zones/bathroom_zone.tscn` |
 | `gen_kitchen.py` | `scenes/zones/kitchen_zone.tscn` |
+| `gen_salon.py` | `scenes/zones/salon_zone.tscn` (salon, première partie, lot 7) |
 
 Usage (depuis la racine du projet) :
 

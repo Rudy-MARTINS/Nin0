@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MemoryData" format=3 uid="uid://bmvzzec8oa85d"]
+
+[ext_resource type="Script" uid="uid://dd5enw7lqlhs1" path="res://scripts/memory/memory_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"memory_04"
+slot = 4
+title = "Fragment 04"
+lines = PackedStringArray("« Toi, tu es un robot. Moi, je suis un jouet. »", "« On nous a fabriqués pour être utilisés ensemble. »", "« Il y a un humain… le géant. Sa place, c'est la chambre. »", "« Je ne l'ai pas vu depuis longtemps. Il n'était pas méchant. »", "« Je commence à m'inquiéter. »")
+object_name = "Nathan, figurine articulée (salon)"
+comment = "Un jouet qui parle… fait pour aller avec moi ? Et ce géant qu'il attend…"
+presentation = &"nathan"

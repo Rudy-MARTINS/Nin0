@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MemoryData" format=3 uid="uid://bvx566k09pdj1"]
+
+[ext_resource type="Script" uid="uid://dd5enw7lqlhs1" path="res://scripts/memory/memory_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"memory_05"
+slot = 5
+title = "Fragment 05"
+lines = PackedStringArray("Connexion… réseau de la maison.", "Recherche : « NIN0 ».", "« Nin0 — compagnon robotique. Modèle de série. »", "Des rangées de robots… tous identiques à moi.")
+object_name = "Box internet (salon)"
+comment = "Je suis… un modèle parmi d'autres. Alors pourquoi suis-je ici ?"
+presentation = &"wifi"

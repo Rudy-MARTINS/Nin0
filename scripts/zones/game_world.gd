@@ -50,6 +50,9 @@ var _boss_music := false
 var _mood_tween: Tween
 ## Caméra des mises en scène du lot 7 (entrée de la cuisine, puce, souvenirs…).
 var cine: CineCamera
+## Lot 7 : sous-titres (Nin0 / Nathan), ordres donnés à Nathan.
+var subtitles: Subtitles
+var commands: CompanionCommands
 var _charge_tutorial := false
 var _base_ambient := -1.0
 
@@ -58,6 +61,7 @@ var _base_ambient := -1.0
 @onready var sas: SasZone = $SasZone
 @onready var bath: BathroomZone = $BathroomZone
 @onready var kitchen: KitchenZone = $KitchenZone
+@onready var salon: SalonZone = $SalonZone
 
 
 func _ready() -> void:
@@ -115,6 +119,23 @@ func _ready() -> void:
 			_shown[&"wasp_paused"] = true
 			thoughts.think([&"wasp", &"up"], "Elles m'attendent là-haut…", 2.4, true))
 	sas.salon_door.bounced.connect(_on_salon_elastic_bounced)
+	sas.salon_door.bounced.connect(func() -> void: Achievements.unlock(&"bounce"))
+	salon.examined.connect(func(data: DiscoveryData) -> void: director._on_examined(data))
+	salon.seesaw.tipped.connect(_on_seesaw_tipped)
+	salon.seesaw.inspect.interacted.connect(func(_by: Node3D) -> void: _on_seesaw_examined())
+	salon.protection_won.connect(_on_protection_won)
+	salon.raider_reached.connect(_on_raider_reached)
+	salon.nathan.order_changed.connect(func(order: StringName) -> void: commands.set_status(order))
+	salon.nathan.interaction_done.connect(func(target: Node3D) -> void:
+		if target is Seesaw:
+			commands.set_status(&"hold"))
+	salon.nathan.scared_by.connect(func(_s: Node3D) -> void: commands.set_status(&"scared"))
+	Achievements.unlocked.connect(_on_trophy)
+	for child in kitchen.get_node("Creatures").get_children():
+		if child is KitchenCreature:
+			(child as KitchenCreature).ko_started.connect(func(_c: KitchenCreature) -> void:
+				if Achievements.add_count(&"kitchen_ko") >= 10:
+					Achievements.unlock(&"pest_control"))
 	sas.salon_door.opened.connect(_on_salon_opened)
 	cannon.ammo_changed.connect(func(ammo: AmmoData) -> void:
 		hud.set_ammo(ammo, cannon.available_ammo().size() > 1))
@@ -164,8 +185,16 @@ func _build_ui() -> void:
 		if current_zone == ZONE_KITCHEN:
 			play_kitchen_intro())
 	cine = CineCamera.new()
-	cine.changed.connect(func(active: bool) -> void: hud.set_gameplay_visible(not active))
+	cine.changed.connect(func(active: bool) -> void:
+		hud.set_gameplay_visible(not active)
+		if commands:
+			commands.visible = not active)
 	add_child(cine)
+	subtitles = Subtitles.new()
+	add_child(subtitles)
+	commands = CompanionCommands.new()
+	commands.order_given.connect(_on_order)
+	add_child(commands)
 
 
 # --- Démarrage, reprise ---------------------------------------------------------------
@@ -201,6 +230,12 @@ func _apply_saved_world() -> void:
 		sas.salon_door.highlight(true)
 	cannon.select_ammo(GameState.ammo_type, false)
 	hud.set_ammo(cannon.ammo, cannon.available_ammo().size() > 1)
+	if GameState.has_memory(&"memory_04"):
+		salon.nathan.wake(true)
+		salon.nathan.follow()
+		commands.enabled = true
+		commands.set_status(&"follow")
+	salon.box_focus.enabled = GameState.protection_done and not GameState.has_memory(&"memory_05")
 	nino.charged_jump_unlocked = GameState.has_upgrade(&"charged_jump")
 	for node in get_tree().get_nodes_in_group(&"resource_pickups"):
 		(node as ResourcePickup).refresh()
@@ -227,6 +262,8 @@ func _resume_transform() -> Variant:
 			return kitchen.marker("KitchenEntry") if GameState.chapter2_completed else sas.marker("KitchenDoorFront")
 		&"kitchen_counter":
 			return kitchen.marker("CounterWest")
+		&"salon":
+			return salon.marker("SalonEntry")
 		&"bath":
 			return bath.marker("BathEntry")
 		&"stool":
@@ -265,6 +302,10 @@ func _physics_process(delta: float) -> void:
 		_update_bath_checkpoints()
 	if current_zone == ZONE_KITCHEN and GameState.chapter2_completed and nino.is_on_floor():
 		_update_kitchen_checkpoints()
+		if nino.global_position.y > 20.9:
+			Achievements.unlock(&"rooftop")
+	if current_zone == ZONE_SALON and not _sequence and nino.is_on_floor():
+		_update_salon()
 	# Ouvrière croisée de près : intérêt (rarement, voir NinoReactions).
 	if current_zone == ZONE_SAS and GameState.worker_met and not _sequence:
 		for worker in sas.column.workers:
@@ -343,6 +384,10 @@ func _on_zone_changed(_previous: int, zone: int) -> void:
 				GameState.set_flag(&"salon_entered")
 				nino.get_visual().show_emotion(NinoVisual.Emotion.SURPRISED, 2.0)
 				thoughts.think([&"eye", &"sun", &"exclamation"], "", 2.4)
+			if GameState.salon_entered:
+				_set_resume(&"salon", salon.marker("SalonEntry"))
+				if not salon.nathan.is_awake():
+					_notice_nathan()
 
 
 ## Points sûrs de la salle de bain : pied de l'escabeau, haut de l'escabeau.
@@ -467,7 +512,7 @@ func _on_upgrade_added(id: StringName) -> void:
 	if id == &"sting_bead":
 		cannon.select_ammo(&"sting_bead")
 		await _wait_until(30.0, func() -> bool: return nino.controls_enabled and not _sequence)
-		_hint_once(&"sting_bead", "%s : changer de munition (billes / billes pointues)" % Hud.key("Q"), 7.0)
+		_hint_once(&"sting_bead", "%s : changer de munition (billes / billes pointues)" % Hud.key("A"), 7.0)
 		return
 	if id != &"charged_jump":
 		return
@@ -668,6 +713,244 @@ func _play_wasp_victory() -> void:
 	thoughts.think([&"printer", &"question"], "", 2.4)
 
 
+# --- Salon : Nathan, bascule, protection, box internet (lot 7) ----------------------------
+
+## Arrivée dans le salon : Nin0 remarque une figurine immobile contre le canapé.
+func _notice_nathan() -> void:
+	if _shown.has(&"nathan_seen"):
+		return
+	_shown[&"nathan_seen"] = true
+	await _wait(1.4)
+	if salon.nathan.is_awake():
+		return
+	_glance(salon.nathan.global_position + Vector3.UP * 0.3, 2.0)
+	nino.get_visual().show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	thoughts.think([&"eye", &"question"], "Quelqu'un… ?", 2.2, true)
+	_hint_once(&"scan_nathan", "Observez la [color=#ffd28a]figurine[/color] avec la vision focalisée", 6.0)
+
+
+## Souvenir n° 4 : première rencontre. Nathan s'anime, sursaute, puis se présente.
+## Sons de robot pour Nin0, sons de jouet pour Nathan, sous-titres courts.
+func play_nathan_meeting() -> void:
+	var nathan := salon.nathan
+	if GameState.has_memory(&"memory_04") or _sequence or nathan.is_awake():
+		return
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	GameState.suspend_hazards(&"memory")
+	var visual := nino.get_visual()
+	var n := nathan.global_position
+	visual.look_target = n + Vector3.UP * 0.3
+	cine.reason = &"memory_04"
+	cine.begin(50.0)
+	cine.shot(n + Vector3(1.6, 0.9, -1.4), n + Vector3.UP * 0.2)
+	Sfx.play(&"focus_lock", -6.0)
+	await _wait(1.0)
+	# La figurine s'anime : petits clics d'articulations, elle se redresse.
+	for k in 3:
+		Sfx.play(&"toy_step", -8.0, 0.9 + k * 0.15)
+		await _wait(0.18)
+	nathan.wake()
+	await _wait(0.7)
+	nathan.look_at_flat(nino.global_position)
+	nathan.body.scared = 1.0
+	nathan.set_emote("!")
+	Sfx.play(&"toy_voice", -4.0, 1.6)
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.4)
+	Sfx.play(&"surprised", -6.0)
+	await _wait(0.9)
+	nathan.body.scared = 0.0
+	nathan.set_emote("")
+	var mid := (nathan.global_position + nino.global_position) * 0.5
+	var side := (nathan.global_position - nino.global_position).cross(Vector3.UP).normalized()
+	cine.shot(mid + side * 2.4 + Vector3.UP * 1.0, mid + Vector3.UP * 0.4)
+	await subtitles.say(&"nathan", "Oh ! Tu… tu bouges, toi aussi ?")
+	await subtitles.say(&"nin0", "Bzz… Nin0.")
+	await subtitles.say(&"nathan", "Nin0 ? Moi, c'est Nathan.")
+	await subtitles.say(&"nathan", "Toi, tu es un robot. Moi, je suis un jouet.")
+	await subtitles.say(&"nathan", "On nous a fabriqués pour être utilisés ensemble.")
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	await subtitles.say(&"nin0", "…Ensemble ?")
+	await subtitles.say(&"nathan", "Il y a un humain. Je l'appelle « le géant ».")
+	# Il montre la chambre, de l'autre côté du salon.
+	var chamber := Vector3(30.0, 0.0, 12.3)
+	nathan.look_at_flat(chamber)
+	nathan.body.point = 1.0
+	cine.shot(nathan.global_position + Vector3(-1.4, 1.2, 1.8), nathan.global_position + (chamber - nathan.global_position).normalized() * 6.0 + Vector3.UP * 1.5)
+	await subtitles.say(&"nathan", "Sa place, c'est la chambre, là-bas.")
+	nathan.body.point = 0.0
+	nathan.look_at_flat(nino.global_position)
+	cine.shot(mid + side * 2.4 + Vector3.UP * 1.0, mid + Vector3.UP * 0.4)
+	await subtitles.say(&"nathan", "Ça fait longtemps que je ne l'ai pas vu.")
+	await subtitles.say(&"nathan", "Il n'était pas méchant, tu sais.")
+	visual.show_emotion(NinoVisual.Emotion.WORRIED, 2.0)
+	await subtitles.say(&"nathan", "Je commence à m'inquiéter…")
+	thoughts.think([&"house", &"question"], "", 2.0, true)
+	await _wait(1.6)
+	await subtitles.say(&"nathan", "Je viens avec toi !")
+	visual.look_target = null
+	cine.end()
+	var memory := GameState.ARCHIVE.get_entry(&"memory_04")
+	GameState.add_memory(&"memory_04")
+	hud.show_toast("Archive retrouvée : %02d / %02d" % [memory.slot, GameState.ARCHIVE.total], 3.0)
+	nathan.follow()
+	commands.enabled = true
+	commands.set_status(&"follow")
+	GameState.resume_hazards(&"memory")
+	nino.controls_enabled = true
+	_sequence = false
+	thoughts.think([&"question", &"ellipsis"], memory.comment, 3.0, true)
+	await _wait(3.2)
+	# Nin0 remarque une petite lumière qui clignote sur le meuble TV.
+	_glance(salon.box_position(), 2.2)
+	thoughts.think([&"eye", &"energy"], "Une lumière qui clignote, là-haut…", 2.6, true)
+	_hint_once(&"companion", "%s : donner un ordre à Nathan (suivre, attendre, aller, agir)" % Hud.key("G"), 7.0)
+
+
+## Ordre choisi dans la barre : « Va là-bas » et « Interagis » visent le centre de l'écran.
+func _on_order(order: StringName, point: Vector3) -> void:
+	var nathan := salon.nathan
+	if not nathan.is_awake() or _sequence:
+		return
+	if point == Vector3.INF:
+		point = _aim_point(18.0)
+	match order:
+		&"follow":
+			nathan.follow()
+		&"wait":
+			nathan.wait_here()
+		&"goto":
+			nathan.go_to(point)
+		&"interact":
+			var target := nathan.nearest_target(point, 8.0)
+			if target == null:
+				target = nathan.nearest_target(nathan.global_position, 8.0)
+			if not nathan.interact_with(target):
+				thoughts.think([&"question"], "", 1.4)
+
+
+## Point au centre de l'écran (premier obstacle du décor), à portée.
+func _aim_point(reach: float) -> Vector3:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return nino.global_position
+	var from := cam.global_position
+	var to := from - cam.global_basis.z * (reach + 4.0)
+	var query := PhysicsRayQueryParameters3D.create(from, to, 1, [nino.get_rid()])
+	var hit := nino.get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.position if not hit.is_empty() else to
+
+
+func _on_seesaw_examined() -> void:
+	var visual := nino.get_visual()
+	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 1.6)
+	_glance(salon.seesaw.surface_point(5.8), 1.8)
+	if GameState.seesaw_done:
+		thoughts.think([&"up", &"check"], "", 1.8, true)
+	elif salon.nathan.is_awake():
+		thoughts.think([&"robot", &"cross"], "Trop légère, sous moi…", 2.2, true)
+		thoughts.think([&"up", &"idea"], "Et si Nathan montait dessus ?", 2.6)
+		_hint_once(&"seesaw", "%s puis %s : Nathan agit sur l'objet visé (la règle)" % [Hud.key("G"), Hud.key("4")], 7.0)
+	else:
+		thoughts.think([&"eye", &"up"], "Une bascule ?", 2.2, true)
+
+
+## La règle bascule : première énigme de coopération résolue.
+func _on_seesaw_tipped(held: bool) -> void:
+	if not held:
+		return
+	if not GameState.seesaw_done:
+		GameState.set_flag(&"seesaw_done")
+		nino.get_visual().show_emotion(NinoVisual.Emotion.ENTHUSIASTIC, 1.6)
+		director.reactions.react(&"discovery", null, true)
+		subtitles.say(&"nathan", "Vas-y, je la tiens !")
+		_hint_once(&"seesaw_climb", "Montez sur la règle jusqu'au [color=#ffd28a]meuble de la télévision[/color]", 6.0)
+
+
+## Suivi du salon : la séquence de protection commence quand Nin0 atteint le meuble TV
+## pendant que Nathan tient la règle.
+func _update_salon() -> void:
+	if not GameState.protection_done and not salon.protection_active and salon.nathan.is_holding() \
+			and salon.on_tv_stand(nino.global_position):
+		_start_protection()
+
+
+func _start_protection() -> void:
+	salon.start_protection()
+	nino.get_visual().show_emotion(NinoVisual.Emotion.WORRIED, 1.6)
+	_glance(salon.marker("RaiderNest").origin + Vector3.UP * 0.3, 1.6)
+	subtitles.say(&"nathan", "Nin0 ! Des cafards, sous le canapé !")
+	_hint_once(&"protect", "Protégez Nathan : tirez sur les cafards avant qu'ils ne l'atteignent", 6.0)
+
+
+func _on_raider_reached(_raider: SalonRaider) -> void:
+	director.reactions.react(&"danger", null, true)
+	if not _shown.has(&"nathan_scared"):
+		_shown[&"nathan_scared"] = true
+		subtitles.say(&"nathan", "Aïe ! Au secours !")
+
+
+func _on_protection_won() -> void:
+	GameState.set_flag(&"protection_done")
+	salon.box_focus.enabled = true
+	salon.nathan.body.cheer = 1.0
+	get_tree().create_timer(1.6).timeout.connect(func() -> void: salon.nathan.body.cheer = 0.0)
+	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
+	await subtitles.say(&"nathan", "Ils sont partis… Merci, Nin0 !")
+	_glance(salon.box_position(), 1.8)
+	_hint_once(&"scan_box", "Observez la [color=#ffd28a]box internet[/color] avec la vision focalisée", 6.0)
+
+
+## Souvenir n° 5 : Nin0 se connecte au réseau par la box. Recherche fictive : il découvre
+## qu'il est un modèle commercial, sans comprendre pourquoi il est ici.
+func play_wifi_memory(memory: MemoryData) -> void:
+	if GameState.has_memory(memory.id) or _sequence:
+		if GameState.has_memory(memory.id):
+			director.reactions.react(&"known", null, true)
+		return
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	GameState.suspend_hazards(&"memory")
+	var visual := nino.get_visual()
+	var box := salon.box_position()
+	visual.look_target = box
+	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 3.0)
+	cine.reason = &"memory_05"
+	cine.begin(48.0)
+	cine.shot(box + Vector3(-2.4, 0.6, -1.6), box)
+	Sfx.play(&"focus_lock", -6.0)
+	await _wait(0.9)
+	var search := WifiSearch.new()
+	add_child(search)
+	Music.duck(-12.0, 9.0)
+	await search.play()
+	search.queue_free()
+	cine.shot(nino.global_position + Vector3(-1.2, 0.7, -1.2), nino.global_position + Vector3.UP * 0.4)
+	visual.show_emotion(NinoVisual.Emotion.HESITANT, 3.0)
+	visual.set_tilt(8.0)
+	await _wait(1.2)
+	cine.end()
+	GameState.add_memory(memory.id)
+	salon.box_focus.enabled = false
+	hud.show_toast("Archive retrouvée : %02d / %02d" % [memory.slot, GameState.ARCHIVE.total], 3.0)
+	thoughts.think([&"robot", &"robot", &"question"], memory.comment, 3.4, true)
+	await _wait(3.0)
+	visual.set_tilt(0.0)
+	visual.look_target = null
+	GameState.resume_hazards(&"memory")
+	nino.controls_enabled = true
+	_sequence = false
+
+
+## Trophée débloqué : annonce discrète.
+func _on_trophy(id: StringName) -> void:
+	var data := Achievements.info(id)
+	Sfx.play(&"fragment", -6.0, 1.2)
+	hud.show_toast("Trophée : %s" % data[0], 3.0)
+
+
 # --- Cuisine : araignées ----------------------------------------------------------------
 
 ## Une araignée a repéré Nin0 près de son repaire : il comprend qu'il dérange.
@@ -847,6 +1130,10 @@ func _on_target_identified(target: FocusTarget) -> void:
 		_on_species_analyzed(target.species)
 	elif target.memory and target.memory.presentation == &"todo":
 		play_todo_memory(target.memory)
+	elif target.memory and target.memory.presentation == &"wifi":
+		play_wifi_memory(target.memory)
+	elif target.id == &"nathan":
+		play_nathan_meeting()
 	elif target.id == &"salon_elastic":
 		_on_salon_door_examined()
 	elif target.id == &"kitchen_latch":
@@ -933,7 +1220,7 @@ func _examine_salon_elastic() -> void:
 		if not GameState.seen_notices.has(&"salon_elastic_plan"):
 			GameState.seen_notices.append(&"salon_elastic_plan")
 			GameState.save()
-		_hint_once(&"salon_elastic", "%s : billes pointues · visez l'[color=#ffd28a]élastique[/color] puis %s" % [Hud.key("Q"), Hud.key("clic gauche / X")], 7.0)
+		_hint_once(&"salon_elastic", "%s : billes pointues · visez l'[color=#ffd28a]élastique[/color] puis %s" % [Hud.key("A"), Hud.key("clic gauche / X")], 7.0)
 	elif GameState.wasp_defeated:
 		director.reactions.react(&"puzzled", null, true)
 		thoughts.think([&"door", &"eye"], "Cet élastique la retient…", 2.2, true)
@@ -1126,6 +1413,8 @@ func _on_shutdown_finished() -> void:
 		bath.arena.reset_fight()
 	if kitchen.wasp_arena.is_active():
 		kitchen.wasp_arena.reset_fight()
+	if salon.protection_active:
+		salon.stop_protection()
 	bath.reset_creatures()
 
 
@@ -1208,6 +1497,24 @@ func run_dev_scenario(scenario: StringName) -> void:
 			GameState.chapter2_completed = true
 			sas.kitchen_door.set_unlocked_immediately()
 			_teleport(kitchen.marker("KitchenEntry"))
+		&"salon":
+			GameState.queen_defeated = true
+			bath.arena.apply_saved_state()
+			for id in [&"cannon", &"charged_jump", &"sting_bead"]:
+				if not GameState.has_upgrade(id):
+					GameState.add_upgrade(id)
+			nino.charged_jump_unlocked = true
+			GameState.add_plastic(GameState.PLASTIC_MAX)
+			nino.get_visual().set_cannon_installed(true)
+			for flag in [&"kitchen_unlocked", &"chapter2_completed", &"wasp_started", &"wasp_defeated", &"salon_opened"]:
+				GameState.set(flag, true)
+			for notice in [&"kitchen_intro", &"salon_elastic_plan"]:
+				if not GameState.seen_notices.has(notice):
+					GameState.seen_notices.append(notice)
+			sas.kitchen_door.set_unlocked_immediately()
+			kitchen.wasp_arena.apply_saved_state()
+			sas.salon_door.set_open_immediately()
+			_teleport(salon.marker("SalonEntry"))
 		&"wasps", &"salon_door":
 			GameState.queen_defeated = true
 			bath.arena.apply_saved_state()

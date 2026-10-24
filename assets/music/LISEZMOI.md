@@ -9,7 +9,9 @@ Tous ces morceaux sont des **prototypes réservés aux essais internes** (géné
 | `ant_labyrinth.ogg` | ant labyrinth - Nin0 **V3** (`intro_v3` + `loop_v3`) | Salle de bain | reprise à 2,100 s (après l'intro) |
 | `boss_fight.ogg` | boss fight - Nin0 **V2**, édité | Combat contre la reine | reprise à 47,984 s |
 | `kitchen.ogg` | kitchen - Nin0 (de `kitchen_original.mp3`), édité | Cuisine (lot 6) | reprise à 25,496 s |
-| `_reserve/living_room.mp3` | living room - Nin0 | **Hors du jeu** (dossier ignoré par Godot), salon plus tard | — |
+| `living_room.ogg` | living room - Nin0 (de `_reserve/living_room.mp3`), édité | Salon (lot 7) | reprise à 35,842 s |
+| `_reserve/living_room.mp3` | living room - Nin0, original | Hors du jeu (dossier ignoré par Godot) | — |
+| *(non intégré)* | good ending - Nin0 | **Retenu**, mais aucune fin n'est développée : ne pas déclencher | — |
 
 ## Éditions réalisées (lot 5.1, finitions)
 
@@ -18,3 +20,9 @@ Tous ces morceaux sont des **prototypes réservés aux essais internes** (géné
 - **Cuisine (lot 6)** : le morceau commence par un fondu d'entrée (≈ 1 s, intro plus calme jusqu'à ≈ 9 s) et finit par un fondu de sortie (dès ≈ 84 s) : bouclé tel quel, il laissait un trou. Analyse (similarité spectrale sur 6 s autour des points, puis alignement des attaques rythmiques) : le passage qui précède 76,02 s est équivalent à celui qui précède 25,50 s (même niveau, −33 dB ; attaques alignées). Le fichier est coupé à 76,022 s, ses 0,35 dernières secondes sont fondues (puissance constante) vers la musique qui précède la reprise, et la boucle reprend à l'échantillon 1 124 374 (25,496 s) : intro → corps du morceau → boucle de 50,5 s. **Raccord à confirmer à l'écoute par le créateur.**
 - Volumes équilibrés d'après la sonie mesurée (EBU R128) : hub −22,8 LUFS, labyrinthe −21,4, reine −21,7, cuisine −29,0 ; les gains de `scripts/core/music.gd` ramènent les pistes de zone à un niveau proche.
 - Fichiers d'origine non versionnés (seules les versions éditées le sont) : ils restent dans le pack fourni par le créateur.
+- **Salon (lot 7)** : intro douce (≈ 2 s), fondu de sortie dès ≈ 83 s. Même méthode que la
+  cuisine : le passage qui précède 76,23 s est équivalent à celui qui précède 35,84 s
+  (similarité spectrale 0,76 sur 6 s ; enveloppes d'attaques alignées à 0,81 après un
+  décalage de 420 échantillons). Coupé à 76,231 s, 0,35 s de fondu enchaîné à puissance
+  constante, reprise à l'échantillon 1 580 653 : boucle de 40,4 s. Sonie −29,5 LUFS
+  (gain +2,4 dB dans `music.gd`). **Raccord à confirmer à l'écoute par le créateur.**

@@ -17,4 +17,5 @@ extends Resource
 @export var comment := ""
 ## Mise en scène particulière (vide = enregistrement parasité habituel).
 ## « todo » : Nin0 déchiffre lui-même un document manuscrit, ligne par ligne.
+## « nathan » : première rencontre avec Nathan (dialogue). « wifi » : recherche sur le réseau.
 @export var presentation: StringName

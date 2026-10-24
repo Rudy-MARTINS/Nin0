@@ -6,10 +6,11 @@ extends CanvasLayer
 ## - Équipement : améliorations majeures, modules (2 emplacements), échange hors combat.
 ## - Archives : souvenirs retrouvés n/7, fragments, commentaires de Nin0 (historique).
 ## - Bestiaire : espèces analysées.
+## - Trophées (lot 7) : trophées internes débloqués (les secrets restent masqués).
 
 signal closed
 
-const TABS := ["Ressources", "Équipement", "Archives", "Bestiaire"]
+const TABS := ["Ressources", "Équipement", "Archives", "Bestiaire", "Trophées"]
 
 var allowed := true
 var is_open := false
@@ -106,6 +107,29 @@ func refresh() -> void:
 	_fill_equipment(_pages[1])
 	_fill_archives(_pages[2])
 	_fill_bestiary(_pages[3])
+	_fill_trophies(_pages[4])
+
+
+# --- Trophées -------------------------------------------------------------------------
+
+func _fill_trophies(page: VBoxContainer) -> void:
+	UiKit.label(page, "Trophées : %d / %d" % [Achievements.unlocked_count(), Achievements.LIST.size()], 17, UiKit.TITLE_COLOR)
+	var titles := {Achievements.PROGRESSION: "PROGRESSION", Achievements.DISCOVERY: "DÉCOUVERTE",
+			Achievements.COOPERATION: "COOPÉRATION", Achievements.SECRET: "SECRETS"}
+	for category in titles:
+		UiKit.label(page, titles[category], 13, UiKit.SCAN_COLOR)
+		for id in Achievements.LIST:
+			var data: Array = Achievements.LIST[id]
+			if data[2] != category:
+				continue
+			var done := Achievements.is_unlocked(id)
+			var row := UiKit.hbox(page, 12)
+			UiKit.icon(row, &"check" if done else (&"question" if category == Achievements.SECRET else &"lock"), 34)
+			var col := UiKit.vbox(row, 1)
+			col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			var hidden: bool = category == Achievements.SECRET and not done
+			UiKit.label(col, "Trophée secret" if hidden else data[0], 16, UiKit.TITLE_COLOR if done else UiKit.DIM_COLOR)
+			UiKit.label(col, "???" if hidden else data[1], 13, Color.WHITE if done else Color(0.6, 0.62, 0.66), true)
 
 
 # --- Ressources -----------------------------------------------------------------------

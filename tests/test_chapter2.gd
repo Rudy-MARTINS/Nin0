@@ -70,7 +70,7 @@ func _test_sas() -> void:
 	# Musique : « Petit Refuge » au placard et dans le sas, sans redémarrage.
 	_check(Music.desired == &"hub" and Music.current != &"intro", "début de partie : introduction arrêtée, musique du hub demandée")
 	_check([&"hub", &"labyrinth", &"boss", &"kitchen"].all(func(id: StringName) -> bool: return Music.has_track(id)), "musiques du pack présentes (hub, labyrinthe, reine, cuisine)")
-	_check(not Music.has_track(&"living_room"), "musique du salon non intégrée au jeu (réservée)")
+	_check(Music.has_track(&"living_room") and Music.TRACKS[&"living_room"].loop, "musique du salon intégrée (lot 7), en boucle")
 	_check(Music.current == &"hub" and Music.is_playing(), "« Petit Refuge » réellement jouée")
 	var changes := Music.changes.size()
 	_place(Vector3(-10.0, 0.05, 1.4), 90.0)
