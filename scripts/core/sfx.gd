@@ -8,6 +8,8 @@ const RATE := 22050
 var _streams := {}
 var _players: Array[AudioStreamPlayer] = []
 var _loops := {}  # clé -> AudioStreamPlayer
+## Jingles de découverte joués (identifiant → nombre), pour vérifier l'unicité.
+var jingle_counts := {}
 
 
 func _ready() -> void:
@@ -31,6 +33,15 @@ func play(sound: StringName, volume_db := 0.0, pitch := 1.0) -> void:
 	player.volume_db = volume_db
 	player.pitch_scale = pitch
 	player.play()
+
+
+## Jingle de découverte (scan, plan, installation) : la musique s'efface un instant
+## puis reprend ; rien n'est interrompu.
+func jingle(id: StringName) -> void:
+	jingle_counts[id] = int(jingle_counts.get(id, 0)) + 1
+	var stream: AudioStreamWAV = _streams.get(id)
+	Music.duck(-12.0, stream.get_length() if stream else 1.0)
+	play(id, -2.0)
 
 
 ## Démarre (ou ajuste) un son en boucle identifié par `key`.
@@ -127,6 +138,24 @@ func _build_sounds() -> void:
 	_streams[&"sludge"] = _squelch()
 	_streams[&"drain"] = _gurgle_loop()
 	_streams[&"queen_roar"] = _tone([[160.0, 110.0, 0.5], [110.0, 140.0, 0.3]], 0.25, true)
+	# Lot 5.1 : jingles originaux (timbre de clochette, harmonies simples).
+	_streams[&"jingle_scan"] = _jingle([
+		[2200.0, 0.0, 0.05, 0.25], [1760.0, 0.06, 0.05, 0.2],
+		[659.3, 0.16, 0.14, 0.5], [880.0, 0.28, 0.14, 0.5], [1108.7, 0.40, 0.14, 0.5],
+		[1318.5, 0.52, 0.55, 0.6], [440.0, 0.52, 0.55, 0.3], [659.3, 0.52, 0.55, 0.25],
+	])
+	_streams[&"jingle_plan"] = _jingle([
+		[392.0, 0.0, 0.16, 0.45], [523.3, 0.16, 0.16, 0.5], [659.3, 0.32, 0.16, 0.5],
+		[587.3, 0.50, 0.12, 0.45], [784.0, 0.64, 0.20, 0.55],
+		[1046.5, 0.88, 0.85, 0.6], [523.3, 0.88, 0.85, 0.3], [659.3, 0.88, 0.85, 0.3], [784.0, 0.88, 0.85, 0.3],
+		[261.6, 0.88, 0.85, 0.35],
+	])
+	_streams[&"jingle_install"] = _jingle([
+		[392.0, 0.0, 0.09, 0.45], [493.9, 0.09, 0.09, 0.45], [587.3, 0.18, 0.09, 0.45],
+		[784.0, 0.27, 0.09, 0.5], [987.8, 0.36, 0.09, 0.5],
+		[1174.7, 0.46, 0.6, 0.55], [784.0, 0.46, 0.6, 0.35], [392.0, 0.46, 0.6, 0.3],
+	])
+	_streams[&"bubbles"] = _bubbles(1.2)
 	_streams[&"queen_defeat"] = _tone([[400.0, 120.0, 1.2]], 0.2, true)
 	_streams[&"shot"] = _shot()
 	_streams[&"impact_small"] = _click()
@@ -150,6 +179,46 @@ func _tone(segments: Array, amplitude: float, square := false) -> AudioStreamWAV
 				value = signf(value) * 0.5 + sin(phase) * 0.5
 			var envelope := minf(t * 12.0, 1.0) * minf((1.0 - t) * 6.0, 1.0)
 			samples.append(value * amplitude * envelope)
+	return _to_wav(samples)
+
+
+## Jingle polyphonique : notes [fréquence, début, durée, volume], timbre de clochette
+## (fondamentale + harmoniques amorties) pour un son chaleureux et non agressif.
+func _jingle(notes: Array) -> AudioStreamWAV:
+	var length := 0.0
+	for note in notes:
+		length = maxf(length, float(note[1]) + float(note[2]) + 0.35)
+	var samples := PackedFloat32Array()
+	samples.resize(int(length * RATE))
+	for note in notes:
+		var start := int(float(note[1]) * RATE)
+		var count := int((float(note[2]) + 0.35) * RATE)
+		for i in count:
+			var t := float(i) / RATE
+			var hold: float = note[2]
+			var held: bool = t < hold
+			var envelope := minf(t * 200.0, 1.0) * (exp(-t * 2.5) if held else exp(-hold * 2.5) * exp(-(t - hold) * 9.0))
+			var phase: float = TAU * float(note[0]) * t
+			var value := sin(phase) + 0.35 * sin(phase * 2.0) * exp(-t * 6.0) + 0.12 * sin(phase * 3.0) * exp(-t * 10.0)
+			var index := start + i
+			if index < samples.size():
+				samples[index] += value * float(note[3]) * envelope * 0.32
+	return _to_wav(samples)
+
+
+func _bubbles(duration: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	samples.resize(int(duration * RATE))
+	var t0 := 0.0
+	while t0 < duration - 0.1:
+		var freq := randf_range(300.0, 700.0)
+		var start := int(t0 * RATE)
+		for i in int(0.08 * RATE):
+			var t := float(i) / RATE
+			var index := start + i
+			if index < samples.size():
+				samples[index] += sin(TAU * (freq + t * 4000.0) * t) * exp(-t * 40.0) * 0.3
+		t0 += randf_range(0.05, 0.15)
 	return _to_wav(samples)
 
 

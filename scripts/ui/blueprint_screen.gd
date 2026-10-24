@@ -59,7 +59,7 @@ func present(kind: StringName, title: String, subtitle: String, icons: Array) ->
 	_hint.modulate.a = 0.0
 	GameState.modal_open = true
 	get_tree().paused = true
-	Sfx.play(&"blueprint", -4.0)
+	Sfx.jingle(&"jingle_plan")
 	var tween := create_tween()
 	tween.tween_property(_schematic, "progress", 1.0, 2.2)
 	tween.tween_property(_hint, "modulate:a", 1.0, 0.4)

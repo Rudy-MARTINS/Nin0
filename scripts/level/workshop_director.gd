@@ -230,6 +230,7 @@ func _begin_play_at(spot: Transform3D) -> void:
 	hud.fade_to(0.0, 1.0)
 	hud.set_mode("Roues")
 	_refresh_objective()
+	_start_exploration_music()
 	play_began.emit()
 
 
@@ -301,7 +302,14 @@ func _boot_nino() -> void:
 	_enable_play()
 	hud.set_mode("Roues")
 	_start_tutorial_step(Tutorial.FORWARD)
+	_start_exploration_music()
 	play_began.emit()
+
+
+## L'introduction s'arrête, « Petit Refuge » (placard et sas) prend le relais.
+## Le jeu complet choisit ensuite la musique selon la zone (game_world.gd).
+func _start_exploration_music() -> void:
+	Music.play(&"hub", Music.DEFAULT_VOLUME, 2.0)
 
 
 func _enable_play() -> void:
@@ -409,7 +417,10 @@ func _on_examined(data: DiscoveryData) -> void:
 	var visual := nino.get_visual()
 	if GameState.add_discovery(data.id):
 		hud.show_toast("Découverte : %s" % data.title, 2.0)
-		Sfx.play(&"pickup" if data.collectible else &"discovery", -6.0)
+		if String(data.id).begins_with("plan_"):
+			Sfx.jingle(&"jingle_plan")
+		else:
+			Sfx.play(&"pickup" if data.collectible else &"discovery", -6.0)
 	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
 	thoughts.think(data.thought_icons, data.thought_text, 2.4, true)
 	if not data.conclusion_icons.is_empty():
@@ -497,7 +508,7 @@ func _install_legs() -> void:
 	await printer.install_legs(nino)
 	nino.legs_available = true
 	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
-	Sfx.play(&"happy", -4.0)
+	Sfx.jingle(&"jingle_install")
 	GameState.set_flag(&"legs_installed")
 	nino.set_checkpoint(_checkpoint("Printer"))
 	hud.show_toast("Jambes mécaniques installées", 3.0)
@@ -894,7 +905,7 @@ func _on_upgrade_requested(id: StringName) -> void:
 	await printer.service(nino, UPGRADE_DURATION)
 	GameState.add_upgrade(id)
 	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
-	Sfx.play(&"happy", -4.0)
+	Sfx.jingle(&"jingle_install")
 	if upgrade.category == UpgradeData.Category.MODULE:
 		# Module secondaire : fabriqué, puis équipé s'il reste un emplacement libre.
 		var equipped := GameState.equip_module(id)
@@ -928,7 +939,7 @@ func _fabricate_cannon(upgrade: UpgradeData) -> void:
 	await _wait(0.5)
 	visual.look_target = null
 	visual.show_emotion(NinoVisual.Emotion.HAPPY, 2.5)
-	Sfx.play(&"happy", -4.0)
+	Sfx.jingle(&"jingle_install")
 	thoughts.think([&"cannon", &"check"], "", 2.2)
 	hud.show_toast("Canon à billes installé", 3.0)
 	var back := create_tween().set_trans(Tween.TRANS_SINE)

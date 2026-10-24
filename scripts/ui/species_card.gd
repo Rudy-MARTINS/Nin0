@@ -51,7 +51,7 @@ func show_species(data: SpeciesData) -> void:
 		field(_fields, "Particularité", " · ".join(data.traits))
 	visible = true
 	showing = true
-	Sfx.play(&"species", -6.0)
+	Sfx.jingle(&"jingle_scan")
 	if _tween:
 		_tween.kill()
 	_tween = create_tween()
