@@ -1,12 +1,9 @@
 [gd_scene format=3 uid="uid://d3rug69saobh"]
 
 [ext_resource type="Script" uid="uid://el8cj8nuscuq" path="res://scripts/dev/apartment_dev.gd" id="1_dev"]
-[ext_resource type="PackedScene" uid="uid://b7hov6j8fy1c4" path="res://scenes/levels/workshop.tscn" id="2_workshop"]
-[ext_resource type="PackedScene" uid="uid://bj1oku4qfzd6b" path="res://scenes/levels/apartment_blockout.tscn" id="3_blockout"]
+[ext_resource type="PackedScene" uid="uid://b1kg1ymd11olt" path="res://scenes/levels/game.tscn" id="2_game"]
 
 [node name="Apartment" type="Node3D"]
 script = ExtResource("1_dev")
 
-[node name="Workshop" parent="." instance=ExtResource("2_workshop")]
-
-[node name="Blockout" parent="." instance=ExtResource("3_blockout")]
+[node name="Game" parent="." instance=ExtResource("2_game")]

@@ -1,18 +1,23 @@
 extends Node3D
-## MODE DÉVELOPPEMENT — exploration de l'appartement (blockout du lot 4).
+## MODE DÉVELOPPEMENT — exploration de l'appartement et scénarios du chapitre 2.
 ##
-## Scène séparée du jeu normal (la scène principale reste le placard) :
-## - le placard-hub (workshop.tscn) est instancié tel quel, énigmes résolues,
-##   Nin0 complet (roues, jambes, vision), porte entrouverte ;
-## - les zones 2 à 7 viennent de apartment_blockout.tscn ;
-## - GameState.dev_mode empêche toute écriture ou suppression de sauvegarde.
+## Scène séparée du jeu normal : elle instancie le jeu complet (game.tscn) avec
+## placard résolu, Nin0 complet (roues, jambes, vision), porte entrouverte ;
+## GameState.dev_mode empêche toute écriture ou suppression de sauvegarde.
 ##
 ## Touches : 1–7 aller à une zone · F1 aide · F2 carte · F3 plafonds ·
-## F4 caméra libre (Z Q S D, Espace / C, Maj = rapide).
-## Démarrer dans une zone : propriété `start_zone`, ou argument « -- --zone=6 ».
+## F4 caméra libre (Z Q S D, Espace / C, Maj = rapide) ·
+## Ctrl + 1…7 : scénarios (rencontre du sas, labyrinthe gauche, labyrinthe droit,
+## escabeau, boss, fabrication du canon, porte de la cuisine).
+## Démarrer : propriétés `start_zone` / `scenario`, ou « -- --zone=6 », « -- --scenario=boss ».
 
 @export_range(1, 7) var start_zone := 1
 @export var free_camera_speed := 14.0
+## Scénario de test préparé au démarrage (vide = aucun).
+## sas, maze, right, stool, boss, cannon, kitchen (voir SCENARIOS).
+@export var scenario := ""
+
+const SCENARIOS := [&"sas", &"maze", &"right", &"stool", &"boss", &"cannon", &"kitchen"]
 
 const ZONE_COLORS := {
 	1: Color(0.85, 0.7, 0.45), 2: Color(0.72, 0.66, 0.56), 3: Color(0.55, 0.72, 0.8), 4: Color(0.78, 0.5, 0.38),
@@ -32,8 +37,9 @@ var _free := false
 var _free_yaw := 0.0
 var _free_pitch := 0.0
 
-@onready var workshop: Node3D = $Workshop
-@onready var blockout: Node3D = $Blockout
+@onready var game: GameWorld = $Game
+@onready var workshop: Node3D = $Game/Workshop
+@onready var blockout: Node3D = $Game/Blockout
 
 
 func _enter_tree() -> void:
@@ -43,21 +49,20 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	nino = workshop.get_node("Nino")
 	camera = workshop.get_node("ThirdPersonCamera")
-	# Le décor provisoire du sas et le seuil bloqué de la démo laissent place à l'appartement.
-	for path in ["Sas", "Geometry/SasBlocker"]:
-		var node := workshop.get_node_or_null(path)
-		if node:
-			node.queue_free()
 	for zone in blockout.get_node("Zones").get_children():
 		_zones.append(zone as Area3D)
 	_build_hud()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--zone="):
 			start_zone = clampi(int(arg.get_slice("=", 1)), 1, 7)
+		elif arg.begins_with("--scenario="):
+			scenario = arg.get_slice("=", 1)
 	# Le directeur du placard prépare la session au premier passage ; on place ensuite Nin0.
 	await get_tree().process_frame
 	await get_tree().process_frame
 	go_to_zone(start_zone)
+	if scenario != "":
+		game.run_dev_scenario(StringName(scenario))
 
 
 func _process(delta: float) -> void:
@@ -110,7 +115,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if key == null or not key.pressed or key.echo or GameState.modal_open:
 		return
 	var code := key.physical_keycode
-	if code >= KEY_1 and code <= KEY_7:
+	if key.ctrl_pressed and code >= KEY_1 and code <= KEY_7:
+		game.run_dev_scenario(SCENARIOS[code - KEY_1])
+	elif code >= KEY_1 and code <= KEY_7:
 		go_to_zone(code - KEY_0)
 	elif key.keycode >= KEY_KP_1 and key.keycode <= KEY_KP_7:
 		go_to_zone(key.keycode - KEY_KP_0)
@@ -166,7 +173,7 @@ func _build_hud() -> void:
 	layer.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(layer)
 	var banner := _label(15, Color(1.0, 0.55, 0.35))
-	banner.text = "MODE DÉVELOPPEMENT — appartement (blockout lot 4) · aucune sauvegarde · F1 : aide"
+	banner.text = "MODE DÉVELOPPEMENT — appartement + chapitre 2 · aucune sauvegarde · F1 : aide"
 	banner.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	banner.offset_left = -360
 	banner.offset_right = 360
@@ -179,10 +186,10 @@ func _build_hud() -> void:
 	_info.offset_top = 40
 	layer.add_child(_info)
 	_help = _label(15, Color(1, 0.95, 0.85))
-	_help.text = "1 à 7 (ou pavé numérique) : aller à une zone\nF2 : carte de l'appartement\nF3 : plafonds\nF4 : caméra libre (Z Q S D, Espace / C, Maj rapide)\nÉchap : pause du jeu"
+	_help.text = "1 à 7 (ou pavé numérique) : aller à une zone\nF2 : carte de l'appartement\nF3 : plafonds\nF4 : caméra libre (Z Q S D, Espace / C, Maj rapide)\nCtrl+1 rencontre du sas · Ctrl+2 labyrinthe gauche · Ctrl+3 labyrinthe droit\nCtrl+4 escabeau · Ctrl+5 reine · Ctrl+6 canon (imprimante) · Ctrl+7 porte cuisine\nÉchap : pause du jeu"
 	_help.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	_help.offset_left = 20
-	_help.offset_top = -230
+	_help.offset_top = -290
 	_help.visible = false
 	layer.add_child(_help)
 	_map = Control.new()

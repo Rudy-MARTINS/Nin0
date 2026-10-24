@@ -51,14 +51,14 @@ albedo_color = Color(1, 0.3, 0.2, 0.0)
 size = Vector3(30, 24, 27)
 
 [sub_resource type="StandardMaterial3D" id="Mat_floor_sas"]
-albedo_color = Color(0.72, 0.66, 0.56, 1)
+albedo_color = Color(0.5, 0.47, 0.42, 1)
 roughness = 0.9
 
 [sub_resource type="BoxShape3D" id="ZoneShape_sas"]
 size = Vector3(29.4, 24, 27)
 
 [sub_resource type="StandardMaterial3D" id="Mat_floor_salle_de_bain"]
-albedo_color = Color(0.55, 0.72, 0.8, 1)
+albedo_color = Color(0.78, 0.8, 0.78, 1)
 roughness = 0.9
 
 [sub_resource type="BoxShape3D" id="ZoneShape_salle_de_bain"]
@@ -148,13 +148,6 @@ size = Vector3(30, 1, 27.6)
 bevel = 0.02
 material = SubResource("Mat_ceiling")
 
-[node name="Light_sas" type="OmniLight3D" parent="Lights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.3, 21, -1.5)
-light_color = Color(1, 0.93, 0.84, 1)
-light_energy = 0.7
-omni_range = 33.0
-omni_attenuation = 0.8
-
 [node name="Zone2" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.3, 12, -1.5)
 collision_layer = 0
@@ -163,7 +156,7 @@ monitorable = false
 metadata/number = 2
 metadata/zone_id = &"sas"
 metadata/title = "Sas"
-metadata/status = "Vide — premières rencontres prévues"
+metadata/status = "Jouable (lot 5) — fourmis ouvrières"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/Zone2"]
 shape = SubResource("ZoneShape_sas")
@@ -175,7 +168,7 @@ billboard = 1
 modulate = Color(1, 0.95, 0.85, 0.9)
 outline_size = 10
 font_size = 72
-text = "2 · SAS\nVide — premières rencontres prévues"
+text = "2 · SAS\nJouable (lot 5) — fourmis ouvrières"
 
 [node name="Floor_salle_de_bain" type="StaticBody3D" parent="Floors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, -0.2, -17.8)
@@ -191,13 +184,6 @@ size = Vector3(30, 1, 35)
 bevel = 0.02
 material = SubResource("Mat_ceiling")
 
-[node name="Light_salle_de_bain" type="OmniLight3D" parent="Lights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 21, -17.8)
-light_color = Color(1, 0.93, 0.84, 1)
-light_energy = 0.7
-omni_range = 37.2
-omni_attenuation = 0.8
-
 [node name="Zone3" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 12, -17.8)
 collision_layer = 0
@@ -206,7 +192,7 @@ monitorable = false
 metadata/number = 3
 metadata/zone_id = &"salle_de_bain"
 metadata/title = "Salle de bain"
-metadata/status = "Vide"
+metadata/status = "Jouable (lot 5) — colonie, reine"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/Zone3"]
 shape = SubResource("ZoneShape_salle_de_bain")
@@ -218,7 +204,7 @@ billboard = 1
 modulate = Color(1, 0.95, 0.85, 0.9)
 outline_size = 10
 font_size = 72
-text = "3 · SALLE DE BAIN\nVide"
+text = "3 · SALLE DE BAIN\nJouable (lot 5) — colonie, reine"
 
 [node name="Floor_cuisine" type="StaticBody3D" parent="Floors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, -0.2, 28.5)
@@ -249,7 +235,7 @@ monitorable = false
 metadata/number = 4
 metadata/zone_id = &"cuisine"
 metadata/title = "Cuisine"
-metadata/status = "Vide"
+metadata/status = "Vide — prochain chapitre"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/Zone4"]
 shape = SubResource("ZoneShape_cuisine")
@@ -261,7 +247,7 @@ billboard = 1
 modulate = Color(1, 0.95, 0.85, 0.9)
 outline_size = 10
 font_size = 72
-text = "4 · CUISINE\nVide"
+text = "4 · CUISINE\nVide — prochain chapitre"
 
 [node name="Floor_salon" type="StaticBody3D" parent="Floors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 34.8)
@@ -292,7 +278,7 @@ monitorable = false
 metadata/number = 6
 metadata/zone_id = &"salon"
 metadata/title = "Salon"
-metadata/status = "Vide — deux étapes d'exploration"
+metadata/status = "Fermé — deux étapes d'exploration"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/Zone6"]
 shape = SubResource("ZoneShape_salon")
@@ -304,7 +290,7 @@ billboard = 1
 modulate = Color(1, 0.95, 0.85, 0.9)
 outline_size = 10
 font_size = 72
-text = "6 · SALON\nVide — deux étapes d'exploration"
+text = "6 · SALON\nFermé — deux étapes d'exploration"
 
 [node name="Floor_chambre" type="StaticBody3D" parent="Floors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, -0.2, -11.5)
@@ -446,34 +432,27 @@ size = Vector3(0.6, 3.2, 9)
 bevel = 0.02
 material = SubResource("Mat_wall")
 
-[node name="ShortcutSasKitchenJamb0" type="StaticBody3D" parent="Openings"]
+[node name="DoorSasKitchenJamb0" type="StaticBody3D" parent="Openings"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, 2.2)
 script = ExtResource("1_prop_block")
 size = Vector3(0.75, 20.8, 0.4)
 bevel = 0.02
 material = SubResource("Mat_frame")
 
-[node name="ShortcutSasKitchenJamb1" type="StaticBody3D" parent="Openings"]
+[node name="DoorSasKitchenJamb1" type="StaticBody3D" parent="Openings"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, 10.8)
 script = ExtResource("1_prop_block")
 size = Vector3(0.75, 20.8, 0.4)
 bevel = 0.02
 material = SubResource("Mat_frame")
 
-[node name="ShortcutSasKitchenHead" type="StaticBody3D" parent="Openings"]
+[node name="DoorSasKitchenHead" type="StaticBody3D" parent="Openings"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 20.55, 6.5)
 script = ExtResource("1_prop_block")
 size = Vector3(0.75, 0.5, 9)
 bevel = 0.02
 material = SubResource("Mat_frame")
 collide = false
-
-[node name="ShortcutSasKitchenPanel" type="StaticBody3D" parent="Openings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.1, 6.5)
-script = ExtResource("1_prop_block")
-size = Vector3(0.4, 20.2, 8.2)
-bevel = 0.02
-material = SubResource("Mat_door")
 
 [node name="WallSasWest_4" type="StaticBody3D" parent="Walls"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 12, 18.5)
@@ -507,6 +486,29 @@ material = SubResource("Mat_frame")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 20.55, 31.5)
 script = ExtResource("1_prop_block")
 size = Vector3(0.75, 0.5, 11)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSalonKitchenPanel" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.1, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 20.2, 10.2)
+bevel = 0.02
+material = SubResource("Mat_door")
+
+[node name="DoorSalonKitchenKnob0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.65, 10, 35.07)
+script = ExtResource("1_prop_block")
+size = Vector3(0.7, 0.25, 0.25)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSalonKitchenKnob1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.95, 10, 35.07)
+script = ExtResource("1_prop_block")
+size = Vector3(0.7, 0.25, 0.25)
 bevel = 0.02
 material = SubResource("Mat_frame")
 collide = false
@@ -571,6 +573,29 @@ material = SubResource("Mat_frame")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 20.55, 12.3)
 script = ExtResource("1_prop_block")
 size = Vector3(9, 0.5, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSasSalonPanel" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 10.1, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(8.2, 20.2, 0.4)
+bevel = 0.02
+material = SubResource("Mat_door")
+
+[node name="DoorSasSalonKnob0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.63, 10, 11.95)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 0.25, 0.7)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSasSalonKnob1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.63, 10, 12.65)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 0.25, 0.7)
 bevel = 0.02
 material = SubResource("Mat_frame")
 collide = false
@@ -797,34 +822,6 @@ size = Vector3(2, 3, 44.4)
 bevel = 0.02
 material = SubResource("Mat_wall")
 
-[node name="SasShoeCabinet" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31, 4.5, -13.2)
-script = ExtResource("1_prop_block")
-size = Vector3(10, 9, 3.5)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
-[node name="BathTub" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -71.2, 2.75, -25)
-script = ExtResource("1_prop_block")
-size = Vector3(7.5, 5.5, 17)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
-[node name="BathSink" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58, 4.25, -32.7)
-script = ExtResource("1_prop_block")
-size = Vector3(6, 8.5, 4.5)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
-[node name="BathToilet" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 2, -31.6)
-script = ExtResource("1_prop_block")
-size = Vector3(4, 4, 6.5)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
 [node name="KitchenCounter" type="StaticBody3D" parent="Volumes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -72, 4.5, 25)
 script = ExtResource("1_prop_block")
@@ -961,13 +958,13 @@ metadata/state = "ouvert"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 1, 12.3)
 metadata/from = 2
 metadata/to = 6
-metadata/state = "ouvert"
+metadata/state = "fermé (ouverture à définir)"
 
 [node name="C_salon_cuisine" type="Marker3D" parent="Connections"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 1, 31.5)
 metadata/from = 6
 metadata/to = 4
-metadata/state = "ouvert"
+metadata/state = "fermé (à définir avec la cuisine)"
 
 [node name="C_salon_porte_fenetre" type="Marker3D" parent="Connections"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1, 57.3)
@@ -979,7 +976,7 @@ metadata/state = "fermé (jardin non validé)"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 1, 6.5)
 metadata/from = 2
 metadata/to = 4
-metadata/state = "raccourci futur, fermé"
+metadata/state = "verrou (canon)"
 
 [node name="C_salon_chambre" type="Marker3D" parent="Connections"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1, 12.3)
@@ -994,7 +991,16 @@ billboard = 1
 modulate = Color(1, 0.6, 0.5, 0.9)
 outline_size = 8
 font_size = 64
-text = "Raccourci futur (fermé)"
+text = "Cuisine — loquet (canon)"
+
+[node name="LabelSalonDoor" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 22.5, 10.8)
+pixel_size = 0.014
+billboard = 1
+modulate = Color(1, 0.6, 0.5, 0.9)
+outline_size = 8
+font_size = 64
+text = "Salon — fermé (à définir)"
 
 [node name="LabelCurtain" type="Label3D" parent="Labels"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 22.5, 13.8)

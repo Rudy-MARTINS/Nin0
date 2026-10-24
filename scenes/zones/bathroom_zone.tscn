@@ -1,0 +1,2133 @@
+[gd_scene format=3 uid="uid://6b1cg52t0a7e"]
+
+[ext_resource type="Script" uid="uid://c3c888nwf705g" path="res://scripts/props/prop_block.gd" id="1_prop_block"]
+[ext_resource type="Script" uid="uid://c2lblyudt07k5" path="res://scripts/props/resource_pickup.gd" id="2_resource_pic"]
+[ext_resource type="Script" uid="uid://ism7yuwslbf4" path="res://scripts/interaction/interactable.gd" id="3_interactable"]
+[ext_resource type="Script" uid="uid://6sib5oj4021u" path="res://scripts/focus/focus_target.gd" id="4_focus_target"]
+[ext_resource type="Script" uid="uid://dxk7jby1phr1e" path="res://scripts/zones/bathroom_zone.gd" id="5_bathroom_zon"]
+[ext_resource type="Script" uid="uid://dteb1nhgwxr6b" path="res://scripts/zones/terrain_zone.gd" id="6_terrain_zone"]
+[ext_resource type="Script" uid="uid://6secaj3314fs" path="res://scripts/zones/larva_dropper.gd" id="7_larva_droppe"]
+[ext_resource type="Script" uid="uid://bqktiacxk0d87" path="res://scripts/creatures/ant_soldier.gd" id="8_ant_soldier"]
+[ext_resource type="Script" uid="uid://dju5yy2ars06r" path="res://scripts/zones/sink_arena.gd" id="9_sink_arena"]
+[ext_resource type="Script" uid="uid://ixie7slvr0va" path="res://scripts/zones/floating_platform.gd" id="10_floating_pla"]
+[ext_resource type="Script" uid="uid://e1aybnria6ug" path="res://scripts/creatures/ant_queen.gd" id="11_ant_queen"]
+[ext_resource type="Script" uid="uid://bc0f4etneuo5y" path="res://scripts/props/cable.gd" id="12_cable"]
+[ext_resource type="Resource" uid="uid://bwmboc0j4jz8v" path="res://assets/observation/memory_detail.tres" id="13_memory_detai"]
+[ext_resource type="Resource" uid="uid://t847gt2lrz9o" path="res://assets/memories/memory_02.tres" id="14_memory_02"]
+[ext_resource type="Shader" uid="uid://cbwceqwqaqkwq" path="res://assets/shaders/tiles.gdshader" id="15_tiles"]
+
+[sub_resource type="ShaderMaterial" id="Mat_tiles_floor"]
+shader = ExtResource("15_tiles")
+shader_parameter/tile_size = 1.5
+shader_parameter/plane_axis = 1
+
+[sub_resource type="ShaderMaterial" id="Mat_tiles_wall_x"]
+shader = ExtResource("15_tiles")
+shader_parameter/tile_size = 1.5
+shader_parameter/plane_axis = 0
+shader_parameter/tile_color = Color(0.86, 0.9, 0.92, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_tiles_wall_z"]
+shader = ExtResource("15_tiles")
+shader_parameter/tile_size = 1.5
+shader_parameter/plane_axis = 2
+shader_parameter/tile_color = Color(0.86, 0.9, 0.92, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ceramic"]
+albedo_color = Color(0.95, 0.95, 0.93, 1)
+roughness = 0.15
+
+[sub_resource type="StandardMaterial3D" id="Mat_enamel"]
+albedo_color = Color(0.93, 0.94, 0.94, 1)
+roughness = 0.2
+
+[sub_resource type="StandardMaterial3D" id="Mat_chrome"]
+albedo_color = Color(0.75, 0.77, 0.8, 1)
+roughness = 0.15
+metallic = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_vanity"]
+albedo_color = Color(0.86, 0.84, 0.8, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_counter"]
+albedo_color = Color(0.32, 0.34, 0.36, 1)
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_denim"]
+albedo_color = Color(0.22, 0.3, 0.45, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_denim_dark"]
+albedo_color = Color(0.17, 0.22, 0.34, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_plastic_w"]
+albedo_color = Color(0.92, 0.92, 0.9, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_plastic_b"]
+albedo_color = Color(0.3, 0.55, 0.8, 1)
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_plastic_g"]
+albedo_color = Color(0.4, 0.68, 0.45, 1)
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_plastic_p"]
+albedo_color = Color(0.85, 0.5, 0.65, 1)
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_plastic_y"]
+albedo_color = Color(0.95, 0.8, 0.3, 1)
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_cardboard"]
+albedo_color = Color(0.72, 0.56, 0.38, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_wicker"]
+albedo_color = Color(0.62, 0.48, 0.3, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_dirt"]
+albedo_color = Color(0.34, 0.25, 0.17, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_dirt_light"]
+albedo_color = Color(0.46, 0.36, 0.25, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_pebble"]
+albedo_color = Color(0.55, 0.52, 0.48, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_tile_shard"]
+albedo_color = Color(0.8, 0.84, 0.84, 1)
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_cotton"]
+albedo_color = Color(0.96, 0.95, 0.92, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_towel"]
+albedo_color = Color(0.45, 0.62, 0.66, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood_w"]
+albedo_color = Color(0.88, 0.86, 0.8, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood_rail"]
+albedo_color = Color(0.7, 0.55, 0.36, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_sponge"]
+albedo_color = Color(0.92, 0.82, 0.35, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_sponge_g"]
+albedo_color = Color(0.35, 0.6, 0.35, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_cap"]
+albedo_color = Color(0.85, 0.25, 0.2, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_soap"]
+albedo_color = Color(0.9, 0.75, 0.82, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_paper"]
+albedo_color = Color(0.9, 0.88, 0.82, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_paper_ink"]
+albedo_color = Color(0.35, 0.33, 0.32, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_rubber"]
+albedo_color = Color(0.1, 0.1, 0.1, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_larva_pile"]
+albedo_color = Color(0.95, 0.92, 0.82, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_mirror"]
+albedo_color = Color(0.7, 0.78, 0.82, 1)
+roughness = 0.05
+metallic = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_bucket"]
+albedo_color = Color(0.25, 0.55, 0.75, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_lessive"]
+albedo_color = Color(0.9, 0.45, 0.2, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_sludge"]
+albedo_color = Color(0.3, 0.33, 0.2, 1)
+roughness = 0.15
+transparency = 1
+albedo_color = Color(0.28, 0.32, 0.18, 0.92)
+
+[sub_resource type="StandardMaterial3D" id="Mat_stain"]
+albedo_color = Color(0.32, 0.3, 0.2, 1)
+roughness = 1.0
+transparency = 1
+albedo_color = Color(0.32, 0.3, 0.2, 0.3)
+cull_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_drain_hole"]
+albedo_color = Color(0.02, 0.02, 0.02, 1)
+roughness = 1.0
+
+[sub_resource type="QuadMesh" id="Quad_FloorTiles"]
+size = Vector2(29.4, 34.4)
+
+[sub_resource type="QuadMesh" id="Quad_WallTilesNorth"]
+size = Vector2(29.4, 12.0)
+
+[sub_resource type="QuadMesh" id="Quad_WallTilesWest"]
+size = Vector2(34.4, 12.0)
+
+[sub_resource type="QuadMesh" id="Quad_WallTilesSouth"]
+size = Vector2(29.4, 12.0)
+
+[sub_resource type="QuadMesh" id="Quad_WallTilesEastA"]
+size = Vector2(22.8, 12.0)
+
+[sub_resource type="QuadMesh" id="Quad_WallTilesEastB"]
+size = Vector2(2.4, 12.0)
+
+[sub_resource type="QuadMesh" id="Quad_Damp0"]
+size = Vector2(3.357138660529456, 4.239089544321984)
+
+[sub_resource type="QuadMesh" id="Quad_Damp1"]
+size = Vector2(3.5235238191868135, 4.349539315399587)
+
+[sub_resource type="QuadMesh" id="Quad_Damp2"]
+size = Vector2(3.8896481606504056, 5.1719074900798105)
+
+[sub_resource type="QuadMesh" id="Quad_Damp3"]
+size = Vector2(2.2720116124755183, 5.238578137468711)
+
+[sub_resource type="QuadMesh" id="Quad_Damp4"]
+size = Vector2(4.946580262396335, 5.859031124502267)
+
+[sub_resource type="QuadMesh" id="Quad_Damp5"]
+size = Vector2(2.4724822854204875, 2.0600029477984196)
+
+[sub_resource type="QuadMesh" id="Quad_Damp6"]
+size = Vector2(2.570624788393787, 2.967772054660859)
+
+[sub_resource type="QuadMesh" id="Quad_Damp7"]
+size = Vector2(3.3215933499699704, 5.369708514074128)
+
+[sub_resource type="QuadMesh" id="Quad_DampFloor"]
+size = Vector2(5.0, 3.0)
+
+[sub_resource type="SphereMesh" id="Sph_0_9"]
+radius = 0.9
+height = 1.8
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_12"]
+radius = 0.12
+height = 0.24
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_8"]
+radius = 0.8
+height = 1.6
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_1"]
+radius = 0.1
+height = 0.2
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_35"]
+radius = 0.35
+height = 0.7
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_55"]
+radius = 0.55
+height = 1.1
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_5"]
+radius = 0.5
+height = 1.0
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_1_0"]
+radius = 1.0
+height = 2.0
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_6"]
+radius = 0.6
+height = 1.2
+radial_segments = 14
+rings = 7
+
+[sub_resource type="BoxShape3D" id="GravelShape"]
+size = Vector3(3.8, 2, 6.4)
+
+[sub_resource type="SphereMesh" id="Sph_0_1292608535316825"]
+radius = 0.1292608535316825
+height = 0.258521707063365
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_12931168413119631"]
+radius = 0.12931168413119631
+height = 0.25862336826239263
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_1337190349672927"]
+radius = 0.1337190349672927
+height = 0.2674380699345854
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_09781970716554969"]
+radius = 0.09781970716554969
+height = 0.19563941433109938
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_12449576010736557"]
+radius = 0.12449576010736557
+height = 0.24899152021473114
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_09328099378243436"]
+radius = 0.09328099378243436
+height = 0.18656198756486872
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_07825941755936856"]
+radius = 0.07825941755936856
+height = 0.15651883511873713
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_07419253820587537"]
+radius = 0.07419253820587537
+height = 0.14838507641175075
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_10915065991272765"]
+radius = 0.10915065991272765
+height = 0.2183013198254553
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_12123259510000453"]
+radius = 0.12123259510000453
+height = 0.24246519020000906
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_0781555591347794"]
+radius = 0.0781555591347794
+height = 0.1563111182695588
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_08888564840334189"]
+radius = 0.08888564840334189
+height = 0.17777129680668377
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_09129016049096927"]
+radius = 0.09129016049096927
+height = 0.18258032098193855
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_09759922459504382"]
+radius = 0.09759922459504382
+height = 0.19519844919008764
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_0770232926528718"]
+radius = 0.0770232926528718
+height = 0.1540465853057436
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_08807942905031343"]
+radius = 0.08807942905031343
+height = 0.17615885810062687
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_09074273338192626"]
+radius = 0.09074273338192626
+height = 0.18148546676385252
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_11079143587172866"]
+radius = 0.11079143587172866
+height = 0.2215828717434573
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_09601928326152598"]
+radius = 0.09601928326152598
+height = 0.19203856652305196
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_10386071732837816"]
+radius = 0.10386071732837816
+height = 0.20772143465675633
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_08279794010450797"]
+radius = 0.08279794010450797
+height = 0.16559588020901594
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_1272461364621754"]
+radius = 0.1272461364621754
+height = 0.2544922729243508
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_12175970728716559"]
+radius = 0.12175970728716559
+height = 0.24351941457433118
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_1365095096616052"]
+radius = 0.1365095096616052
+height = 0.2730190193232104
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_09950200567631506"]
+radius = 0.09950200567631506
+height = 0.19900401135263013
+radial_segments = 14
+rings = 7
+
+[sub_resource type="SphereMesh" id="Sph_0_13738770580189308"]
+radius = 0.13738770580189308
+height = 0.27477541160378616
+radial_segments = 14
+rings = 7
+
+[sub_resource type="QuadMesh" id="Quad_GravelDirt"]
+size = Vector2(3.8, 6.2)
+
+[sub_resource type="BoxMesh" id="SludgeMesh"]
+size = Vector3(8.9, 0.04, 4.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape_8p9_0p3_4p7"]
+size = Vector3(8.9, 0.3, 4.7)
+
+[sub_resource type="BoxShape3D" id="MireShape"]
+size = Vector3(8.9, 0.7, 4.7)
+
+[sub_resource type="CylinderShape3D" id="PlatShape_P0Cap"]
+radius = 0.45
+height = 0.3
+
+[sub_resource type="BoxShape3D" id="BoxShape_1p2_0p4_1"]
+size = Vector3(1.2, 0.4, 1)
+
+[sub_resource type="CylinderShape3D" id="PlatShape_P2BottleCap"]
+radius = 0.5
+height = 0.3
+
+[sub_resource type="CylinderShape3D" id="PlatShape_P3Cotton"]
+radius = 0.6
+height = 0.25
+
+[sub_resource type="BoxShape3D" id="BoxShape_1p4_0p4_0p8"]
+size = Vector3(1.4, 0.4, 0.8)
+
+[sub_resource type="CylinderShape3D" id="PlatShape_P5Lid"]
+radius = 0.45
+height = 0.3
+
+[sub_resource type="BoxShape3D" id="BoxShape_1_0p3_1"]
+size = Vector3(1, 0.3, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape_2p4_0p5_2"]
+size = Vector3(2.4, 0.5, 2)
+
+[sub_resource type="BoxShape3D" id="InterShape_RingInteract"]
+size = Vector3(1.6, 1.2, 1.8)
+
+[sub_resource type="BoxShape3D" id="AreaShape_ArenaTrigger"]
+size = Vector3(1, 2, 6)
+
+[sub_resource type="BoxShape3D" id="AreaShape_ArenaBounds"]
+size = Vector3(14, 6, 8.5)
+
+[sub_resource type="BoxShape3D" id="AreaShape_EntryZone"]
+size = Vector3(5, 3, 9)
+
+[node name="BathroomZone" type="Node3D"]
+script = ExtResource("5_bathroom_zon")
+
+[node name="Surfaces" type="Node3D" parent="."]
+
+[node name="FloorTiles" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -60.3, 0.006, -17.8)
+material_override = SubResource("Mat_tiles_floor")
+cast_shadow = 0
+mesh = SubResource("Quad_FloorTiles")
+
+[node name="WallTilesNorth" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 6, -34.97)
+material_override = SubResource("Mat_tiles_wall_z")
+cast_shadow = 0
+mesh = SubResource("Quad_WallTilesNorth")
+
+[node name="WallTilesWest" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -74.97, 6, -17.8)
+material_override = SubResource("Mat_tiles_wall_x")
+cast_shadow = 0
+mesh = SubResource("Quad_WallTilesWest")
+
+[node name="WallTilesSouth" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -60.3, 6, -0.63)
+material_override = SubResource("Mat_tiles_wall_z")
+cast_shadow = 0
+mesh = SubResource("Quad_WallTilesSouth")
+
+[node name="WallTilesEastA" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -45.63, 6, -23.6)
+material_override = SubResource("Mat_tiles_wall_x")
+cast_shadow = 0
+mesh = SubResource("Quad_WallTilesEastA")
+
+[node name="WallTilesEastB" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -45.63, 6, -1.8)
+material_override = SubResource("Mat_tiles_wall_x")
+cast_shadow = 0
+mesh = SubResource("Quad_WallTilesEastB")
+
+[node name="Damp0" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.8947, 2.39695, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp0")
+
+[node name="Damp1" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -68.3835, 2.53573, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp1")
+
+[node name="Damp2" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.6469, 1.9102, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp2")
+
+[node name="Damp3" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.664, 1.12564, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp3")
+
+[node name="Damp4" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.6519, 2.84669, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp4")
+
+[node name="Damp5" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.7905, 1.17865, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp5")
+
+[node name="Damp6" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -72.2479, 2.3918, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp6")
+
+[node name="Damp7" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.0219, 2.92088, -34.95)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_Damp7")
+
+[node name="DampFloor" type="MeshInstance3D" parent="Surfaces"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -56, 0.012, -27)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_DampFloor")
+
+[node name="Fixtures" type="Node3D" parent="."]
+
+[node name="Tub" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -71.2, 2.8, -9.3)
+script = ExtResource("1_prop_block")
+size = Vector3(7.6, 5.6, 17.4)
+bevel = 0.6
+material = SubResource("Mat_enamel")
+
+[node name="TubInner" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -71.2, 5.56, -9.3)
+script = ExtResource("1_prop_block")
+size = Vector3(6.2, 0.1, 15.8)
+bevel = 0.05
+material = SubResource("Mat_chrome")
+collide = false
+
+[node name="TubFaucet" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74.6, 7, -9.3)
+script = ExtResource("1_prop_block")
+size = Vector3(1.2, 1.2, 0.6)
+bevel = 0.03
+material = SubResource("Mat_chrome")
+collide = false
+
+[node name="RimNest" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1.2, 0, 0, 0, 0.6, 0, 0, 0, 1.6, -67.9, 5.8, -17.2)
+material_override = SubResource("Mat_dirt")
+mesh = SubResource("Sph_0_9")
+
+[node name="RimLarva0" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.8, -67.7002, 6.1, -16.9401)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_12")
+
+[node name="RimLarva1" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.8, -67.7341, 6.1, -17.5549)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_12")
+
+[node name="RimLarva2" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.8, -67.3019, 6.1, -16.4069)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_12")
+
+[node name="RimLarva3" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.8, -67.4278, 6.1, -16.8675)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_12")
+
+[node name="RimLarva4" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.8, -67.8478, 6.1, -17.6325)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_12")
+
+[node name="ToiletBase" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49, 2, -31.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 4, 5.5)
+bevel = 0.8
+material = SubResource("Mat_ceramic")
+
+[node name="ToiletSeat" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49, 4.2, -31.4)
+script = ExtResource("1_prop_block")
+size = Vector3(4.2, 0.4, 4.6)
+bevel = 0.4
+material = SubResource("Mat_plastic_w")
+collide = false
+
+[node name="ToiletTank" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49, 6.3, -33.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4.6, 4.2, 2.2)
+bevel = 0.4
+material = SubResource("Mat_ceramic")
+
+[node name="VanityCabinet" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 3.3, -31.75)
+script = ExtResource("1_prop_block")
+size = Vector3(12, 6.6, 6.3)
+bevel = 0.1
+material = SubResource("Mat_vanity")
+
+[node name="VanityDoor0" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62, 3.4, -28.58)
+script = ExtResource("1_prop_block")
+size = Vector3(5.6, 5.8, 0.08)
+bevel = 0.02
+material = SubResource("Mat_wood_w")
+collide = false
+
+[node name="VanityDoor1" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56, 3.4, -28.58)
+script = ExtResource("1_prop_block")
+size = Vector3(5.6, 5.8, 0.08)
+bevel = 0.02
+material = SubResource("Mat_wood_w")
+collide = false
+
+[node name="ApronWest" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.25, 7.3, -31.75)
+script = ExtResource("1_prop_block")
+size = Vector3(1.5, 1.4, 6.5)
+bevel = 0.02
+material = SubResource("Mat_vanity")
+
+[node name="CounterWest" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.25, 8.25, -31.75)
+script = ExtResource("1_prop_block")
+size = Vector3(1.5, 0.5, 6.5)
+bevel = 0.04
+material = SubResource("Mat_counter")
+
+[node name="ApronEast" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.75, 7.3, -31.75)
+script = ExtResource("1_prop_block")
+size = Vector3(1.5, 1.4, 6.5)
+bevel = 0.02
+material = SubResource("Mat_vanity")
+
+[node name="CounterEast" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.75, 8.25, -31.75)
+script = ExtResource("1_prop_block")
+size = Vector3(1.5, 0.5, 6.5)
+bevel = 0.04
+material = SubResource("Mat_counter")
+
+[node name="ApronBack" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.3, -34.6)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 1.4, 0.8)
+bevel = 0.02
+material = SubResource("Mat_vanity")
+
+[node name="CounterBack" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 8.25, -34.6)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 0.5, 0.8)
+bevel = 0.04
+material = SubResource("Mat_counter")
+
+[node name="ApronFront" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.3, -28.95)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 1.4, 0.9)
+bevel = 0.02
+material = SubResource("Mat_vanity")
+
+[node name="CounterFront" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 8.25, -28.95)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 0.5, 0.9)
+bevel = 0.04
+material = SubResource("Mat_counter")
+
+[node name="BasinSkirtW" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.48, 7.45, -31.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 1.1, 4.8)
+bevel = 0.0
+material = SubResource("Mat_ceramic")
+collide = false
+
+[node name="BasinSkirtE" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -54.52, 7.45, -31.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.04, 1.1, 4.8)
+bevel = 0.0
+material = SubResource("Mat_ceramic")
+collide = false
+
+[node name="BasinSkirtN" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.45, -34.18)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 1.1, 0.04)
+bevel = 0.0
+material = SubResource("Mat_ceramic")
+collide = false
+
+[node name="BasinSkirtS" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.45, -29.42)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 1.1, 0.04)
+bevel = 0.0
+material = SubResource("Mat_ceramic")
+collide = false
+
+[node name="BasinBottom" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 6.75, -31.8)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 0.3, 4.8)
+bevel = 0.03
+material = SubResource("Mat_ceramic")
+
+[node name="Tap" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 9.7, -34.6)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1, 2.4, 1)
+bevel = 0.03
+material = SubResource("Mat_chrome")
+
+[node name="TapSpout" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 10.3, -33.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 0.5, 2)
+bevel = 0.03
+material = SubResource("Mat_chrome")
+collide = false
+
+[node name="Mirror" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 16, -34.9)
+script = ExtResource("1_prop_block")
+size = Vector3(10, 8, 0.15)
+bevel = 0.03
+material = SubResource("Mat_mirror")
+collide = false
+
+[node name="MirrorFrame" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 16, -34.97)
+script = ExtResource("1_prop_block")
+size = Vector3(10.4, 8.4, 0.1)
+bevel = 0.03
+material = SubResource("Mat_wood_w")
+collide = false
+
+[node name="ToothCup" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.9, 9.05, -34.55)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 1.1, 0.9)
+bevel = 0.03
+material = SubResource("Mat_plastic_g")
+
+[node name="SoapBar" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.8, 8.68, -29.4)
+script = ExtResource("1_prop_block")
+size = Vector3(1, 0.35, 0.6)
+bevel = 0.03
+material = SubResource("Mat_soap")
+collide = false
+
+[node name="SoapPump" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 9.3, -28.95)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1, 1.6, 0.9)
+bevel = 0.2
+material = SubResource("Mat_plastic_p")
+
+[node name="SoapPumpHead" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 10.3, -29.1)
+script = ExtResource("1_prop_block")
+size = Vector3(0.3, 0.4, 0.7)
+bevel = 0.03
+material = SubResource("Mat_plastic_w")
+collide = false
+
+[node name="TowelBar" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, -59, 7.6, -28.35)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.3, 8, 0.3)
+bevel = 0.03
+material = SubResource("Mat_chrome")
+collide = false
+
+[node name="Towel" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 4.1, -28.25)
+script = ExtResource("1_prop_block")
+size = Vector3(6, 6.8, 0.35)
+bevel = 0.15
+material = SubResource("Mat_towel")
+collide = false
+
+[node name="TowelNest" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(2.2, 0, 0, 0, 0.8, 0, 0, 0, 0.6, -59.4, 4.6, -27.9)
+material_override = SubResource("Mat_dirt")
+mesh = SubResource("Sph_0_8")
+
+[node name="TowelLarva0" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -60.2, 5, -27.75)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_1")
+
+[node name="TowelLarva1" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -59.7, 5, -27.75)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_1")
+
+[node name="TowelLarva2" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -59.2, 5, -27.75)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_1")
+
+[node name="TowelLarva3" type="MeshInstance3D" parent="Fixtures"]
+transform = Transform3D(1.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -58.7, 5, -27.75)
+material_override = SubResource("Mat_larva_pile")
+mesh = SubResource("Sph_0_1")
+
+[node name="LaundryHeap" type="StaticBody3D" parent="Fixtures"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -72, 1.5, -25)
+script = ExtResource("1_prop_block")
+size = Vector3(6, 3, 9)
+bevel = 1.2
+material = SubResource("Mat_towel")
+
+[node name="Trousers" type="Node3D" parent="."]
+
+[node name="Leg0" type="StaticBody3D" parent="Trousers"]
+transform = Transform3D(0.999024, 0, -0.044169, 0, 1, 0, 0.044169, 0, 0.999024, -65, 0.95, -13.7)
+script = ExtResource("1_prop_block")
+size = Vector3(4.4, 1.9, 1.9)
+bevel = 0.55
+material = SubResource("Mat_denim_dark")
+
+[node name="Leg1" type="StaticBody3D" parent="Trousers"]
+transform = Transform3D(0.995952, 0, -0.0898907, 0, 1, 0, 0.0898907, 0, 0.995952, -60.6, 1.05, -13.6)
+script = ExtResource("1_prop_block")
+size = Vector3(4.6, 2.1, 1.9)
+bevel = 0.55
+material = SubResource("Mat_denim")
+
+[node name="Leg2" type="StaticBody3D" parent="Trousers"]
+transform = Transform3D(0.998445, 0, 0.0557423, 0, 1, 0, -0.0557423, 0, 0.998445, -56, 0.9, -13.8)
+script = ExtResource("1_prop_block")
+size = Vector3(4.6, 1.8, 1.9)
+bevel = 0.55
+material = SubResource("Mat_denim_dark")
+
+[node name="Leg3" type="StaticBody3D" parent="Trousers"]
+transform = Transform3D(0.999782, 0, -0.0208587, 0, 1, 0, 0.0208587, 0, 0.999782, -51.6, 0.8, -13.5)
+script = ExtResource("1_prop_block")
+size = Vector3(3.2, 1.6, 1.9)
+bevel = 0.55
+material = SubResource("Mat_denim")
+
+[node name="Pocket" type="StaticBody3D" parent="Trousers"]
+transform = Transform3D(1, 0, 0, 0, 0.906308, 0.422618, 0, -0.422618, 0.906308, -66, 1.75, -12.85)
+script = ExtResource("1_prop_block")
+size = Vector3(1.4, 0.15, 1.2)
+bevel = 0.03
+material = SubResource("Mat_denim_dark")
+collide = false
+
+[node name="Belt" type="StaticBody3D" parent="Trousers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67, 1, -13.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 1, 1.9)
+bevel = 0.03
+material = SubResource("Mat_rubber")
+collide = false
+
+[node name="MazeLeft" type="Node3D" parent="."]
+
+[node name="BleachBottle" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, -65.2, 0.8, -5)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1.6, 3.6, 1.6)
+bevel = 0.3
+material = SubResource("Mat_plastic_w")
+
+[node name="ShampooLying" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, -61.3, 0.8, -5)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1.6, 3.8, 1.6)
+bevel = 0.3
+material = SubResource("Mat_plastic_b")
+
+[node name="RollPack" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.2, 0.8, -5)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 1.6, 1)
+bevel = 0.2
+material = SubResource("Mat_paper")
+
+[node name="Basket" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -51.85, 2, -7.2)
+script = ExtResource("1_prop_block")
+size = Vector3(3.5, 4, 3.6)
+bevel = 0.3
+material = SubResource("Mat_wicker")
+
+[node name="Bucket" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -51.9, 1.5, -10.7)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.6, 3, 2.6)
+bevel = 0.15
+material = SubResource("Mat_bucket")
+
+[node name="ShowerGel" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -54.6, 1.75, -10.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1.8, 3.5, 1.8)
+bevel = 0.3
+material = SubResource("Mat_plastic_p")
+
+[node name="Lotion" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.4, 1.5, -10.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1.6, 3, 1.6)
+bevel = 0.3
+material = SubResource("Mat_plastic_y")
+
+[node name="CottonBox" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.9, 0.9, -10.4)
+script = ExtResource("1_prop_block")
+size = Vector3(2.6, 1.8, 1.8)
+bevel = 0.1
+material = SubResource("Mat_cardboard")
+
+[node name="Detergent" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64, 1, -8.35)
+script = ExtResource("1_prop_block")
+size = Vector3(1.2, 2, 5.9)
+bevel = 0.1
+material = SubResource("Mat_lessive")
+
+[node name="SoapDish" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64, 0.72, -12.05)
+script = ExtResource("1_prop_block")
+size = Vector3(1.4, 0.15, 1.6)
+bevel = 0.05
+material = SubResource("Mat_plastic_b")
+
+[node name="SoapDishFoot0" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.55, 0.32, -12.7)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 0.65, 0.12)
+bevel = 0.02
+material = SubResource("Mat_plastic_b")
+
+[node name="SoapDishFoot1" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.45, 0.32, -12.7)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 0.65, 0.12)
+bevel = 0.02
+material = SubResource("Mat_plastic_b")
+
+[node name="SoapDishFoot2" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.55, 0.32, -11.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 0.65, 0.12)
+bevel = 0.02
+material = SubResource("Mat_plastic_b")
+
+[node name="SoapDishFoot3" type="StaticBody3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.45, 0.32, -11.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.12, 0.65, 0.12)
+bevel = 0.02
+material = SubResource("Mat_plastic_b")
+
+[node name="PlasticDeadEnd" type="Area3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.6, 0.05, -2.6)
+script = ExtResource("2_resource_pic")
+id = &"bath_pl_deadend"
+kind = 1
+amount = 3
+respawn_delay = 200.0
+
+[node name="FilamentDeadEnd" type="Area3D" parent="MazeLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -54.6, 0.05, -12)
+script = ExtResource("2_resource_pic")
+id = &"bath_fil_deadend"
+kind = 0
+amount = 1
+respawn_delay = 300.0
+
+[node name="Ticket" type="Node3D" parent="MazeLeft"]
+
+[node name="TicketHalfA" type="StaticBody3D" parent="MazeLeft/Ticket"]
+transform = Transform3D(0.944818, 0.200827, 0.258819, -0.207912, 0.978148, 0, -0.253163, -0.0538115, 0.965926, -65.7, 0.12, -10.9)
+script = ExtResource("1_prop_block")
+size = Vector3(0.8, 0.02, 0.75)
+bevel = 0.005
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="TicketHalfB" type="StaticBody3D" parent="MazeLeft/Ticket"]
+transform = Transform3D(0.956526, -0.102388, 0.273085, -0.139173, 0.662619, 0.735913, -0.2563, -0.741925, 0.619562, -65.55, 0.36, -11.55)
+script = ExtResource("1_prop_block")
+size = Vector3(0.8, 0.02, 0.75)
+bevel = 0.005
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="TicketLine0" type="StaticBody3D" parent="MazeLeft/Ticket"]
+transform = Transform3D(0.944818, 0.200827, 0.258819, -0.207912, 0.978148, 0, -0.253163, -0.0538115, 0.965926, -65.66, 0.138, -10.62)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 0.005, 0.03)
+bevel = 0.001
+material = SubResource("Mat_paper_ink")
+collide = false
+
+[node name="TicketLine1" type="StaticBody3D" parent="MazeLeft/Ticket"]
+transform = Transform3D(0.944818, 0.200827, 0.258819, -0.207912, 0.978148, 0, -0.253163, -0.0538115, 0.965926, -65.66, 0.138, -10.72)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 0.005, 0.03)
+bevel = 0.001
+material = SubResource("Mat_paper_ink")
+collide = false
+
+[node name="TicketCrumple" type="StaticBody3D" parent="MazeLeft/Ticket"]
+transform = Transform3D(0.719846, -0.262003, 0.642788, 0.34202, 0.939693, 0, -0.604023, 0.219846, 0.766044, -65.95, 0.16, -10.7)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 0.08, 0.2)
+bevel = 0.03
+material = SubResource("Mat_paper")
+collide = false
+
+[node name="TicketText" type="Label3D" parent="MazeLeft/Ticket"]
+transform = Transform3D(-0.944818, 0.258819, 0.200827, 0.207912, -3.44324e-17, 0.978148, 0.253163, 0.965926, -0.0538115, -65.72, 0.145, -10.98)
+pixel_size = 0.0018
+modulate = Color(0.25, 0.23, 0.22, 0.85)
+font_size = 32
+outline_size = 0
+text = "··· ····\n·· « NIN0 » ··\n··· ·· ·····\n····"
+
+[node name="TicketFocus" type="Marker3D" parent="MazeLeft/Ticket"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.6, 0.25, -11.2)
+script = ExtResource("4_focus_target")
+id = &"memory_02"
+radius = 0.55
+profile = ExtResource("13_memory_detai")
+facing = Vector3(0.75, 0.66, 0)
+memory = ExtResource("14_memory_02")
+thought_icons = Array[StringName]([&"eye"])
+
+[node name="MazeRight" type="Node3D" parent="."]
+
+[node name="Wall1" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.9, 0.8, -18.25)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 1.6, 3.5)
+bevel = 0.35
+material = SubResource("Mat_dirt")
+
+[node name="Wall1Lump0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -50.05, 1.55, -17.375)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall1Lump1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -49.75, 1.55, -19.125)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall2" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50.3, 0.8, -22.45)
+script = ExtResource("1_prop_block")
+size = Vector3(6.6, 1.6, 0.5)
+bevel = 0.35
+material = SubResource("Mat_dirt")
+
+[node name="Wall2Lump0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -47.66, 1.55, -22.65)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall2Lump1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -48.98, 1.55, -22.55)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall2Lump2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -50.3, 1.55, -22.45)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall2Lump3" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -51.62, 1.55, -22.35)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall2Lump4" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -52.94, 1.55, -22.25)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall3" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.9, 0.8, -18.85)
+script = ExtResource("1_prop_block")
+size = Vector3(7.4, 1.6, 0.5)
+bevel = 0.35
+material = SubResource("Mat_dirt")
+
+[node name="Wall3Lump0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -50.8167, 1.55, -18.6417)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall3Lump1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -52.05, 1.55, -18.725)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall3Lump2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -53.2833, 1.55, -18.8083)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall3Lump3" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -54.5167, 1.55, -18.8917)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall3Lump4" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -55.75, 1.55, -18.975)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall3Lump5" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -56.9833, 1.55, -19.0583)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="TileStep" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53, 0.2, -20.75)
+script = ExtResource("1_prop_block")
+size = Vector3(1.4, 0.4, 2.4)
+bevel = 0.04
+material = SubResource("Mat_tile_shard")
+
+[node name="TileRamp" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(0.970296, 0.241922, 0, -0.241922, 0.970296, 0, 0, 0, 1, -51.8, 0.2, -21.3)
+script = ExtResource("1_prop_block")
+size = Vector3(1.4, 0.12, 1.6)
+bevel = 0.02
+material = SubResource("Mat_tile_shard")
+
+[node name="Wall4" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.35, 0.8, -22.25)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 1.6, 6.3)
+bevel = 0.35
+material = SubResource("Mat_dirt")
+
+[node name="Wall4Lump0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -57.55, 1.55, -19.73)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall4Lump1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -57.45, 1.55, -20.99)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall4Lump2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -57.35, 1.55, -22.25)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall4Lump3" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -57.25, 1.55, -23.51)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall4Lump4" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -57.15, 1.55, -24.77)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall5" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.75, 0.8, -25.15)
+script = ExtResource("1_prop_block")
+size = Vector3(0.5, 1.6, 4.9)
+bevel = 0.35
+material = SubResource("Mat_dirt")
+
+[node name="Wall5Lump0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -53.9375, 1.55, -23.3125)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall5Lump1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -53.8125, 1.55, -24.5375)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall5Lump2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -53.6875, 1.55, -25.7625)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall5Lump3" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -53.5625, 1.55, -26.9875)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="PebbleA" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.1, -55.6, 0.45, -24)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_55")
+
+[node name="PebbleACol" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.6, 0.45, -24)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1, 0.9, 1.1)
+bevel = 0.03
+material = SubResource("Mat_pebble")
+cast_shadow = false
+
+[node name="PebbleB" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1, -56.9, 0.4, -24.1)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_5")
+
+[node name="Wall6" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62, 0.8, -24.75)
+script = ExtResource("1_prop_block")
+size = Vector3(8.8, 1.6, 0.5)
+bevel = 0.35
+material = SubResource("Mat_dirt")
+
+[node name="Wall6Lump0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -58.2286, 1.55, -24.9643)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall6Lump1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -59.4857, 1.55, -24.8929)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall6Lump2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -60.7429, 1.55, -24.8214)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall6Lump3" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -62, 1.55, -24.75)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall6Lump4" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -63.2571, 1.55, -24.6786)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall6Lump5" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -64.5143, 1.55, -24.6071)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="Wall6Lump6" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -65.7714, 1.55, -24.5357)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_35")
+
+[node name="RaisedTile" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.6, 0.18, -26.9)
+script = ExtResource("1_prop_block")
+size = Vector3(1.5, 0.36, 2.8)
+bevel = 0.04
+material = SubResource("Mat_tile_shard")
+
+[node name="PlasticToilet" type="Area3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -51.6, 0.05, -27.6)
+script = ExtResource("2_resource_pic")
+id = &"bath_pl_toilet"
+kind = 1
+amount = 4
+respawn_delay = 200.0
+
+[node name="FilamentToilet" type="Area3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52.4, 0.05, -24.2)
+script = ExtResource("2_resource_pic")
+id = &"bath_fil_toilet"
+kind = 0
+amount = 1
+respawn_delay = 300.0
+
+[node name="Cotton0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.2, 0, 0, 0, 0.85, 0, 0, 0, 1.1, -59.5, 0.85, -16.6)
+material_override = SubResource("Mat_cotton")
+mesh = SubResource("Sph_1_0")
+
+[node name="CottonCol0" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.5, 0.8, -16.6)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.1, 1.6, 1.9)
+bevel = 0.03
+material = SubResource("Mat_cotton")
+cast_shadow = false
+
+[node name="Cotton1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.2, 0, 0, 0, 0.85, 0, 0, 0, 1.1, -62.5, 0.85, -16.2)
+material_override = SubResource("Mat_cotton")
+mesh = SubResource("Sph_1_0")
+
+[node name="CottonCol1" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.5, 0.8, -16.2)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.1, 1.6, 1.9)
+bevel = 0.03
+material = SubResource("Mat_cotton")
+cast_shadow = false
+
+[node name="Cotton2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.2, 0, 0, 0, 0.85, 0, 0, 0, 1.1, -65.5, 0.85, -17.4)
+material_override = SubResource("Mat_cotton")
+mesh = SubResource("Sph_1_0")
+
+[node name="CottonCol2" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.5, 0.8, -17.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.1, 1.6, 1.9)
+bevel = 0.03
+material = SubResource("Mat_cotton")
+cast_shadow = false
+
+[node name="Cotton3" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.2, 0, 0, 0, 0.85, 0, 0, 0, 1.1, -55.5, 0.85, -16.4)
+material_override = SubResource("Mat_cotton")
+mesh = SubResource("Sph_1_0")
+
+[node name="CottonCol3" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.5, 0.8, -16.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.1, 1.6, 1.9)
+bevel = 0.03
+material = SubResource("Mat_cotton")
+cast_shadow = false
+
+[node name="Cotton4" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.2, 0, 0, 0, 0.85, 0, 0, 0, 1.1, -61, 0.85, -21.8)
+material_override = SubResource("Mat_cotton")
+mesh = SubResource("Sph_1_0")
+
+[node name="CottonCol4" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -61, 0.8, -21.8)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.1, 1.6, 1.9)
+bevel = 0.03
+material = SubResource("Mat_cotton")
+cast_shadow = false
+
+[node name="Cotton5" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.2, 0, 0, 0, 0.85, 0, 0, 0, 1.1, -64.5, 0.85, -21.2)
+material_override = SubResource("Mat_cotton")
+mesh = SubResource("Sph_1_0")
+
+[node name="CottonCol5" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.5, 0.8, -21.2)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(2.1, 1.6, 1.9)
+bevel = 0.03
+material = SubResource("Mat_cotton")
+cast_shadow = false
+
+[node name="ClosedFill" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.6, 0.9, -16.8)
+script = ExtResource("1_prop_block")
+size = Vector3(16, 1.8, 3.4)
+bevel = 0.4
+material = SubResource("Mat_dirt")
+
+[node name="ClosedFill2" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62, 0.9, -21)
+script = ExtResource("1_prop_block")
+size = Vector3(8, 1.8, 3.6)
+bevel = 0.4
+material = SubResource("Mat_dirt")
+
+[node name="NestTileA" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(0.919158, -0.195373, 0.34202, 0.207912, 0.978148, 0, -0.334546, 0.07111, 0.939693, -50.9, 0.08, -14.6)
+script = ExtResource("1_prop_block")
+size = Vector3(1.2, 0.15, 1)
+bevel = 0.02
+material = SubResource("Mat_tile_shard")
+collide = false
+
+[node name="NestHole" type="StaticBody3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50.3, 0.012, -14.25)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 0.02, 0.9)
+bevel = 0.03
+material = SubResource("Mat_drain_hole")
+collide = false
+
+[node name="NestMound" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1.4, 0, 0, 0, 0.4, 0, 0, 0, 1.2, -50.8, 0.05, -15)
+material_override = SubResource("Mat_dirt_light")
+mesh = SubResource("Sph_0_6")
+
+[node name="Gravel" type="Area3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.6, 1, -18.3)
+script = ExtResource("6_terrain_zone")
+key = &"gravel"
+wheels_factor = 0.4
+
+[node name="Shape" type="CollisionShape3D" parent="MazeRight/Gravel"]
+shape = SubResource("GravelShape")
+
+[node name="Grain0" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -47.9859, 0.05, -15.5517)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_1292608535316825")
+
+[node name="Grain1" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -49.2981, 0.05, -20.0417)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_12931168413119631")
+
+[node name="Grain2" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -47.702, 0.05, -15.4178)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_1337190349672927")
+
+[node name="Grain3" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -49.0517, 0.05, -17.5233)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_09781970716554969")
+
+[node name="Grain4" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.3828, 0.05, -20.7771)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_12449576010736557")
+
+[node name="Grain5" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -46.0221, 0.05, -16.7518)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_09328099378243436")
+
+[node name="Grain6" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.4623, 0.05, -20.6937)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_07825941755936856")
+
+[node name="Grain7" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -46.5901, 0.05, -20.2339)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_07419253820587537")
+
+[node name="Grain8" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -47.7788, 0.05, -20.1559)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_10915065991272765")
+
+[node name="Grain9" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.8547, 0.05, -17.4377)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_12123259510000453")
+
+[node name="Grain10" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -47.8694, 0.05, -20.0228)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_0781555591347794")
+
+[node name="Grain11" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -45.9988, 0.05, -16.4795)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_08888564840334189")
+
+[node name="Grain12" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -46.2915, 0.05, -20.0357)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_09129016049096927")
+
+[node name="Grain13" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -46.3951, 0.05, -17.449)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_09759922459504382")
+
+[node name="Grain14" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -45.9364, 0.05, -20.0205)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_0770232926528718")
+
+[node name="Grain15" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -46.6729, 0.05, -19.3263)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_08807942905031343")
+
+[node name="Grain16" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -49.0504, 0.05, -20.7593)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_09074273338192626")
+
+[node name="Grain17" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.4738, 0.05, -17.6923)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_11079143587172866")
+
+[node name="Grain18" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -47.7591, 0.05, -15.5452)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_09601928326152598")
+
+[node name="Grain19" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -47.3465, 0.05, -16.1008)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_10386071732837816")
+
+[node name="Grain20" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.7759, 0.05, -15.8495)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_08279794010450797")
+
+[node name="Grain21" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.4517, 0.05, -20.1612)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_1272461364621754")
+
+[node name="Grain22" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -46.1026, 0.05, -20.1205)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_12175970728716559")
+
+[node name="Grain23" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -46.3006, 0.05, -17.6788)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_1365095096616052")
+
+[node name="Grain24" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.9469, 0.05, -21.0678)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_09950200567631506")
+
+[node name="Grain25" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, -48.4894, 0.05, -17.0725)
+material_override = SubResource("Mat_pebble")
+mesh = SubResource("Sph_0_13738770580189308")
+
+[node name="GravelDirt" type="MeshInstance3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -47.6, 0.014, -18.3)
+material_override = SubResource("Mat_stain")
+cast_shadow = 0
+mesh = SubResource("Quad_GravelDirt")
+
+[node name="Soldiers" type="Node3D" parent="."]
+
+[node name="SoldierGravel" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.6, 0.02, -16)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-47.6, 0.02, -16.0, -48.2, 0.02, -20.3)
+
+[node name="SoldierCorridor" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.4, 0.02, -20.6)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-56.4, 0.02, -20.6, -55.6, 0.02, -21.2)
+
+[node name="SoldierVanity" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.2, 0.02, -26.4)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-58.2, 0.02, -26.4, -58.3, 0.02, -27.6)
+
+[node name="SoldierToilet" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -51.6, 0.02, -24.6)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-51.6, 0.02, -24.6, -52.2, 0.02, -27.0)
+
+[node name="Larvae" type="Node3D" parent="MazeRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.2, 0, -26.9)
+script = ExtResource("7_larva_droppe")
+
+[node name="DropPoints" type="Node3D" parent="MazeRight/Larvae"]
+
+[node name="P0" type="Marker3D" parent="MazeRight/Larvae/DropPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 1.2, 0.02, 0.2)
+
+[node name="P1" type="Marker3D" parent="MazeRight/Larvae/DropPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -0.2, 0.02, -0.2)
+
+[node name="P2" type="Marker3D" parent="MazeRight/Larvae/DropPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -1.6, 0.02, 0.3)
+
+[node name="Stool" type="Node3D" parent="."]
+
+[node name="Step1" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.25, 2.1, -26.4)
+script = ExtResource("1_prop_block")
+size = Vector3(3.5, 0.3, 2.4)
+bevel = 0.05
+material = SubResource("Mat_wood_w")
+
+[node name="Step2" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.25, 4.35, -28.8)
+script = ExtResource("1_prop_block")
+size = Vector3(3.5, 0.3, 2.4)
+bevel = 0.05
+material = SubResource("Mat_wood_w")
+
+[node name="StoolTop" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.25, 6.6, -32.2)
+script = ExtResource("1_prop_block")
+size = Vector3(3.5, 0.3, 4.4)
+bevel = 0.05
+material = SubResource("Mat_wood_w")
+
+[node name="RailFront0" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 0.978148, 0.207912, 0, -0.207912, 0.978148, -68.95, 3.3, -25.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 6.9, 0.3)
+bevel = 0.03
+material = SubResource("Mat_wood_rail")
+collide = false
+
+[node name="RailBack0" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -68.95, 3.4, -34.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 6.8, 0.3)
+bevel = 0.03
+material = SubResource("Mat_wood_rail")
+collide = false
+
+[node name="Brace0" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -68.95, 1, -29.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.2, 0.2, 8.6)
+bevel = 0.03
+material = SubResource("Mat_wood_rail")
+collide = false
+
+[node name="RailFront1" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 0.978148, 0.207912, 0, -0.207912, 0.978148, -65.55, 3.3, -25.4)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 6.9, 0.3)
+bevel = 0.03
+material = SubResource("Mat_wood_rail")
+collide = false
+
+[node name="RailBack1" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.55, 3.4, -34.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 6.8, 0.3)
+bevel = 0.03
+material = SubResource("Mat_wood_rail")
+collide = false
+
+[node name="Brace1" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.55, 1, -29.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.2, 0.2, 8.6)
+bevel = 0.03
+material = SubResource("Mat_wood_rail")
+collide = false
+
+[node name="Crossbar" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.25, 1, -25.6)
+script = ExtResource("1_prop_block")
+size = Vector3(3.6, 0.2, 0.2)
+bevel = 0.03
+material = SubResource("Mat_wood_rail")
+collide = false
+
+[node name="BoxA" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.4, 0.375, -26.4)
+script = ExtResource("1_prop_block")
+size = Vector3(1.3, 0.75, 1.1)
+bevel = 0.05
+material = SubResource("Mat_cardboard")
+
+[node name="ClothB" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.9, 0.25, -26.4)
+script = ExtResource("1_prop_block")
+size = Vector3(1.3, 0.5, 1.3)
+bevel = 0.12
+material = SubResource("Mat_towel")
+
+[node name="RollB" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.9, 1, -26.4)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1.1, 1, 1.1)
+bevel = 0.12
+material = SubResource("Mat_paper")
+
+[node name="CupC" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -66.3, 2.625, -26)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1, 0.75, 1)
+bevel = 0.08
+material = SubResource("Mat_plastic_g")
+
+[node name="BottleD" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.2, 3, -26.7)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 1.5, 0.9)
+bevel = 0.15
+material = SubResource("Mat_plastic_p")
+
+[node name="SoapDishE" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.25, 4.875, -28.7)
+script = ExtResource("1_prop_block")
+size = Vector3(1.2, 0.75, 0.8)
+bevel = 0.08
+material = SubResource("Mat_plastic_b")
+
+[node name="ClothsF" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.25, 5.25, -29.6)
+script = ExtResource("1_prop_block")
+size = Vector3(1.3, 1.5, 0.8)
+bevel = 0.2
+material = SubResource("Mat_towel")
+
+[node name="BoxG" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -67.9, 7.125, -32.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.9, 0.75, 1)
+bevel = 0.05
+material = SubResource("Mat_cardboard")
+
+[node name="BooksH" type="StaticBody3D" parent="Stool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -66.2, 7.5, -32.5)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 1.5, 1.4)
+bevel = 0.08
+material = SubResource("Mat_plastic_y")
+
+[node name="SinkArena" type="Node3D" parent="."]
+script = ExtResource("9_sink_arena")
+
+[node name="Sludge" type="MeshInstance3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.72, -31.8)
+material_override = SubResource("Mat_sludge")
+mesh = SubResource("SludgeMesh")
+
+[node name="MireFloor" type="StaticBody3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.47, -31.8)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/MireFloor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("BoxShape_8p9_0p3_4p7")
+
+[node name="MireZone" type="Area3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.95, -31.8)
+script = ExtResource("6_terrain_zone")
+key = &"mire"
+speed_factor = 0.45
+jump_factor = 0.62
+damage_factor = 1.25
+sink_depth = 0.14
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/MireZone"]
+shape = SubResource("MireShape")
+
+[node name="Platforms" type="Node3D" parent="SinkArena"]
+
+[node name="P0Cap" type="AnimatableBody3D" parent="SinkArena/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -63.05, 8.05, -32.6)
+collision_mask = 0
+script = ExtResource("10_floating_pla")
+bob_amplitude = 0.0
+drift = Vector3(0, 0, 0)
+drift_speed = 0.5
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/Platforms/P0Cap"]
+shape = SubResource("PlatShape_P0Cap")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/Platforms/P0Cap"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 0.3, 0.9)
+bevel = 0.075
+material = SubResource("Mat_cap")
+collide = false
+
+[node name="P1Sponge" type="AnimatableBody3D" parent="SinkArena/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.4, 7.75, -30.25)
+collision_mask = 0
+script = ExtResource("10_floating_pla")
+bob_amplitude = 0.04
+drift = Vector3(0, 0, 0)
+drift_speed = 0.5
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/Platforms/P1Sponge"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("BoxShape_1p2_0p4_1")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/Platforms/P1Sponge"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(1.2, 0.4, 1)
+bevel = 0.1
+material = SubResource("Mat_sponge_g")
+collide = false
+
+[node name="P2BottleCap" type="AnimatableBody3D" parent="SinkArena/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.7, 7.77, -30.05)
+collision_mask = 0
+script = ExtResource("10_floating_pla")
+bob_amplitude = 0.04
+drift = Vector3(0.4, 0, 0)
+drift_speed = 0.45
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/Platforms/P2BottleCap"]
+shape = SubResource("PlatShape_P2BottleCap")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/Platforms/P2BottleCap"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1, 0.3, 1)
+bevel = 0.075
+material = SubResource("Mat_plastic_b")
+collide = false
+
+[node name="P3Cotton" type="AnimatableBody3D" parent="SinkArena/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.8, 7.78, -29.95)
+collision_mask = 0
+script = ExtResource("10_floating_pla")
+bob_amplitude = 0.04
+drift = Vector3(0, 0, 0)
+drift_speed = 0.5
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/Platforms/P3Cotton"]
+shape = SubResource("PlatShape_P3Cotton")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/Platforms/P3Cotton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(1.2, 0.25, 1.2)
+bevel = 0.0625
+material = SubResource("Mat_cotton")
+collide = false
+
+[node name="P4Soap" type="AnimatableBody3D" parent="SinkArena/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.9, 7.75, -30.1)
+collision_mask = 0
+script = ExtResource("10_floating_pla")
+bob_amplitude = 0.04
+drift = Vector3(0, 0, 0.3)
+drift_speed = 0.6
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/Platforms/P4Soap"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("BoxShape_1p4_0p4_0p8")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/Platforms/P4Soap"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(1.4, 0.4, 0.8)
+bevel = 0.1
+material = SubResource("Mat_soap")
+collide = false
+
+[node name="P5Lid" type="AnimatableBody3D" parent="SinkArena/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.4, 7.78, -30.2)
+collision_mask = 0
+script = ExtResource("10_floating_pla")
+bob_amplitude = 0.02
+drift = Vector3(0, 0, 0)
+drift_speed = 0.5
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/Platforms/P5Lid"]
+shape = SubResource("PlatShape_P5Lid")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/Platforms/P5Lid"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 0.3, 0.9)
+bevel = 0.075
+material = SubResource("Mat_cap")
+collide = false
+
+[node name="P6Shard" type="AnimatableBody3D" parent="SinkArena/Platforms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.4, 7.78, -32.9)
+collision_mask = 0
+script = ExtResource("10_floating_pla")
+bob_amplitude = 0.03
+drift = Vector3(0, 0, 0)
+drift_speed = 0.5
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/Platforms/P6Shard"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("BoxShape_1_0p3_1")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/Platforms/P6Shard"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(1, 0.3, 1)
+bevel = 0.075
+material = SubResource("Mat_tile_shard")
+collide = false
+
+[node name="QueenIsland" type="AnimatableBody3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7.95, -32.7)
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/QueenIsland"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("BoxShape_2p4_0p5_2")
+
+[node name="Mesh" type="StaticBody3D" parent="SinkArena/QueenIsland"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+size = Vector3(2.4, 0.5, 2)
+bevel = 0.2
+material = SubResource("Mat_sponge")
+collide = false
+
+[node name="Queen" type="Node3D" parent="SinkArena"]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -59, 8.2, -32.7)
+script = ExtResource("11_ant_queen")
+
+[node name="DrainHole" type="StaticBody3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 6.91, -31)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.9, 0.02, 0.9)
+bevel = 0.03
+material = SubResource("Mat_drain_hole")
+collide = false
+
+[node name="Plug" type="Node3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 7, -31)
+
+[node name="PlugMesh" type="StaticBody3D" parent="SinkArena/Plug"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.95, 0.25, 0.95)
+bevel = 0.05
+material = SubResource("Mat_rubber")
+collide = false
+
+[node name="Chain" type="MeshInstance3D" parent="SinkArena"]
+material_override = SubResource("Mat_chrome")
+script = ExtResource("12_cable")
+points = PackedVector3Array(-59, 7.15, -31, -57.5, 7.8, -31.6, -55.4, 8.4, -32.6, -54.2, 8.6, -33.3)
+radius = 0.035
+
+[node name="Ring" type="Node3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -54, 8.62, -33.4)
+
+[node name="RingMesh" type="StaticBody3D" parent="SinkArena/Ring"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_prop_block")
+shape = 1
+size = Vector3(0.5, 0.08, 0.5)
+bevel = 0.03
+material = SubResource("Mat_chrome")
+collide = false
+
+[node name="RingInteract" type="Area3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.8, 9, -33)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("3_interactable")
+prompt = "Tirer la chaînette"
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/RingInteract"]
+shape = SubResource("InterShape_RingInteract")
+
+[node name="ArenaTrigger" type="Area3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64, 9.4, -31.75)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/ArenaTrigger"]
+shape = SubResource("AreaShape_ArenaTrigger")
+
+[node name="ArenaBounds" type="Area3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 10, -31.75)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="SinkArena/ArenaBounds"]
+shape = SubResource("AreaShape_ArenaBounds")
+
+[node name="ArenaCheckpoint" type="Marker3D" parent="SinkArena"]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -67.2, 6.8, -31.6)
+
+[node name="DrainPoint" type="Marker3D" parent="SinkArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -59, 6.95, -31)
+
+[node name="EntryZone" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.2, 1.5, -7.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="./EntryZone"]
+shape = SubResource("AreaShape_EntryZone")
+
+[node name="Markers" type="Node3D" parent="."]
+
+[node name="BathEntry" type="Marker3D" parent="Markers"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -47.6, 0.05, -7.5)
+
+[node name="StoolBase" type="Marker3D" parent="Markers"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -61.6, 0.05, -26.9)
+
+[node name="StoolTop" type="Marker3D" parent="Markers"]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -67.2, 6.8, -31.6)
+
+[node name="MazeLeftEntry" type="Marker3D" parent="Markers"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -49, 0.05, -2.6)
+
+[node name="MazeRightEntry" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -47.6, 0.05, -15)
+
+[node name="TicketView" type="Marker3D" parent="Markers"]
+transform = Transform3D(-0.573576, 0, 0.819152, 0, 1, 0, -0.819152, 0, -0.573576, -64, 0.05, -12.3)
+
+[node name="CeilingLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60, 21, -18)
+light_color = Color(0.86, 0.92, 1, 1)
+light_energy = 0.55
+omni_range = 30.0
+omni_attenuation = 0.8
+
+[node name="MirrorLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59, 15, -32)
+light_color = Color(1, 0.9, 0.75, 1)
+light_energy = 0.45
+omni_range = 10.0
+
+[node name="MazeGlow" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58, 4, -8)
+light_color = Color(0.85, 0.9, 1, 1)
+light_energy = 0.25
+omni_range = 9.0
