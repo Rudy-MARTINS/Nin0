@@ -14,7 +14,7 @@ const ICONS := [
 	&"question", &"exclamation", &"ellipsis", &"idea", &"happy", &"eye", &"printer", &"legs",
 	&"plug", &"energy", &"arrow", &"up", &"down", &"gear", &"door", &"handle", &"spool", &"robot",
 	&"check", &"cross", &"frame", &"house", &"book", &"sun", &"wrench", &"damage", &"filament",
-	&"ant", &"ant_soldier", &"ant_queen", &"shield", &"cannon", &"acid", &"lock", &"plastic",
+	&"ant", &"ant_soldier", &"ant_queen", &"shield", &"cannon", &"acid", &"lock", &"plastic", &"binoculars",
 ]
 
 @export var icon: StringName = &"question":
@@ -58,6 +58,14 @@ func _draw_icon(name: StringName, area: Vector2) -> void:
 			# Les yeux « contents » de Nin0 : deux arcs.
 			for side in [-1.0, 1.0]:
 				draw_arc(c + Vector2(side * 20.0, 8.0) * s, 14.0 * s, PI, TAU, 12, COOL, w, true)
+		&"binoculars":
+			# Jumelles : la vision focalisée de Nin0.
+			for side in [-1.0, 1.0]:
+				draw_rect(Rect2(c + Vector2(side * 22.0 - 13.0, -24.0) * s, Vector2(26, 22) * s), INK)
+				draw_circle(c + Vector2(side * 22.0, 10.0) * s, 19.0 * s, INK)
+				draw_circle(c + Vector2(side * 22.0, 10.0) * s, 11.0 * s, COOL)
+				draw_circle(c + Vector2(side * 22.0 - 4.0, 6.0) * s, 3.5 * s, Color.WHITE)
+			draw_rect(Rect2(c + Vector2(-9, -14) * s, Vector2(18, 12) * s), ACCENT)
 		&"eye":
 			var points := PackedVector2Array()
 			for i in 25:

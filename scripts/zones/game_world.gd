@@ -21,6 +21,8 @@ const ZONE_KITCHEN := 4
 ## Mode développement : scénario à préparer au démarrage (voir apartment_dev.gd).
 var dev_scenario: StringName = &""
 var current_zone := 0
+## Ouvrière de la première rencontre (tant qu'elle est présente).
+var encounter_worker: AntWorker
 
 var director: Node3D
 var nino: NinoController
@@ -40,6 +42,9 @@ var _shown := {}
 var _encounter_running := false
 var _sequence := false
 var _tick := 0.0
+## Musique d'exploration autorisée (après le début de la partie, pas à l'écran titre).
+var _music_on := false
+var _boss_music := false
 
 @onready var workshop: Node3D = $Workshop
 @onready var blockout: Node3D = $Blockout
@@ -85,6 +90,11 @@ func _ready() -> void:
 		soldier.alerted.connect(_on_soldier_alerted)
 	var arena := bath.arena
 	arena.intro_started.connect(_on_arena_intro)
+	arena.boss_music_started.connect(func() -> void:
+		_boss_music = true
+		_update_music())
+	arena.fight_reset.connect(func() -> void: _boss_music = false)
+	arena.cinematic_changed.connect(func(active: bool) -> void: hud.set_gameplay_visible(not active))
 	arena.fight_started.connect(_on_fight_started)
 	arena.queen_defeated.connect(_on_queen_defeated)
 	arena.queen.acid_hit_nino.connect(_on_acid_hit)
@@ -111,6 +121,7 @@ func _build_ui() -> void:
 
 func _on_play_began() -> void:
 	inventory.allowed = true
+	_music_on = true
 	if GameState.dev_mode:
 		# Exploration libre : la rencontre du sas se teste avec son scénario (Ctrl+1).
 		GameState.worker_met = true
@@ -180,8 +191,32 @@ func _physics_process(delta: float) -> void:
 		current_zone = zone
 		_on_zone_changed(previous, zone)
 	GameState.in_combat = bath.any_soldier_engaged() or bath.arena.phase in [SinkArena.Phase.INTRO, SinkArena.Phase.FIGHT]
+	_update_music()
 	if current_zone == ZONE_BATH and GameState.woke_up and nino.is_on_floor():
 		_update_bath_checkpoints()
+
+
+## Une seule musique de zone : combat de la reine > salle de bain (labyrinthes) >
+## cuisine > placard et sas (« Petit Refuge », jamais relancé s'il joue déjà).
+func music_for_state() -> StringName:
+	if _boss_music:
+		return &"boss"
+	match current_zone:
+		ZONE_BATH:
+			return &"labyrinth"
+		ZONE_KITCHEN:
+			return &"kitchen"
+		ZONE_HUB, ZONE_SAS:
+			return &"hub"
+	return Music.desired
+
+
+func _update_music() -> void:
+	if not _music_on:
+		return
+	var id := music_for_state()
+	if id != &"" and id != Music.desired:
+		Music.play(id, Music.DEFAULT_VOLUME, 1.2 if id == &"boss" else Music.CROSSFADE)
 
 
 func zone_at(point: Vector3) -> int:
@@ -237,13 +272,16 @@ func _on_encounter_zone() -> void:
 	play_encounter()
 
 
-## L'ouvrière traverse, découvre Nin0, s'arrête ; antennes, tête penchée ; ils
-## s'observent en silence ; elle repart. Contrôle retiré environ 4 secondes.
+## L'ouvrière traverse, découvre Nin0, s'arrête ; antennes, tête penchée. Nin0
+## l'observe, ses yeux se calibrent, il pense « jumelles » : le joueur est invité à
+## l'analyser. L'ouvrière attend un moment (cible visible sur elle), puis repart.
+## Le scan n'est jamais lancé automatiquement.
 func play_encounter() -> void:
 	_encounter_running = true
 	var ant := AntWorker.new()
 	ant.name = "FirstWorker"
 	sas.add_child(ant)
+	encounter_worker = ant
 	var start := sas.encounter_point("Start")
 	var stop := sas.encounter_point("Stop")
 	var leave := sas.encounter_point("Leave")
@@ -254,8 +292,7 @@ func play_encounter() -> void:
 	nino.velocity = Vector3.ZERO
 	await _walk_ant(ant, stop, 0.5)
 	# Découverte : arrêt net, antennes agitées, tête penchée.
-	var to_nino := nino.global_position - ant.global_position
-	ant.face_direction(to_nino, 1.0)
+	ant.face_direction(nino.global_position - ant.global_position, 1.0)
 	ant.body.motion_speed = 0.0
 	ant.body.excitement = 1.0
 	Sfx.play(&"ant_chitter", -8.0, 1.1)
@@ -264,36 +301,78 @@ func play_encounter() -> void:
 	Sfx.set_loop(&"ambience", &"ambience", -30.0)
 	await _wait(0.7)
 	ant.body.excitement = 0.3
-	var tilt := create_tween()
-	tilt.tween_property(ant.body, "head_tilt", 0.45, 0.4)
-	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.6)
-	thoughts.think([&"ant", &"question"], "", 2.2)
-	await _wait(1.3)
-	# Silence : ils s'observent.
-	var back := create_tween()
-	back.tween_property(ant.body, "head_tilt", -0.25, 0.5)
-	await _wait(0.7)
+	create_tween().tween_property(ant.body, "head_tilt", 0.45, 0.4)
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 1.4)
+	await _wait(1.0)
+	# Nin0 force sa vue : petit calibrage optique, pensée « jumelles ».
+	for i in 2:
+		visual.show_emotion(NinoVisual.Emotion.FOCUSED, 0.5)
+		Sfx.play(&"servo", -18.0, 1.8)
+		await _wait(0.45)
+	visual.glitch_pulse(0.4, 0.3)
+	Sfx.play(&"optic", -8.0)
+	thoughts.think([&"binoculars", &"ant"], "", 3.0, true)
 	ant.body.head_tilt = 0.0
 	ant.body.excitement = 0.0
 	Sfx.set_loop(&"ambience", &"ambience", -18.0)
 	nino.controls_enabled = true
-	visual.show_emotion(NinoVisual.Emotion.HAPPY, 1.2)
+	visual.look_target = null
 	GameState.set_flag(&"worker_met")
 	encounter_finished.emit()
 	_encounter_running = false
-	# Elle reprend sa route (sans hâte) ; Nin0 la suit des yeux.
-	_follow_with_eyes(ant, 2.5)
-	await _walk_ant(ant, leave, 0.36)
-	# Elle se glisse sous le meuble à chaussures, vers la colonne.
+	var analyzed := GameState.has_species(&"ant_worker")
+	if not analyzed:
+		_mark_scan_target(ant, true)
+		hud.show_hint("Maintenez %s : vision focalisée — visez la fourmi" % Hud.key("clic droit"), 7.0)
+		# Elle reste là, curieuse, le temps d'être analysée (ou que Nin0 s'éloigne).
+		var waited := 0.0
+		while waited < 14.0 and is_instance_valid(ant) and not GameState.has_species(&"ant_worker") \
+				and nino.global_position.distance_to(ant.global_position) < 3.5:
+			ant.body.excitement = 0.15 + 0.15 * sin(waited * 3.0)
+			await get_tree().physics_frame
+			waited += get_physics_process_delta_time()
+		if is_instance_valid(ant):
+			_mark_scan_target(ant, false)
+			ant.body.excitement = 0.0
+		if GameState.has_species(&"ant_worker"):
+			await _wait(1.2)
+	# Elle reprend sa route (sans hâte) vers le meuble à chaussures.
+	if is_instance_valid(ant):
+		await _walk_ant(ant, leave, 0.36)
 	if is_instance_valid(ant):
 		var fade := create_tween()
 		fade.tween_property(ant, "scale", Vector3.ONE * 0.05, 0.6)
 		await fade.finished
 	if is_instance_valid(ant):
 		ant.queue_free()
+	encounter_worker = null
 	if focus_vision.unlocked and not GameState.has_species(&"ant_worker"):
-		thoughts.think([&"eye", &"ant", &"question"], "", 2.4)
-		_hint_once(&"analyze", "Maintenez %s : observer de près" % Hud.key("clic droit"), 5.0)
+		thoughts.think([&"binoculars", &"ant", &"question"], "", 2.4)
+
+
+## Cible visuelle sur l'ouvrière à analyser : anneau pulsant et repère de la vision.
+func _mark_scan_target(ant: AntWorker, on: bool) -> void:
+	ant.focus.show_marker = on
+	var ring := ant.get_node_or_null("ScanRing") as MeshInstance3D
+	if on and ring == null:
+		ring = MeshInstance3D.new()
+		ring.name = "ScanRing"
+		var torus := TorusMesh.new()
+		torus.inner_radius = 0.13
+		torus.outer_radius = 0.16
+		ring.mesh = torus
+		var material := StandardMaterial3D.new()
+		material.albedo_color = Color(0.55, 0.95, 1.0, 0.8)
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		ring.material_override = material
+		ring.position = Vector3(0.0, 0.02, 0.0)
+		ant.add_child(ring)
+		var pulse := ring.create_tween().set_loops()
+		pulse.tween_property(ring, "scale", Vector3.ONE * 1.25, 0.5)
+		pulse.tween_property(ring, "scale", Vector3.ONE, 0.5)
+	if ring:
+		ring.visible = on
 
 
 func _walk_ant(ant: AntWorker, to: Vector3, speed: float) -> void:
@@ -423,13 +502,11 @@ func _on_soldier_alerted(_soldier: AntSoldier) -> void:
 
 
 func _on_arena_intro() -> void:
-	var queen := bath.arena.queen.global_position
-	var to := queen - nino.global_position
-	var frame := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	frame.tween_property(camera, "rotation:y", atan2(-to.x, -to.z), 1.0)
-	frame.tween_property(camera, "pitch", deg_to_rad(-16.0), 1.0)
-	frame.tween_property(camera, "arm_length", 2.6, 1.0)
-	nino.get_visual().look_target = queen + Vector3.UP * 0.5
+	# Cadre de jeu après la cinématique : la caméra regarde vers la vasque.
+	var to := SinkArena.BASIN_CENTER - nino.global_position
+	camera.rotation.y = atan2(-to.x, -to.z)
+	camera.pitch = deg_to_rad(-18.0)
+	camera.arm_length = 2.4
 	if not _shown.has(&"queen_intro"):
 		_shown[&"queen_intro"] = true
 		hud.show_toast("La reine de la colonie", 3.0)
@@ -477,6 +554,9 @@ func _on_queen_defeated() -> void:
 	nino.controls_enabled = true
 	_sequence = false
 	thoughts.think([&"printer", &"question"], "", 2.4)
+	# Fin du combat : retour à la musique des labyrinthes.
+	_boss_music = false
+	_update_music()
 
 
 func _on_cannon_installed() -> void:
