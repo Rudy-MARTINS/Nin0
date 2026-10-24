@@ -42,6 +42,8 @@ var _nozzle_material: StandardMaterial3D
 var _led_material: StandardMaterial3D
 var _gantry_rest_y := 0.0
 var _carried: Node3D
+## Décalage entre la buse et la pièce saisie (hanche des jambes, support du canon…).
+var _carried_offset := Vector3(0.0, HIP_HEIGHT, 0.0)
 var _rider: Node3D
 
 @onready var interactable: Interactable = $Interactable
@@ -79,7 +81,7 @@ func _process(delta: float) -> void:
 			_animate_printing(delta)
 	if _carried:
 		# La pièce saisie pend sous la buse.
-		var hip_offset := _carried.global_basis * Vector3(0.0, HIP_HEIGHT, 0.0)
+		var hip_offset := _carried.global_basis * _carried_offset
 		_carried.global_position = _nozzle_tip() - hip_offset
 	_update_filament()
 
@@ -236,6 +238,114 @@ func service(nino: NinoController, duration: float) -> void:
 	state = State.EMPTY
 	nino.end_scripted()
 	service_finished.emit()
+
+
+## Fabrication d'une amélioration majeure (lot 5 : canon) puis installation physique :
+## la pièce est imprimée couche par couche sur le plateau, Nin0 monte, la tête saisit la
+## pièce et l'emboîte sur sa fixation (même mécanique que les jambes).
+## `part` : modèle à imprimer (ajouté au plateau) ; `install` : appelé à l'emboîtement.
+func fabricate_and_install(nino: NinoController, part: Node3D, mount: Callable, install: Callable, duration := 7.0) -> void:
+	if state != State.EMPTY:
+		return
+	state = State.SERVICING
+	nino.begin_scripted()
+	var visual := nino.get_visual()
+	# 1. Impression sur le plateau, à l'avant de la zone de Nin0.
+	var pivot := Node3D.new()
+	_bed.add_child(pivot)
+	pivot.position = Vector3(0.0, BED_TOP + 0.005, -0.15)
+	pivot.add_child(part)
+	part.position = Vector3(0.0, 0.07, 0.0)
+	pivot.scale = Vector3(1.0, 0.02, 1.0)
+	_screen_material.set_shader_parameter("mode", 1)
+	_screen_material.set_shader_parameter("progress", 0.0)
+	Sfx.play(&"blip", -4.0)
+	await _move_bed(0.15, 0.6)
+	var heat := create_tween()
+	heat.tween_property(_nozzle_material, "emission_energy_multiplier", 3.0, 1.0)
+	await heat.finished
+	Sfx.set_loop(&"printer", &"print_motor", -14.0)
+	var elapsed := 0.0
+	while elapsed < duration:
+		var t := elapsed / duration
+		pivot.scale.y = lerpf(0.02, 1.0, t)
+		var top := pivot.global_position + Vector3.UP * (0.02 + 0.16 * t)
+		var sweep := global_basis * Vector3(sin(elapsed * 9.0) * 0.08, 0.0, 0.0)
+		_move_head_now(top + sweep)
+		_bed.position.z = 0.15 + sin(elapsed * 7.0) * 0.04
+		_screen_material.set_shader_parameter("progress", t)
+		service_progressed.emit(t)
+		Sfx.set_loop(&"printer", &"print_motor", -14.0, 0.9 + 0.2 * sin(elapsed * 2.3))
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+	pivot.scale.y = 1.0
+	Sfx.stop_loop(&"printer")
+	Sfx.play(&"print_done", -4.0)
+	_nozzle_material.emission_energy_multiplier = 0.0
+	_screen_material.set_shader_parameter("mode", 2)
+	var park := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	park.tween_property(_gantry, "position:y", _gantry_rest_y, 0.8)
+	park.tween_property(_head, "position:x", 1.4, 0.8)
+	await park.finished
+	await _move_bed(bed_presented_z, 0.8)
+	# 2. Présentation : la pièce sur le plateau, Nin0 la regarde.
+	visual.look_target = part.global_position
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.2)
+	await get_tree().create_timer(1.2).timeout
+	visual.look_target = null
+	# 3. Nin0 se hisse sur le plateau (derrière la pièce).
+	var spot := _bed.to_global(Vector3(0.0, BED_TOP + 0.01, rider_spot_z))
+	var from := nino.global_position
+	var apex := (from + spot) * 0.5 + Vector3.UP * 0.6
+	var hop := create_tween().set_trans(Tween.TRANS_SINE)
+	hop.tween_method(func(k: float) -> void:
+		nino.global_position = from.lerp(apex, k).lerp(apex.lerp(spot, k), k)
+	, 0.0, 1.0, 0.5)
+	hop.parallel().tween_property(nino, "rotation:y", global_rotation.y, 0.5)
+	Sfx.play(&"jump", -8.0)
+	await hop.finished
+	visual.react_to_landing(4.0)
+	_rider = nino
+	_screen_material.set_shader_parameter("mode", 1)
+	# 4. La tête saisit la pièce…
+	await _move_head(part.global_position + Vector3.UP * 0.07, 0.6)
+	var held := part.global_transform
+	pivot.remove_child(part)
+	add_child(part)
+	part.global_transform = held
+	_carried_offset = Vector3(0.0, 0.07, 0.0)
+	_carried = part
+	Sfx.play(&"click", -10.0, 1.4)
+	await _move_head(_nozzle_tip() + Vector3.UP * 0.3, 0.4)
+	pivot.queue_free()
+	# … le plateau amène Nin0 sous la tête, la pièce descend sur sa fixation.
+	await _move_bed(-rider_spot_z, 0.7)
+	var target: Vector3 = mount.call()
+	await _move_head(target + Vector3.UP * 0.07 + Vector3.UP * 0.22, 0.5)
+	var align := create_tween()
+	align.tween_property(part, "global_rotation", nino.get_visual().global_rotation, 0.3)
+	await _move_head(target + Vector3.UP * 0.07, 0.35)
+	# 5. Emboîtement.
+	_carried = null
+	_carried_offset = Vector3(0.0, HIP_HEIGHT, 0.0)
+	part.queue_free()
+	install.call()
+	visual.react_to_jump()
+	Sfx.play(&"click", 0.0, 0.9)
+	Sfx.play(&"servo", -10.0, 1.4)
+	_flash()
+	visual.emit_sparks(6)
+	await _move_head(_nozzle_tip() + Vector3.UP * 0.5, 0.4)
+	var rest := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	rest.tween_property(_gantry, "position:y", _gantry_rest_y, 0.8)
+	rest.tween_property(_head, "position:x", 1.4, 0.8)
+	await rest.finished
+	await _move_bed(bed_presented_z, 0.8)
+	_screen_material.set_shader_parameter("mode", 0)
+	_rider = null
+	state = State.EMPTY
+	nino.end_scripted()
+	installation_finished.emit()
 
 
 ## État après chargement d'une sauvegarde : sous tension, jambes déjà installées.

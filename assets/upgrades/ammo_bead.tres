@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="AmmoData" format=3 uid="uid://bv2epkooq45uj"]
+
+[ext_resource type="Script" uid="uid://b8gs1x2t05evy" path="res://scripts/weapons/ammo_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"bead"
+title = "Billes de plastique"

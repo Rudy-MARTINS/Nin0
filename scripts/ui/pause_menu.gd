@@ -7,6 +7,12 @@ extends CanvasLayer
 var allowed := false
 ## Découvertes de la pièce (identifiants, renseignés par le niveau).
 var discovery_ids: Array[StringName] = []
+## Inventaire du jeu complet (absent dans la démo seule) : bouton dans la pause.
+var inventory: InventoryMenu:
+	set(value):
+		inventory = value
+		_add_inventory_button()
+var _inventory_button: Button
 
 @onready var _resume_button: Button = $Center/Panel/Margin/VBox/Buttons/ResumeButton
 @onready var _restart_button: Button = $Center/Panel/Margin/VBox/Buttons/RestartButton
@@ -30,8 +36,20 @@ func _ready() -> void:
 		_archives_text.visible = not _archives_text.visible)
 
 
+func _add_inventory_button() -> void:
+	if _inventory_button or inventory == null or not is_node_ready():
+		return
+	_inventory_button = Button.new()
+	_inventory_button.text = "Inventaire"
+	_resume_button.get_parent().add_child(_inventory_button)
+	_resume_button.get_parent().move_child(_inventory_button, _resume_button.get_index() + 1)
+	_inventory_button.pressed.connect(func() -> void: inventory.open())
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("pause"):
+		return
+	if inventory and inventory.is_open:
 		return
 	if visible:
 		close()
@@ -68,11 +86,18 @@ static func archives_text() -> String:
 		var memory := archive.get_entry(id)
 		if memory == null:
 			continue
-		var lines: PackedStringArray = []
-		for i in memory.lines.size():
-			lines.append(MemoryArchive.degrade(memory.lines[i], corruption, hash(memory.id) + i * 31 + GameState.memory_count() * 7))
-		blocks.append("[b]%s[/b]\n%s" % [memory.title, "  ".join(lines)])
+		blocks.append("[b]%s[/b]\n%s" % [memory.title, archives_line(memory, corruption)])
 	return "\n".join(blocks)
+
+
+## Texte d'un souvenir tel qu'il est perçu avec la dégradation actuelle.
+static func archives_line(memory: MemoryData, corruption := -1.0) -> String:
+	if corruption < 0.0:
+		corruption = GameState.memory_corruption()
+	var lines: PackedStringArray = []
+	for i in memory.lines.size():
+		lines.append(MemoryArchive.degrade(memory.lines[i], corruption, hash(memory.id) + i * 31 + GameState.memory_count() * 7))
+	return "  ".join(lines)
 
 
 func close() -> void:

@@ -10,7 +10,13 @@ extends Node3D
 ## focalisée sur la poignée → étagère → la porte s'ouvre, Nin0 chute et s'abîme →
 ## retour à l'imprimante avec les jambes → réparation → la porte ouverte → fin.
 ## Facultatif : souvenirs (vision focalisée), fragments de filament, renfort de châssis.
-## Rien de la suite (fourmis, combats, autres pièces, sas) n'est présent.
+## Seul (workshop.tscn), le placard reste la première démo et se termine au seuil.
+## Intégré au jeu complet (game.tscn, `embedded`), le seuil ne termine plus rien :
+## l'appartement continue (lot 5), l'imprimante fabrique aussi Armure I et le canon.
+
+signal play_began
+signal cannon_installed
+signal module_fabricated(upgrade: UpgradeData)
 
 const TITLE_CAMERA_YAW := deg_to_rad(65.0)
 const GAMEPLAY_ARM := 1.8
@@ -23,6 +29,12 @@ const REPAIR_DURATION := 3.0
 const UPGRADE_DURATION := 4.0
 
 enum Tutorial { NONE, FORWARD, BACK, CAMERA, DONE }
+
+## Intégré au jeu complet : pas de fin de démo au seuil (voir game_world.gd).
+@export var embedded := false
+## Point de reprise hors du placard (fourni par le jeu complet) : renvoie un Transform3D
+## ou null pour reprendre dans le placard.
+var resume_resolver: Callable
 
 var _title_active := false
 var _title_time := 0.0
@@ -71,7 +83,7 @@ func _ready() -> void:
 	printer_panel.repair_requested.connect(_on_repair_requested)
 	printer_panel.upgrade_requested.connect(_on_upgrade_requested)
 	for pickup in $Pickups.get_children():
-		(pickup as FilamentPickup).collected.connect(_on_fragment_collected)
+		(pickup as ResourcePickup).collected.connect(_on_fragment_collected)
 	power_strip.switched_on.connect(_on_power_switched_on)
 	notebook.toppled.connect(_on_notebook_toppled)
 	door.interactable.interacted.connect(func(_by: Node3D) -> void: _open_door())
@@ -89,6 +101,7 @@ func _ready() -> void:
 	for examinable in examinables:
 		pause_menu.discovery_ids.append((examinable as Examinable).discovery.id)
 	GameState.progress_changed.connect(_refresh_objective)
+	GameState.modules_changed.connect(_refresh_equipment)
 
 	Sfx.stop_all_loops()
 	Sfx.set_loop(&"ambience", &"ambience", -18.0)
@@ -173,7 +186,8 @@ func _start_from_save() -> void:
 	var spot := "Printer"
 	if GameState.injured and not GameState.repaired:
 		spot = "FallSpot"
-	_begin_play_at(_checkpoint(spot))
+	var outside: Variant = resume_resolver.call() if embedded and resume_resolver.is_valid() else null
+	_begin_play_at(outside if outside is Transform3D else _checkpoint(spot))
 	hud.show_hint("%s : déployer les jambes (à l'arrêt)" % Hud.key("F"), 6.0)
 
 
@@ -216,6 +230,7 @@ func _begin_play_at(spot: Transform3D) -> void:
 	hud.fade_to(0.0, 1.0)
 	hud.set_mode("Roues")
 	_refresh_objective()
+	play_began.emit()
 
 
 ## Remet le monde dans l'état sauvegardé (porte, vision, souvenirs, objets emportés).
@@ -235,7 +250,15 @@ func _refresh_saved_world() -> void:
 		(examinable as Examinable).refresh_from_save()
 	for pickup in $Pickups.get_children():
 		(pickup as FilamentPickup).refresh()
+	_refresh_equipment()
 	_update_printer_prompt()
+
+
+## Apparence de Nin0 selon ses améliorations (canon installé, Armure I équipée).
+func _refresh_equipment() -> void:
+	var visual := nino.get_visual()
+	visual.set_cannon_installed(GameState.has_cannon())
+	visual.set_armor_visible(GameState.is_equipped(&"armor_1"))
 
 
 func _set_sleeping() -> void:
@@ -278,6 +301,7 @@ func _boot_nino() -> void:
 	_enable_play()
 	hud.set_mode("Roues")
 	_start_tutorial_step(Tutorial.FORWARD)
+	play_began.emit()
 
 
 func _enable_play() -> void:
@@ -407,7 +431,7 @@ func _on_printer_interacted(_by: Node3D) -> void:
 		visual.look_target = null
 		GameState.set_flag(&"printer_understood")
 	if GameState.injured:
-		printer_panel.open(true, true, REPAIR_COST, _printer_upgrade())
+		printer_panel.open(true, true, REPAIR_COST, _printer_upgrades())
 	else:
 		printer_panel.open(printer.is_powered(), GameState.legs_printed)
 
@@ -620,7 +644,11 @@ func _on_zone_entered(zone: TriggerZone) -> void:
 				if _think_once(&"chair_route", [&"book", &"up"], "", 2.2):
 					_glance(Vector3(-9.5, 7.0, -6.0), 1.8)
 		&"doorway":
-			if GameState.repaired:
+			if GameState.repaired and embedded:
+				# Jeu complet : on franchit le seuil vers le sas, rien ne s'arrête.
+				if not GameState.demo_completed:
+					GameState.set_flag(&"demo_completed")
+			elif GameState.repaired:
 				_finish_demo()
 			elif GameState.injured:
 				_think_once(&"doorway_hurt", [&"robot", &"damage", &"printer"], "", 2.4)
@@ -684,7 +712,8 @@ func _acquire_memory(memory: MemoryData) -> void:
 	await memory_player.play(memory, GameState.memory_count(), GameState.ARCHIVE.total, GameState.memory_corruption())
 	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.4)
 	visual.glitch_pulse(0.4, 0.3)
-	thoughts.think([&"question"], "Ce dessin… il me parle ?", 2.6, true)
+	# Le commentaire de Nin0 vient des données du souvenir (conservé dans les archives).
+	thoughts.think([&"question"], memory.comment, 2.6, true)
 	await _wait(1.8)
 	_enable_play()
 
@@ -817,11 +846,13 @@ func _finish_demo() -> void:
 
 # --- Réparation et améliorations (imprimante) ------------------------------------------
 
-func _printer_upgrade() -> UpgradeData:
+## Améliorations fabricables dont le plan est connu (ordre du catalogue).
+func _printer_upgrades() -> Array[UpgradeData]:
+	var list: Array[UpgradeData] = []
 	for upgrade in UpgradeCatalog.all():
-		if GameState.has_discovery(upgrade.required_discovery):
-			return upgrade
-	return null
+		if upgrade.fabricable and GameState.has_discovery(upgrade.required_discovery):
+			list.append(upgrade)
+	return list
 
 
 func _on_repair_requested() -> void:
@@ -856,20 +887,60 @@ func _on_upgrade_requested(id: StringName) -> void:
 		_enable_play()
 		return
 	_disable_play()
+	if upgrade.id == &"cannon":
+		await _fabricate_cannon(upgrade)
+		return
 	thoughts.think([&"printer", &"gear", &"robot"], "", 1.8, true)
 	await printer.service(nino, UPGRADE_DURATION)
 	GameState.add_upgrade(id)
 	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
 	Sfx.play(&"happy", -4.0)
-	hud.show_toast("%s installé" % upgrade.title, 2.5)
+	if upgrade.category == UpgradeData.Category.MODULE:
+		# Module secondaire : fabriqué, puis équipé s'il reste un emplacement libre.
+		var equipped := GameState.equip_module(id)
+		hud.show_toast("%s fabriqué%s" % [upgrade.title, "e et équipée" if equipped else "e"], 3.0)
+		module_fabricated.emit(upgrade)
+	else:
+		hud.show_toast("%s installé" % upgrade.title, 2.5)
 	_enable_play()
 
 
-func _on_fragment_collected(_pickup: FilamentPickup) -> void:
+## Canon : impression de la pièce, présentation, installation physique sur l'épaule.
+func _fabricate_cannon(upgrade: UpgradeData) -> void:
+	var visual := nino.get_visual()
+	thoughts.think([&"printer", &"cannon", &"robot"], "", 1.8, true)
+	var frame := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	frame.tween_property(camera, "arm_length", 1.4, 1.0)
+	frame.tween_property(camera, "pitch", deg_to_rad(-20.0), 1.0)
+	var part := CannonModel.new()
+	await printer.fabricate_and_install(nino, part, visual.get_cannon_mount_position,
+			func() -> void: visual.set_cannon_installed(true), 7.0)
+	GameState.add_upgrade(upgrade.id)
+	# Premier chargement : de quoi essayer le canon tout de suite (jamais bloquant).
+	if GameState.ammo_plastic < 6:
+		GameState.add_plastic(6 - GameState.ammo_plastic)
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 0.8)
+	visual.look_target = visual.get_cannon_mount_position() + Vector3.UP * 0.05
+	Sfx.play(&"surprised", -8.0)
+	await _wait(0.9)
+	visual.get_cannon().recoil()
+	Sfx.play(&"servo", -10.0, 1.6)
+	await _wait(0.5)
+	visual.look_target = null
+	visual.show_emotion(NinoVisual.Emotion.HAPPY, 2.5)
+	Sfx.play(&"happy", -4.0)
+	thoughts.think([&"cannon", &"check"], "", 2.2)
+	hud.show_toast("Canon à billes installé", 3.0)
+	var back := create_tween().set_trans(Tween.TRANS_SINE)
+	back.tween_property(camera, "arm_length", GAMEPLAY_ARM, 0.8)
+	await back.finished
+	_enable_play()
+	hud.show_hint("%s : tirer une bille    ·    vision focalisée pour viser" % Hud.key("clic gauche / X"), 7.0)
+	cannon_installed.emit()
+
+
+func _on_fragment_collected(_pickup: ResourcePickup) -> void:
 	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 0.8)
-	if GameState.collected_pickups.size() == 1:
-		hud.show_toast("Fragment de filament", 1.8)
-		thoughts.think([&"filament", &"question"], "", 2.0, true)
 
 
 ## Petit bond scripté en arc (séquences).

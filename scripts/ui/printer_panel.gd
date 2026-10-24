@@ -15,6 +15,8 @@ const OK_COLOR := Color(0.55, 1.0, 0.6)
 const KO_COLOR := Color(1.0, 0.5, 0.4)
 
 var _upgrade_id: StringName
+## Cartes supplémentaires (une par plan connu au-delà du premier), recréées à chaque ouverture.
+var _extra_cards: Array[Control] = []
 
 @onready var _status: Label = $Center/Panel/Margin/VBox/PowerRow/Status
 @onready var _fragments: Label = $Center/Panel/Margin/VBox/PowerRow/Fragments
@@ -43,7 +45,7 @@ func _ready() -> void:
 
 ## powered : imprimante alimentée ; already_printed : jambes déjà fabriquées.
 ## repair_cost : coût d'une réparation (0 = réparation non proposée).
-func open(powered: bool, already_printed: bool, repair_cost := 0, upgrade: UpgradeData = null) -> void:
+func open(powered: bool, already_printed: bool, repair_cost := 0, upgrade: Variant = null) -> void:
 	_status.text = "● Sous tension" if powered else "● Coupée"
 	_status.modulate = OK_COLOR if powered else KO_COLOR
 	var service := repair_cost > 0 or upgrade != null
@@ -70,29 +72,54 @@ func open(powered: bool, already_printed: bool, repair_cost := 0, upgrade: Upgra
 		_set_requirement(_repair_requirement, "Intégrité %d / %d    ·    %s %d fragments" % [
 				roundi(GameState.integrity), roundi(GameState.integrity_max), "✔" if affordable else "✖", repair_cost], affordable)
 
-	# Amélioration (une seule dans la démo).
-	_upgrade_card.visible = upgrade != null
-	_upgrade_id = upgrade.id if upgrade else &""
-	if upgrade:
-		var owned := GameState.has_upgrade(upgrade.id)
-		var can_pay := GameState.fragments >= upgrade.cost_fragments
-		_upgrade_name.text = upgrade.title
-		_upgrade_description.text = upgrade.description + "  (+%d intégrité max.)" % roundi(upgrade.max_integrity_bonus)
-		_upgrade_button.disabled = owned or not can_pay or not powered or not GameState.repaired
-		if owned:
-			_set_requirement(_upgrade_requirement, "✔ Installé", true)
-		elif not GameState.repaired:
-			_set_requirement(_upgrade_requirement, "✖ Réparation nécessaire d'abord", false)
-		else:
-			_set_requirement(_upgrade_requirement, "%s %d fragments" % ["✔" if can_pay else "✖", upgrade.cost_fragments], can_pay)
+	# Améliorations dont le plan est connu : une carte chacune (la première réutilise
+	# la carte de la scène, les suivantes en sont des copies).
+	var upgrades: Array[UpgradeData] = []
+	if upgrade is UpgradeData:
+		upgrades.append(upgrade)
+	elif upgrade is Array:
+		for item in upgrade:
+			upgrades.append(item)
+	for card in _extra_cards:
+		card.queue_free()
+	_extra_cards.clear()
+	_upgrade_card.visible = not upgrades.is_empty()
+	_upgrade_id = upgrades[0].id if not upgrades.is_empty() else &""
+	for i in upgrades.size():
+		var card := _upgrade_card
+		if i > 0:
+			card = _upgrade_card.duplicate() as Control
+			_upgrade_card.get_parent().add_child(card)
+			_upgrade_card.get_parent().move_child(card, _upgrade_card.get_index() + i)
+			_extra_cards.append(card)
+			var id := upgrades[i].id
+			(card.get_node("Button") as Button).pressed.connect(func() -> void: _choose(upgrade_requested, id))
+		_fill_upgrade_card(card, upgrades[i], powered)
 
-	var plans := 1 + (1 if upgrade else 0)
+	var plans := 1 + upgrades.size()
 	_plans.text = "Plans disponibles : %d" % plans
 	visible = true
 	GameState.modal_open = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_first_enabled_button().grab_focus()
 	Sfx.play(&"blip", -8.0)
+
+
+func _fill_upgrade_card(card: Control, upgrade: UpgradeData, powered: bool) -> void:
+	var owned := GameState.has_upgrade(upgrade.id)
+	var can_pay := GameState.fragments >= upgrade.cost_fragments
+	(card.get_node("Info/Name") as Label).text = upgrade.title
+	var effect := upgrade.effect_text if upgrade.effect_text != "" else "+%d intégrité max." % roundi(upgrade.max_integrity_bonus)
+	(card.get_node("Info/Description") as Label).text = "%s  (%s)" % [upgrade.description, effect]
+	var button := card.get_node("Button") as Button
+	button.disabled = owned or not can_pay or not powered or not GameState.repaired
+	var requirement := card.get_node("Info/Requirement") as Label
+	if owned:
+		_set_requirement(requirement, "✔ Fabriqué" if upgrade.category == UpgradeData.Category.MODULE else "✔ Installé", true)
+	elif not GameState.repaired:
+		_set_requirement(requirement, "✖ Réparation nécessaire d'abord", false)
+	else:
+		_set_requirement(requirement, "%s %d fragments" % ["✔" if can_pay else "✖", upgrade.cost_fragments], can_pay)
 
 
 func close() -> void:
@@ -106,7 +133,10 @@ func close() -> void:
 
 ## Bouton actif proposé par défaut (E le valide) : celui de la première carte disponible.
 func _first_enabled_button() -> Button:
-	for button in [_repair_button, _print_button, _upgrade_button]:
+	var buttons: Array = [_repair_button, _print_button, _upgrade_button]
+	for card in _extra_cards:
+		buttons.append(card.get_node("Button"))
+	for button in buttons:
 		if not button.disabled and button.is_visible_in_tree():
 			return button
 	return _close_button
