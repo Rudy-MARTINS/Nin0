@@ -27,6 +27,8 @@ func _ready() -> void:
 
 
 func _run() -> void:
+	# Hasard initialisé : la reine et les créatures se comportent de façon reproductible.
+	seed(5)
 	_personal_existed = FileAccess.file_exists(GameState.SAVE_PATH)
 	_personal = FileAccess.get_file_as_string(GameState.SAVE_PATH) if _personal_existed else ""
 	GameState.save_path = GameState.TEST_SAVE_PATH
@@ -486,10 +488,14 @@ func _test_boss() -> void:
 	_place(Vector3(front.x, queen.global_position.y + 0.1, front.z), 0.0)
 	var windup := await _wait_until(6.0, func() -> bool: return queen.state == AntQueen.State.MELEE_WINDUP)
 	_check(windup, "au contact : préparation lente de la morsure")
-	var integrity_before := GameState.integrity + GameState.shield
+	# Dégâts comptés au moment du coup (le bouclier se recharge pendant la préparation).
+	var taken := [0.0]
+	var count := func(loss: float, shield_loss: float) -> void: taken[0] += loss + shield_loss
+	_game.integrity.damaged.connect(count)
 	var hits_before := queen.melee_hits
 	var melee := await _wait_until(3.0, func() -> bool: return queen.melee_hits > hits_before)
-	_check(melee and integrity_before - (GameState.integrity + GameState.shield) >= 30.0, "morsure de la reine : très dangereuse (%.0f)" % (integrity_before - (GameState.integrity + GameState.shield)))
+	_game.integrity.damaged.disconnect(count)
+	_check(melee and taken[0] >= 30.0, "morsure de la reine : très dangereuse (%.0f)" % taken[0])
 	GameState.restore_integrity(GameState.integrity_max)
 	await _wait(1.0)
 	var front2 := queen.global_position - queen.global_basis.z * 1.1
