@@ -156,6 +156,13 @@ func _build_sounds() -> void:
 		[1174.7, 0.46, 0.6, 0.55], [784.0, 0.46, 0.6, 0.35], [392.0, 0.46, 0.6, 0.3],
 	])
 	_streams[&"bubbles"] = _bubbles(1.2)
+	# Petits sons robotiques de personnalité et petite voix « Yeeeaah ! » (synthèse originale).
+	_streams[&"chirp_known"] = _tone([[900.0, 1200.0, 0.06], [1200.0, 1100.0, 0.05]], 0.12)
+	_streams[&"chirp_worried"] = _tone([[700.0, 520.0, 0.1], [560.0, 640.0, 0.08], [600.0, 480.0, 0.12]], 0.14)
+	_streams[&"chirp_frustrated"] = _tone([[420.0, 300.0, 0.12], [330.0, 260.0, 0.14]], 0.16, true)
+	_streams[&"chirp_hesitant"] = _tone([[600.0, 760.0, 0.08], [760.0, 700.0, 0.1], [720.0, 900.0, 0.12]], 0.12)
+	_streams[&"chirp_question"] = _tone([[520.0, 980.0, 0.18]], 0.14)
+	_streams[&"yeah"] = _yeah()
 	_streams[&"queen_defeat"] = _tone([[400.0, 120.0, 1.2]], 0.2, true)
 	_streams[&"shot"] = _shot()
 	_streams[&"impact_small"] = _click()
@@ -203,6 +210,33 @@ func _jingle(notes: Array) -> AudioStreamWAV:
 			var index := start + i
 			if index < samples.size():
 				samples[index] += value * float(note[3]) * envelope * 0.32
+	return _to_wav(samples)
+
+
+## « Yeeeaah ! » robotique : glissement de voyelle /i/ → /a/ (deux formants qui se
+## déplacent), hauteur qui monte puis retombe, légère modulation métallique. Court et mignon.
+func _yeah() -> AudioStreamWAV:
+	var duration := 0.75
+	var count := int(duration * RATE)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	var phase := 0.0
+	for i in count:
+		var t := float(i) / count
+		var pitch := lerpf(330.0, 520.0, minf(t * 2.2, 1.0)) - maxf(t - 0.6, 0.0) * 260.0
+		phase += TAU * pitch / RATE
+		# Formants : « i » (300 / 2300 Hz) vers « a » (750 / 1200 Hz).
+		var vowel := smoothstep(0.1, 0.45, t)
+		var f1 := lerpf(300.0, 750.0, vowel)
+		var f2 := lerpf(2300.0, 1200.0, vowel)
+		var value := 0.0
+		for h in range(1, 14):
+			var freq := pitch * h
+			var gain := exp(-pow((freq - f1) / 180.0, 2.0)) + 0.6 * exp(-pow((freq - f2) / 260.0, 2.0)) + 0.05
+			value += sin(phase * h) * gain / h * 2.0
+		value *= 1.0 + 0.25 * sin(TAU * 60.0 * t * duration)  # grain électronique
+		var envelope := minf(t * 25.0, 1.0) * minf((1.0 - t) * 6.0, 1.0)
+		samples[i] = clampf(value * envelope * 0.22, -1.0, 1.0)
 	return _to_wav(samples)
 
 

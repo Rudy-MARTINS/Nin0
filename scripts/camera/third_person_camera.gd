@@ -15,6 +15,9 @@ extends Node3D
 @export var mouse_sensitivity := 0.0025
 @export var min_pitch_degrees := -65.0
 @export var max_pitch_degrees := 30.0
+## En vision focalisée (vue subjective), Nin0 peut lever les yeux plus haut (viser un
+## mécanisme en hauteur) : aucune caméra ne risque alors de traverser le sol.
+@export var first_person_max_pitch_degrees := 62.0
 @export var initial_pitch_degrees := -18.0
 ## Distance de la caméra derrière la cible.
 @export var arm_length := 1.8:
@@ -31,7 +34,8 @@ extends Node3D
 var input_enabled := true
 var pitch := 0.0:
 	set(value):
-		pitch = clampf(value, deg_to_rad(min_pitch_degrees), deg_to_rad(max_pitch_degrees))
+		var top := first_person_max_pitch_degrees if _first_person else max_pitch_degrees
+		pitch = clampf(value, deg_to_rad(min_pitch_degrees), deg_to_rad(top))
 
 var _first_person := false
 var _low_ceiling := 0.0  # 0 = dégagé, 1 = plafond bas
@@ -66,6 +70,7 @@ func capture_mouse() -> void:
 ## Vue « à travers les yeux » de Nin0 (vision focalisée).
 func set_first_person(value: bool) -> void:
 	_first_person = value
+	pitch = pitch  # ré-applique la limite (en quittant la vue subjective)
 	var tween := create_tween()
 	tween.tween_property(_spring_arm, "spring_length", 0.0 if value else arm_length, 0.2)
 

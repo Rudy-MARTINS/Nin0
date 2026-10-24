@@ -13,7 +13,7 @@ signal examined(data: DiscoveryData)
 func _ready() -> void:
 	super()
 	if discovery and prompt == "Interagir":
-		prompt = "Prendre" if discovery.collectible else "Examiner"
+		prompt = "Prendre" if discovery.collectible else _curious_prompt()
 	interacted.connect(_on_interacted)
 	refresh_from_save()
 
@@ -22,6 +22,14 @@ func _ready() -> void:
 func refresh_from_save() -> void:
 	if discovery and discovery.collectible and GameState.has_discovery(discovery.id):
 		_remove()
+	elif discovery and GameState.has_discovery(discovery.id):
+		prompt = "Revoir"
+
+
+## Verbe varié selon l'objet (Nin0 n'« examine » pas tout de la même façon).
+func _curious_prompt() -> String:
+	var verbs := ["Observer", "Regarder de plus près", "Inspecter", "Examiner", "Jeter un œil"]
+	return verbs[absi(hash(discovery.id)) % verbs.size()]
 
 
 func _on_interacted(_by: Node3D) -> void:
@@ -30,6 +38,7 @@ func _on_interacted(_by: Node3D) -> void:
 	if discovery.collectible:
 		_remove()
 	examined.emit(discovery)
+	prompt = "Revoir"
 
 
 func _remove() -> void:
