@@ -1,0 +1,1012 @@
+[gd_scene format=3 uid="uid://bj1oku4qfzd6b"]
+
+[ext_resource type="Script" uid="uid://c3c888nwf705g" path="res://scripts/props/prop_block.gd" id="1_prop_block"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_wall"]
+albedo_color = Color(0.84, 0.82, 0.77, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_frame"]
+albedo_color = Color(0.9, 0.88, 0.83, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_mass"]
+albedo_color = Color(0.6, 0.6, 0.62, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_mass_dark"]
+albedo_color = Color(0.45, 0.45, 0.48, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_ceiling"]
+albedo_color = Color(0.88, 0.87, 0.84, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_door"]
+albedo_color = Color(0.5, 0.36, 0.24, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_curtain"]
+albedo_color = Color(0.62, 0.2, 0.18, 1)
+roughness = 1.0
+cull_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_glass"]
+albedo_color = Color(0.75, 0.88, 0.95, 1)
+roughness = 0.05
+transparency = 1
+albedo_color = Color(0.75, 0.88, 0.95, 0.18)
+
+[sub_resource type="StandardMaterial3D" id="Mat_garden"]
+albedo_color = Color(0.42, 0.55, 0.32, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_blocker"]
+albedo_color = Color(1.0, 0.3, 0.2, 1)
+roughness = 1.0
+transparency = 1
+albedo_color = Color(1, 0.3, 0.2, 0.0)
+
+[sub_resource type="BoxShape3D" id="ZoneShape_placard"]
+size = Vector3(30, 24, 27)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor_sas"]
+albedo_color = Color(0.5, 0.47, 0.42, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="ZoneShape_sas"]
+size = Vector3(29.4, 24, 27)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor_salle_de_bain"]
+albedo_color = Color(0.78, 0.8, 0.78, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="ZoneShape_salle_de_bain"]
+size = Vector3(29.4, 24, 34.4)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor_cuisine"]
+albedo_color = Color(0.78, 0.5, 0.38, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="ZoneShape_cuisine"]
+size = Vector3(29.4, 24, 57)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor_salon"]
+albedo_color = Color(0.7, 0.58, 0.42, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="ZoneShape_salon"]
+size = Vector3(90, 24, 44.4)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor_chambre"]
+albedo_color = Color(0.58, 0.52, 0.7, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="ZoneShape_chambre"]
+size = Vector3(29.4, 24, 47)
+
+[sub_resource type="BoxShape3D" id="ZoneShape_pf"]
+size = Vector3(20, 24, 5)
+
+[node name="ApartmentBlockout" type="Node3D"]
+
+[node name="Floors" type="Node3D" parent="."]
+
+[node name="Walls" type="Node3D" parent="."]
+
+[node name="Openings" type="Node3D" parent="."]
+
+[node name="Ceilings" type="Node3D" parent="."]
+
+[node name="Volumes" type="Node3D" parent="."]
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="Labels" type="Node3D" parent="."]
+
+[node name="Zones" type="Node3D" parent="."]
+
+[node name="Spawns" type="Node3D" parent="."]
+
+[node name="Connections" type="Node3D" parent="."]
+
+[node name="Exterior" type="Node3D" parent="."]
+
+[node name="Zone1" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, -1.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+metadata/number = 1
+metadata/zone_id = &"placard"
+metadata/title = "Placard-hub"
+metadata/status = "Première démo (lots 1 à 3)"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/Zone1"]
+shape = SubResource("ZoneShape_placard")
+
+[node name="Label1" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, -1.5)
+pixel_size = 0.013
+billboard = 1
+modulate = Color(1, 0.95, 0.85, 0.9)
+outline_size = 10
+font_size = 72
+text = "1 · PLACARD-HUB\nPremière démo (lots 1 à 3)"
+
+[node name="Floor_sas" type="StaticBody3D" parent="Floors"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.45, -0.2, -1.5)
+script = ExtResource("1_prop_block")
+size = Vector3(29.7, 0.4, 27.6)
+bevel = 0.02
+material = SubResource("Mat_floor_sas")
+
+[node name="Ceiling_sas" type="StaticBody3D" parent="Ceilings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.3, 24.4, -1.5)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 1, 27.6)
+bevel = 0.02
+material = SubResource("Mat_ceiling")
+
+[node name="Zone2" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.3, 12, -1.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+metadata/number = 2
+metadata/zone_id = &"sas"
+metadata/title = "Sas"
+metadata/status = "Jouable (lot 5) — fourmis ouvrières"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/Zone2"]
+shape = SubResource("ZoneShape_sas")
+
+[node name="Label2" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.3, 9, -1.5)
+pixel_size = 0.013
+billboard = 1
+modulate = Color(1, 0.95, 0.85, 0.9)
+outline_size = 10
+font_size = 72
+text = "2 · SAS\nJouable (lot 5) — fourmis ouvrières"
+
+[node name="Floor_salle_de_bain" type="StaticBody3D" parent="Floors"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, -0.2, -17.8)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 0.4, 35)
+bevel = 0.02
+material = SubResource("Mat_floor_salle_de_bain")
+
+[node name="Ceiling_salle_de_bain" type="StaticBody3D" parent="Ceilings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 24.4, -17.8)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 1, 35)
+bevel = 0.02
+material = SubResource("Mat_ceiling")
+
+[node name="Zone3" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 12, -17.8)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+metadata/number = 3
+metadata/zone_id = &"salle_de_bain"
+metadata/title = "Salle de bain"
+metadata/status = "Jouable (lot 5) — colonie, reine"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/Zone3"]
+shape = SubResource("ZoneShape_salle_de_bain")
+
+[node name="Label3" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 9, -17.8)
+pixel_size = 0.013
+billboard = 1
+modulate = Color(1, 0.95, 0.85, 0.9)
+outline_size = 10
+font_size = 72
+text = "3 · SALLE DE BAIN\nJouable (lot 5) — colonie, reine"
+
+[node name="Floor_cuisine" type="StaticBody3D" parent="Floors"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, -0.2, 28.5)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 0.4, 57.6)
+bevel = 0.02
+material = SubResource("Mat_floor_cuisine")
+
+[node name="Ceiling_cuisine" type="StaticBody3D" parent="Ceilings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 24.4, 28.5)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 1, 57.6)
+bevel = 0.02
+material = SubResource("Mat_ceiling")
+
+[node name="Light_cuisine" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 21, 28.5)
+light_color = Color(1, 0.93, 0.84, 1)
+light_energy = 0.7
+omni_range = 56.4
+omni_attenuation = 0.8
+
+[node name="Zone4" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 12, 28.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+metadata/number = 4
+metadata/zone_id = &"cuisine"
+metadata/title = "Cuisine"
+metadata/status = "Vide — prochain chapitre"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/Zone4"]
+shape = SubResource("ZoneShape_cuisine")
+
+[node name="Label4" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 9, 28.5)
+pixel_size = 0.013
+billboard = 1
+modulate = Color(1, 0.95, 0.85, 0.9)
+outline_size = 10
+font_size = 72
+text = "4 · CUISINE\nVide — prochain chapitre"
+
+[node name="Floor_salon" type="StaticBody3D" parent="Floors"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 34.8)
+script = ExtResource("1_prop_block")
+size = Vector3(90.6, 0.4, 45)
+bevel = 0.02
+material = SubResource("Mat_floor_salon")
+
+[node name="Ceiling_salon" type="StaticBody3D" parent="Ceilings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24.4, 34.8)
+script = ExtResource("1_prop_block")
+size = Vector3(90.6, 1, 45)
+bevel = 0.02
+material = SubResource("Mat_ceiling")
+
+[node name="Light_salon" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21, 34.8)
+light_color = Color(1, 0.93, 0.84, 1)
+light_energy = 0.7
+omni_range = 84.5
+omni_attenuation = 0.8
+
+[node name="Zone6" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 34.8)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+metadata/number = 6
+metadata/zone_id = &"salon"
+metadata/title = "Salon"
+metadata/status = "Fermé — deux étapes d'exploration"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/Zone6"]
+shape = SubResource("ZoneShape_salon")
+
+[node name="Label6" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 34.8)
+pixel_size = 0.013
+billboard = 1
+modulate = Color(1, 0.95, 0.85, 0.9)
+outline_size = 10
+font_size = 72
+text = "6 · SALON\nFermé — deux étapes d'exploration"
+
+[node name="Floor_chambre" type="StaticBody3D" parent="Floors"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, -0.2, -11.5)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 0.4, 47.6)
+bevel = 0.02
+material = SubResource("Mat_floor_chambre")
+
+[node name="Ceiling_chambre" type="StaticBody3D" parent="Ceilings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, 24.4, -11.5)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 1, 47.6)
+bevel = 0.02
+material = SubResource("Mat_ceiling")
+
+[node name="Light_chambre" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, 21, -11.5)
+light_color = Color(1, 0.93, 0.84, 1)
+light_energy = 0.7
+omni_range = 47.9
+omni_attenuation = 0.8
+
+[node name="Zone7" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, 12, -11.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+metadata/number = 7
+metadata/zone_id = &"chambre"
+metadata/title = "Chambre"
+metadata/status = "Verrouillée jusqu'à la fin"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/Zone7"]
+shape = SubResource("ZoneShape_chambre")
+
+[node name="Label7" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, 9, -11.5)
+pixel_size = 0.013
+billboard = 1
+modulate = Color(1, 0.95, 0.85, 0.9)
+outline_size = 10
+font_size = 72
+text = "7 · CHAMBRE\nVerrouillée jusqu'à la fin"
+
+[node name="Zone5" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 12, 54.5)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+metadata/number = 5
+metadata/zone_id = &"porte_fenetre"
+metadata/title = "Porte-fenêtre"
+metadata/status = "Ouverture fermée — jardin non validé"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/Zone5"]
+shape = SubResource("ZoneShape_pf")
+
+[node name="Label5" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 23, 54)
+pixel_size = 0.02
+billboard = 1
+modulate = Color(1, 0.95, 0.85, 0.9)
+outline_size = 10
+font_size = 64
+text = "5 · PORTE-FENÊTRE\nJardin non validé (non jouable)"
+
+[node name="LabelSalonA" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 5, 46)
+pixel_size = 0.016
+billboard = 1
+modulate = Color(1, 0.85, 0.6, 0.85)
+outline_size = 8
+font_size = 64
+text = "Salon — étape A"
+
+[node name="LabelSalonB" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 5, 46)
+pixel_size = 0.016
+billboard = 1
+modulate = Color(1, 0.85, 0.6, 0.85)
+outline_size = 8
+font_size = 64
+text = "Salon — étape B"
+
+[node name="WallWest_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -75.3, 12, 11)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 24, 93.2)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSasWest_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 12, -23.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 24, 23.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSasWest_1" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 22.4, -7.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 3.2, 9)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="DoorSasBathJamb0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, -11.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 20.8, 0.4)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSasBathJamb1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, -3.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 20.8, 0.4)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSasBathHead" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 20.55, -7.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 0.5, 9)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="WallSasWest_2" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 12, -0.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 24, 5)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSasWest_3" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 22.4, 6.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 3.2, 9)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="DoorSasKitchenJamb0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, 2.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 20.8, 0.4)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSasKitchenJamb1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, 10.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 20.8, 0.4)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSasKitchenHead" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 20.55, 6.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 0.5, 9)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="WallSasWest_4" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 12, 18.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 24, 15)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSasWest_5" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 22.4, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 3.2, 11)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="DoorSalonKitchenJamb0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, 26.2)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 20.8, 0.4)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSalonKitchenJamb1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.4, 36.8)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 20.8, 0.4)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSalonKitchenHead" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 20.55, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.75, 0.5, 11)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSalonKitchenPanel" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 10.1, 31.5)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 20.2, 10.2)
+bevel = 0.02
+material = SubResource("Mat_door")
+
+[node name="DoorSalonKitchenKnob0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.65, 10, 35.07)
+script = ExtResource("1_prop_block")
+size = Vector3(0.7, 0.25, 0.25)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSalonKitchenKnob1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.95, 10, 35.07)
+script = ExtResource("1_prop_block")
+size = Vector3(0.7, 0.25, 0.25)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="WallSasWest_6" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 12, 47.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 24, 20.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSasNorth_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.6, 12, -15.3)
+script = ExtResource("1_prop_block")
+size = Vector3(30, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallBathNorth_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 12, -35.3)
+script = ExtResource("1_prop_block")
+size = Vector3(30.6, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallBathKitchen_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 12, -0.3)
+script = ExtResource("1_prop_block")
+size = Vector3(29.4, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSasSalon_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.5, 12, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSasSalon_1" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 22.4, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 3.2, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="DoorSasSalonJamb0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.8, 10.4, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 20.8, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSasSalonJamb1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27.2, 10.4, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 20.8, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="DoorSasSalonHead" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 20.55, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 0.5, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSasSalonPanel" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 10.1, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(8.2, 20.2, 0.4)
+bevel = 0.02
+material = SubResource("Mat_door")
+
+[node name="DoorSasSalonKnob0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.63, 10, 11.95)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 0.25, 0.7)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="DoorSasSalonKnob1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.63, 10, 12.65)
+script = ExtResource("1_prop_block")
+size = Vector3(0.25, 0.25, 0.7)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="WallSasSalon_2" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.3, 12, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(11.4, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallChamberWestNorth_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.3, 12, -25.6)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 24, 20)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallChamberNorth_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.3, 12, -35.3)
+script = ExtResource("1_prop_block")
+size = Vector3(30.6, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallEast_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45.3, 12, 11)
+script = ExtResource("1_prop_block")
+size = Vector3(0.6, 24, 93.2)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallChamberSalon_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.3, 12, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9.4, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallChamberSalon_1" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 22.4, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(10, 3.2, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="CurtainChamberJamb0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.2, 10.4, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 20.8, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="CurtainChamberJamb1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.8, 10.4, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 20.8, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="CurtainChamberHead" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 20.55, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(10, 0.5, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="CurtainChamberStrip0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.55, 10.7, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(2.1, 19.6, 0.08)
+bevel = 0.02
+material = SubResource("Mat_curtain")
+collide = false
+cast_shadow = false
+
+[node name="CurtainChamberStrip1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.85, 10.7, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(2.1, 19.6, 0.08)
+bevel = 0.02
+material = SubResource("Mat_curtain")
+collide = false
+cast_shadow = false
+
+[node name="CurtainChamberStrip2" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.15, 10.7, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(2.1, 19.6, 0.08)
+bevel = 0.02
+material = SubResource("Mat_curtain")
+collide = false
+cast_shadow = false
+
+[node name="CurtainChamberStrip3" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.45, 10.7, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(2.1, 19.6, 0.08)
+bevel = 0.02
+material = SubResource("Mat_curtain")
+collide = false
+cast_shadow = false
+
+[node name="CurtainChamberRod" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 20.2, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9.8, 0.25, 0.25)
+bevel = 0.02
+material = SubResource("Mat_mass_dark")
+collide = false
+
+[node name="CurtainChamberLock" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 10.4, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9.2, 20.8, 0.6)
+bevel = 0.02
+material = SubResource("Mat_blocker")
+cast_shadow = false
+
+[node name="WallChamberSalon_2" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 12, 12.3)
+script = ExtResource("1_prop_block")
+size = Vector3(10, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSouth_0" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.8, 12, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(63.6, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="WallSouth_1" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 22.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(20, 2.5, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="FrenchWindowJamb0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.8, 10.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 21.5, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="FrenchWindowJamb1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 10.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.4, 21.5, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="FrenchWindowHead" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 21.25, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(20, 0.5, 0.75)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="FrenchWindowGlass0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 10.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 19.9, 0.08)
+bevel = 0.02
+material = SubResource("Mat_glass")
+collide = false
+cast_shadow = false
+
+[node name="FrenchWindowMullion0" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.35, 10.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.3, 20.9, 0.3)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="FrenchWindowGlass1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 10.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(9, 19.9, 0.08)
+bevel = 0.02
+material = SubResource("Mat_glass")
+collide = false
+cast_shadow = false
+
+[node name="FrenchWindowMullion1" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.65, 10.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(0.3, 20.9, 0.3)
+bevel = 0.02
+material = SubResource("Mat_frame")
+collide = false
+
+[node name="FrenchWindowRail" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.3, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(20, 0.6, 0.6)
+bevel = 0.02
+material = SubResource("Mat_frame")
+
+[node name="FrenchWindowLock" type="StaticBody3D" parent="Openings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 10.75, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(20, 21.5, 0.5)
+bevel = 0.02
+material = SubResource("Mat_blocker")
+cast_shadow = false
+
+[node name="WallSouth_2" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.8, 12, 57.3)
+script = ExtResource("1_prop_block")
+size = Vector3(37.6, 24, 0.6)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="SalonBeam" type="StaticBody3D" parent="Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 22.5, 34.8)
+script = ExtResource("1_prop_block")
+size = Vector3(2, 3, 44.4)
+bevel = 0.02
+material = SubResource("Mat_wall")
+
+[node name="KitchenCounter" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -72, 4.5, 25)
+script = ExtResource("1_prop_block")
+size = Vector3(6, 9, 30)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="KitchenUpper" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -73.2, 19, 25)
+script = ExtResource("1_prop_block")
+size = Vector3(3.5, 7, 30)
+bevel = 0.02
+material = SubResource("Mat_mass_dark")
+
+[node name="KitchenFridge" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -71.5, 9, 48)
+script = ExtResource("1_prop_block")
+size = Vector3(7, 18, 7)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="KitchenTable" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60, 3.75, 16)
+script = ExtResource("1_prop_block")
+size = Vector3(8, 7.5, 8)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="SofaBase" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 2.25, 50.5)
+script = ExtResource("1_prop_block")
+size = Vector3(20, 4.5, 9)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="SofaBack" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.25, 55.6)
+script = ExtResource("1_prop_block")
+size = Vector3(20, 8.5, 2.5)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="CoffeeTable" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 2, 37)
+script = ExtResource("1_prop_block")
+size = Vector3(11, 4, 6)
+bevel = 0.02
+material = SubResource("Mat_mass_dark")
+
+[node name="TvStand" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21, 2.5, 15)
+script = ExtResource("1_prop_block")
+size = Vector3(12, 5, 4.5)
+bevel = 0.02
+material = SubResource("Mat_mass_dark")
+
+[node name="SalonDivider" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 20.6)
+script = ExtResource("1_prop_block")
+size = Vector3(3.5, 10, 16)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="Bookcase" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 43, 9, 32)
+script = ExtResource("1_prop_block")
+size = Vector3(4, 18, 20)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="DiningTable" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 3.75, 40)
+script = ExtResource("1_prop_block")
+size = Vector3(16, 7.5, 9)
+bevel = 0.02
+material = SubResource("Mat_mass_dark")
+
+[node name="Bed" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33, 2.5, -20)
+script = ExtResource("1_prop_block")
+size = Vector3(16, 5, 20)
+bevel = 0.02
+material = SubResource("Mat_mass")
+
+[node name="Wardrobe" type="StaticBody3D" parent="Volumes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.8, 10, -27)
+script = ExtResource("1_prop_block")
+size = Vector3(6, 20, 14)
+bevel = 0.02
+material = SubResource("Mat_mass_dark")
+
+[node name="GardenGround" type="StaticBody3D" parent="Exterior"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.6, 73)
+script = ExtResource("1_prop_block")
+size = Vector3(60, 0.4, 30)
+bevel = 0.02
+material = SubResource("Mat_garden")
+collide = false
+
+[node name="Spawn1" type="Marker3D" parent="Spawns"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -6, 8.05, -10.5)
+
+[node name="Spawn2" type="Marker3D" parent="Spawns"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -27, 0.05, 0)
+
+[node name="Spawn3" type="Marker3D" parent="Spawns"]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -55, 0.05, -12)
+
+[node name="Spawn4" type="Marker3D" parent="Spawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -58, 0.05, 30)
+
+[node name="Spawn5" type="Marker3D" parent="Spawns"]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -2, 0.05, 50)
+
+[node name="Spawn6" type="Marker3D" parent="Spawns"]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -20, 0.05, 28)
+
+[node name="Spawn7" type="Marker3D" parent="Spawns"]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, 30, 0.05, -5)
+
+[node name="C_placard_sas" type="Marker3D" parent="Connections"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.3, 1, 5.5)
+metadata/from = 1
+metadata/to = 2
+metadata/state = "ouvert"
+
+[node name="C_sas_sdb" type="Marker3D" parent="Connections"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 1, -7.5)
+metadata/from = 2
+metadata/to = 3
+metadata/state = "ouvert"
+
+[node name="C_sas_salon" type="Marker3D" parent="Connections"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 1, 12.3)
+metadata/from = 2
+metadata/to = 6
+metadata/state = "fermé (ouverture à définir)"
+
+[node name="C_salon_cuisine" type="Marker3D" parent="Connections"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 1, 31.5)
+metadata/from = 6
+metadata/to = 4
+metadata/state = "fermé (à définir avec la cuisine)"
+
+[node name="C_salon_porte_fenetre" type="Marker3D" parent="Connections"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1, 57.3)
+metadata/from = 6
+metadata/to = 5
+metadata/state = "fermé (jardin non validé)"
+
+[node name="C_sas_cuisine" type="Marker3D" parent="Connections"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 1, 6.5)
+metadata/from = 2
+metadata/to = 4
+metadata/state = "verrou (canon)"
+
+[node name="C_salon_chambre" type="Marker3D" parent="Connections"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1, 12.3)
+metadata/from = 6
+metadata/to = 7
+metadata/state = "verrouillé jusqu'à la fin"
+
+[node name="LabelShortcut" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 22.5, 6.5)
+pixel_size = 0.014
+billboard = 1
+modulate = Color(1, 0.6, 0.5, 0.9)
+outline_size = 8
+font_size = 64
+text = "Cuisine — loquet (canon)"
+
+[node name="LabelSalonDoor" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.5, 22.5, 10.8)
+pixel_size = 0.014
+billboard = 1
+modulate = Color(1, 0.6, 0.5, 0.9)
+outline_size = 8
+font_size = 64
+text = "Salon — fermé (à définir)"
+
+[node name="LabelCurtain" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 22.5, 13.8)
+pixel_size = 0.014
+billboard = 1
+modulate = Color(1, 0.6, 0.5, 0.9)
+outline_size = 8
+font_size = 64
+text = "Rideau japonais — accès verrouillé"

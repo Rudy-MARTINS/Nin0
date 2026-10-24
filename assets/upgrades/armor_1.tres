@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://lnyl656tlbsp"]
+
+[ext_resource type="Script" uid="uid://cfw45n4p3ofep" path="res://scripts/upgrades/upgrade_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"armor_1"
+title = "Armure I"
+description = "Plaques imprimées inspirées de l'exosquelette des fourmis, fixées sur la coque."
+category = 1
+family = &"defense_passive"
+tier = 1
+cost_fragments = 3
+required_discovery = &"plan_armor_1"
+physical_damage_reduction = 0.25
+effect_text = "Réduit de 25 % les dégâts physiques (morsures, coups, chutes) quand il est équipé."

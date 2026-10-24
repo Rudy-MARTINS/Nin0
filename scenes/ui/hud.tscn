@@ -1,0 +1,239 @@
+[gd_scene format=3 uid="uid://b5cgwlixn7e01"]
+
+[ext_resource type="Theme" uid="uid://yd1jwxm3yn2b" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" uid="uid://brmovyy0gj7sc" path="res://scripts/ui/hud.gd" id="2_hud"]
+[ext_resource type="Script" uid="uid://dwqt8gndexf17" path="res://scripts/ui/integrity_gauge.gd" id="3_integrity_ga"]
+[ext_resource type="Script" uid="uid://c344u2wpujcr8" path="res://scripts/ui/fragment_icon.gd" id="4_fragment_ico"]
+[ext_resource type="Script" uid="uid://bw5ukyedywye6" path="res://scripts/ui/plastic_icon.gd" id="5_plastic_icon"]
+
+[sub_resource type="StyleBoxFlat" id="Style_key"]
+content_margin_left = 10.0
+content_margin_top = 2.0
+content_margin_right = 10.0
+content_margin_bottom = 2.0
+bg_color = Color(1, 0.82, 0.55, 0.95)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="Style_prompt"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.055, 0.05, 0.72)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="Hud" type="CanvasLayer"]
+layer = 1
+script = ExtResource("2_hud")
+
+[node name="Objective" type="VBoxContainer" parent="."]
+offset_left = 28.0
+offset_top = 24.0
+offset_right = 560.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_constants/separation = 2
+
+[node name="Caption" type="Label" parent="Objective"]
+layout_mode = 2
+text = "OBJECTIF"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.85)
+theme_override_constants/outline_size = 4
+
+[node name="Text" type="Label" parent="Objective"]
+layout_mode = 2
+text = ""
+theme_override_font_sizes/font_size = 21
+theme_override_constants/outline_size = 6
+
+[node name="Prompt" type="PanelContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -210.0
+offset_right = 20.0
+offset_bottom = -170.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_styles/panel = SubResource("Style_prompt")
+
+[node name="Row" type="HBoxContainer" parent="Prompt"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="KeyBadge" type="PanelContainer" parent="Prompt/Row"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_key")
+
+[node name="Key" type="Label" parent="Prompt/Row/KeyBadge"]
+layout_mode = 2
+text = "E"
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.12, 0.08, 0.04, 1)
+horizontal_alignment = 1
+
+[node name="Text" type="Label" parent="Prompt/Row"]
+layout_mode = 2
+text = "Interagir"
+theme_override_font_sizes/font_size = 19
+
+[node name="Hint" type="RichTextLabel" parent="."]
+anchors_preset = 12
+anchor_left = 0.15
+anchor_top = 1.0
+anchor_right = 0.85
+anchor_bottom = 1.0
+offset_top = -150.0
+offset_bottom = -70.0
+grow_vertical = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_font_sizes/normal_font_size = 21
+theme_override_font_sizes/bold_font_size = 21
+bbcode_enabled = true
+scroll_active = false
+
+[node name="Mode" type="VBoxContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -84.0
+offset_right = 300.0
+offset_bottom = -24.0
+grow_vertical = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_constants/separation = 0
+alignment = 2
+
+[node name="Caption" type="Label" parent="Mode"]
+layout_mode = 2
+text = "MODE"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.85)
+theme_override_constants/outline_size = 4
+
+[node name="Value" type="Label" parent="Mode"]
+layout_mode = 2
+text = "Roues"
+theme_override_font_sizes/font_size = 20
+theme_override_constants/outline_size = 6
+
+[node name="Status" type="VBoxContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -330.0
+offset_top = 24.0
+offset_right = -28.0
+offset_bottom = 110.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Status"]
+layout_mode = 2
+text = "INTÉGRITÉ"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.85)
+theme_override_constants/outline_size = 4
+horizontal_alignment = 2
+
+[node name="Gauge" type="Control" parent="Status"]
+custom_minimum_size = Vector2(154, 22)
+layout_mode = 2
+size_flags_horizontal = 8
+mouse_filter = 2
+script = ExtResource("3_integrity_ga")
+
+[node name="Fragments" type="HBoxContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 92.0
+offset_right = -28.0
+offset_bottom = 124.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="Icon" type="Control" parent="Fragments"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("4_fragment_ico")
+
+[node name="Count" type="Label" parent="Fragments"]
+layout_mode = 2
+text = "0"
+theme_override_font_sizes/font_size = 19
+theme_override_constants/outline_size = 6
+
+[node name="Plastic" type="HBoxContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 122.0
+offset_right = -28.0
+offset_bottom = 154.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="Icon" type="Control" parent="Plastic"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("5_plastic_icon")
+
+[node name="Count" type="Label" parent="Plastic"]
+layout_mode = 2
+text = "0"
+theme_override_font_sizes/font_size = 19
+theme_override_constants/outline_size = 6
+
+[node name="Toast" type="Label" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 110.0
+offset_bottom = 170.0
+grow_horizontal = 2
+mouse_filter = 2
+theme = ExtResource("1_nino_theme")
+theme_override_font_sizes/font_size = 32
+theme_override_constants/outline_size = 10
+theme_override_colors/font_color = Color(1, 0.88, 0.68, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Fader" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)

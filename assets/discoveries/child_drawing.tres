@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DiscoveryData" load_steps=2 format=3 uid="uid://qyxwrwuhjczs"]
+
+[ext_resource type="Script" uid="uid://b6i5wjmye84ej" path="res://scripts/discovery/discovery_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"child_drawing"
+title = "Dessin"
+thought_icons = Array[StringName]([&"eye", &"house"])
+thought_text = "Un dessin…"
+conclusion_icons = Array[StringName]([])
+conclusion_text = ""
+collectible = false

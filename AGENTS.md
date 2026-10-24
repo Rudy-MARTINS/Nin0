@@ -4,7 +4,7 @@ Lire **docs/GDD.md** avant toute modification du gameplay. C'est la référence 
 
 ## Règles de développement
 
-- Moteur : Godot 4, GDScript ; cible initiale : Windows, 3D.
+- Moteur : Godot 4.7 (version officielle unique), GDScript ; cible initiale : Windows, 3D.
 - Modifications petites, réversibles et testables ; ne pas générer tout le jeu en une seule fois.
 - Avant d'implémenter une mécanique non définie, proposer une hypothèse explicite et demander validation.
 - Nino commence avec des roues et une capacité d'escalade, **sans saut**.

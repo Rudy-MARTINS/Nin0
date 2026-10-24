@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpeciesData" format=3 uid="uid://nyqmjke69e84"]
+
+[ext_resource type="Script" uid="uid://huvtoujplpbv" path="res://scripts/creatures/species_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"ant_queen"
+display_name = "Reine des fourmis"
+classification = "Insecte social — reine de la colonie"
+description = "Règne sur le nid installé dans le lavabo."
+behavior = "Territoriale, lente, dangereuse au contact"
+traits = PackedStringArray("Projette un liquide acide", "Abdomen volumineux")
+mechanical_inspiration = "Propulser de petits objets à distance, par un mécanisme."
+icon = &"ant_queen"
+color = Color(0.5, 0.2, 0.15, 1)

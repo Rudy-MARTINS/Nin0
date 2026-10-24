@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DiscoveryData" load_steps=2 format=3 uid="uid://zjagq220w8g1"]
+
+[ext_resource type="Script" uid="uid://b6i5wjmye84ej" path="res://scripts/discovery/discovery_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"leg_sketch"
+title = "Croquis de jambes"
+thought_icons = Array[StringName]([&"eye", &"legs"])
+thought_text = "Des jambes ?"
+conclusion_icons = Array[StringName]([&"legs", &"arrow", &"robot"])
+conclusion_text = "…comme les miennes ?"
+collectible = false

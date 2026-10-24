@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MemoryData" format=3 uid="uid://t847gt2lrz9o"]
+
+[ext_resource type="Script" uid="uid://dd5enw7lqlhs1" path="res://scripts/memory/memory_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"memory_02"
+slot = 2
+title = "Fragment 02"
+lines = PackedStringArray("Bzzzt…", "…ticket n° ··· ···…", "…« NIN0 »…", "… ··· ··· …")
+object_name = "Ticket froissé (salle de bain)"
+comment = "Nin0… ? C'est mon nom… Bzzt… pourquoi… ici ?"

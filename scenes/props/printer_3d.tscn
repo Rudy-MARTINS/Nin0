@@ -1,0 +1,462 @@
+[gd_scene format=3 uid="uid://7onx9q6nfrk6"]
+
+[ext_resource type="Script" uid="uid://bocjk6f077nrk" path="res://scripts/level/printer_3d.gd" id="1_printer_3d"]
+[ext_resource type="Shader" uid="uid://bjp1gc32cuu1d" path="res://assets/shaders/print_reveal.gdshader" id="2_print_reveal"]
+[ext_resource type="Shader" uid="uid://b3dhjald3dhvd" path="res://assets/shaders/printer_screen.gdshader" id="3_printer_scre"]
+[ext_resource type="Script" uid="uid://ism7yuwslbf4" path="res://scripts/interaction/interactable.gd" id="4_interactable"]
+[ext_resource type="Script" uid="uid://bc0f4etneuo5y" path="res://scripts/props/cable.gd" id="5_cable"]
+[ext_resource type="Script" uid="uid://byyw6fy2uvul7" path="res://scripts/tools/procedural_mesh.gd" id="6_procedural_m"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_body"]
+albedo_color = Color(0.16, 0.17, 0.19, 1)
+roughness = 0.55
+
+[sub_resource type="StandardMaterial3D" id="Mat_alu"]
+albedo_color = Color(0.62, 0.64, 0.67, 1)
+roughness = 0.35
+metallic = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_accent"]
+albedo_color = Color(0.93, 0.48, 0.14, 1)
+roughness = 0.45
+
+[sub_resource type="StandardMaterial3D" id="Mat_dark"]
+albedo_color = Color(0.08, 0.08, 0.09, 1)
+roughness = 0.5
+metallic = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_sheet"]
+albedo_color = Color(0.72, 0.56, 0.3, 1)
+roughness = 0.45
+metallic = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_filament"]
+albedo_color = Color(0.93, 0.89, 0.8, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_nozzle"]
+albedo_color = Color(0.8, 0.6, 0.3, 1)
+roughness = 0.3
+metallic = 0.8
+emission_enabled = true
+emission = Color(1.0, 0.4, 0.1, 1)
+emission_energy_multiplier = 0.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_led"]
+albedo_color = Color(0.15, 0.2, 0.15, 1)
+roughness = 0.3
+emission_enabled = true
+emission = Color(0.3, 1.0, 0.4, 1)
+emission_energy_multiplier = 0.0
+
+[sub_resource type="ShaderMaterial" id="Mat_screen"]
+render_priority = 0
+shader = ExtResource("3_printer_scre")
+
+[sub_resource type="ShaderMaterial" id="Mat_print_shell"]
+shader = ExtResource("2_print_reveal")
+shader_parameter/albedo = Color(0.93, 0.89, 0.8, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_print_metal"]
+shader = ExtResource("2_print_reveal")
+shader_parameter/albedo = Color(0.3, 0.31, 0.33, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_print_accent"]
+shader = ExtResource("2_print_reveal")
+shader_parameter/albedo = Color(0.93, 0.48, 0.14, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_print_rubber"]
+shader = ExtResource("2_print_reveal")
+shader_parameter/albedo = Color(0.12, 0.12, 0.13, 1)
+
+[sub_resource type="QuadMesh" id="Mesh_screen"]
+size = Vector2(0.9, 0.42)
+
+[sub_resource type="BoxShape3D" id="BoxShape_4p2_0p7_4"]
+size = Vector3(4.2, 0.7, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape_0p3_4p2_0p3"]
+size = Vector3(0.3, 4.2, 0.3)
+
+[sub_resource type="SphereMesh" id="Sphere_0_05"]
+radius = 0.05
+height = 0.1
+radial_segments = 16
+rings = 8
+
+[sub_resource type="BoxShape3D" id="Shape_bed"]
+size = Vector3(3.2, 0.12, 3.0)
+
+[sub_resource type="BoxShape3D" id="Shape_install"]
+size = Vector3(2.4, 0.8, 1.6)
+
+[sub_resource type="SphereMesh" id="Sphere_0_022"]
+radius = 0.022
+height = 0.044
+radial_segments = 16
+rings = 8
+
+[sub_resource type="SphereMesh" id="Sphere_0_032"]
+radius = 0.032
+height = 0.064
+radial_segments = 16
+rings = 8
+
+[sub_resource type="BoxShape3D" id="Shape_reach"]
+size = Vector3(4.4, 1.4, 2.0)
+
+[node name="Printer3D" type="Node3D"]
+script = ExtResource("1_printer_3d")
+
+[node name="Body" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="CollisionBase" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+shape = SubResource("BoxShape_4p2_0p7_4")
+
+[node name="CollisionUprightLeft" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.95, 2.8, -1.2)
+shape = SubResource("BoxShape_0p3_4p2_0p3")
+
+[node name="CollisionUprightRight" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.95, 2.8, -1.2)
+shape = SubResource("BoxShape_0p3_4p2_0p3")
+
+[node name="Base" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+material_override = SubResource("Mat_body")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(4.2, 0.7, 4)
+bevel = 0.12
+
+[node name="BaseTrim" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(4.24, 0.07, 4.04)
+bevel = 0.03
+
+[node name="UprightLeft" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.95, 2.8, -1.2)
+material_override = SubResource("Mat_alu")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.3, 4.2, 0.3)
+bevel = 0.06
+
+[node name="UprightRight" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.95, 2.8, -1.2)
+material_override = SubResource("Mat_alu")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.3, 4.2, 0.3)
+bevel = 0.06
+
+[node name="TopBar" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -1.2)
+material_override = SubResource("Mat_alu")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(4.2, 0.3, 0.3)
+bevel = 0.06
+
+[node name="SpoolArm" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.45, -1.2)
+material_override = SubResource("Mat_alu")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.14, 0.7, 0.14)
+bevel = 0.04
+
+[node name="ScreenFrame" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, 0.36, 1.99)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(1.02, 0.52, 0.05)
+bevel = 0.03
+
+[node name="Screen" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, 0.36, 2.02)
+material_override = SubResource("Mat_screen")
+mesh = SubResource("Mesh_screen")
+
+[node name="Knob" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, 1.85, 0.36, 2.04)
+material_override = SubResource("Mat_alu")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(0.22, 0.1, 0.22)
+bevel = 0.03
+segments = 16
+
+[node name="PowerLed" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7, 0.4, 2)
+material_override = SubResource("Mat_led")
+mesh = SubResource("Sphere_0_05")
+
+[node name="Vent0" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0.36, 2)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.06, 0.3, 0.02)
+bevel = 0.01
+
+[node name="Vent1" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9, 0.36, 2)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.06, 0.3, 0.02)
+bevel = 0.01
+
+[node name="Vent2" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.36, 2)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.06, 0.3, 0.02)
+bevel = 0.01
+
+[node name="Bed" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+
+[node name="Carriage" type="MeshInstance3D" parent="Bed"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(2.6, 0.06, 2.6)
+bevel = 0.02
+
+[node name="Plate" type="MeshInstance3D" parent="Bed"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.09, 0)
+material_override = SubResource("Mat_sheet")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(3.2, 0.06, 3)
+bevel = 0.03
+
+[node name="BedBody" type="AnimatableBody3D" parent="Bed"]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="Bed/BedBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+shape = SubResource("Shape_bed")
+
+[node name="InstallZone" type="Area3D" parent="Bed"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.75)
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Bed/InstallZone"]
+shape = SubResource("Shape_install")
+
+[node name="PrintedLegs" type="Node3D" parent="Bed"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+
+[node name="LegA" type="Node3D" parent="Bed/PrintedLegs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18, 0, 0)
+
+[node name="Foot" type="MeshInstance3D" parent="Bed/PrintedLegs/LegA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.015, -0.018)
+material_override = SubResource("Mat_print_rubber")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.075, 0.03, 0.115)
+bevel = 0.012
+
+[node name="AnkleJoint" type="MeshInstance3D" parent="Bed/PrintedLegs/LegA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.045, 0)
+material_override = SubResource("Mat_print_accent")
+mesh = SubResource("Sphere_0_022")
+
+[node name="Shin" type="MeshInstance3D" parent="Bed/PrintedLegs/LegA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.135, 0)
+material_override = SubResource("Mat_print_metal")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.04, 0.19, 0.05)
+bevel = 0.017
+
+[node name="KneeJoint" type="MeshInstance3D" parent="Bed/PrintedLegs/LegA"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 0, 0.235, 0)
+material_override = SubResource("Mat_print_metal")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(0.055, 0.06, 0.055)
+bevel = 0.01
+segments = 12
+
+[node name="Thigh" type="MeshInstance3D" parent="Bed/PrintedLegs/LegA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, 0)
+material_override = SubResource("Mat_print_shell")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.045, 0.19, 0.055)
+bevel = 0.02
+
+[node name="HipJoint" type="MeshInstance3D" parent="Bed/PrintedLegs/LegA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+material_override = SubResource("Mat_print_accent")
+mesh = SubResource("Sphere_0_032")
+
+[node name="LegB" type="Node3D" parent="Bed/PrintedLegs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, 0, 0)
+
+[node name="Foot" type="MeshInstance3D" parent="Bed/PrintedLegs/LegB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.015, -0.018)
+material_override = SubResource("Mat_print_rubber")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.075, 0.03, 0.115)
+bevel = 0.012
+
+[node name="AnkleJoint" type="MeshInstance3D" parent="Bed/PrintedLegs/LegB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.045, 0)
+material_override = SubResource("Mat_print_accent")
+mesh = SubResource("Sphere_0_022")
+
+[node name="Shin" type="MeshInstance3D" parent="Bed/PrintedLegs/LegB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.135, 0)
+material_override = SubResource("Mat_print_metal")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.04, 0.19, 0.05)
+bevel = 0.017
+
+[node name="KneeJoint" type="MeshInstance3D" parent="Bed/PrintedLegs/LegB"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 0, 0.235, 0)
+material_override = SubResource("Mat_print_metal")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(0.055, 0.06, 0.055)
+bevel = 0.01
+segments = 12
+
+[node name="Thigh" type="MeshInstance3D" parent="Bed/PrintedLegs/LegB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, 0)
+material_override = SubResource("Mat_print_shell")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.045, 0.19, 0.055)
+bevel = 0.02
+
+[node name="HipJoint" type="MeshInstance3D" parent="Bed/PrintedLegs/LegB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+material_override = SubResource("Mat_print_accent")
+mesh = SubResource("Sphere_0_032")
+
+[node name="Gantry" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0)
+
+[node name="XBar" type="MeshInstance3D" parent="Gantry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, -1.2)
+material_override = SubResource("Mat_alu")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(3.7, 0.22, 0.22)
+bevel = 0.05
+
+[node name="Head" type="Node3D" parent="Gantry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, 0)
+
+[node name="Carriage" type="MeshInstance3D" parent="Gantry/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, -1.2)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.7, 0.5, 0.42)
+bevel = 0.07
+
+[node name="Arm" type="MeshInstance3D" parent="Gantry/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62, -0.6)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.34, 0.28, 1)
+bevel = 0.06
+
+[node name="Extruder" type="MeshInstance3D" parent="Gantry/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, 0)
+material_override = SubResource("Mat_accent")
+script = ExtResource("6_procedural_m")
+kind = 0
+size = Vector3(0.5, 0.55, 0.5)
+bevel = 0.08
+
+[node name="Fan" type="MeshInstance3D" parent="Gantry/Head"]
+transform = Transform3D(1, 0, 0, 0, 6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0.4, 0.26)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(0.34, 0.04, 0.34)
+bevel = 0.015
+segments = 16
+
+[node name="Nozzle" type="MeshInstance3D" parent="Gantry/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.07, 0)
+material_override = SubResource("Mat_nozzle")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(0.08, 0.14, 0.08)
+bevel = 0.02
+segments = 10
+
+[node name="Spark" type="OmniLight3D" parent="Gantry/Head"]
+light_color = Color(0.6, 0.9, 1, 1)
+light_energy = 0.0
+omni_range = 1.5
+
+[node name="Spool" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.05, -1.2)
+
+[node name="Filament" type="MeshInstance3D" parent="Spool"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("Mat_filament")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(1.4, 0.5, 1.4)
+bevel = 0.08
+segments = 28
+
+[node name="FlangeLeft" type="MeshInstance3D" parent="Spool"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, -0.28, 0, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(1.6, 0.05, 1.6)
+bevel = 0.02
+segments = 28
+
+[node name="FlangeRight" type="MeshInstance3D" parent="Spool"]
+transform = Transform3D(6.12323e-17, -1, 0, 1, 6.12323e-17, 0, 0, 0, 1, 0.28, 0, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("6_procedural_m")
+kind = 1
+size = Vector3(1.6, 0.05, 1.6)
+bevel = 0.02
+segments = 28
+
+[node name="Filament" type="MeshInstance3D" parent="."]
+material_override = SubResource("Mat_filament")
+script = ExtResource("5_cable")
+radius = 0.015
+smoothness = 8
+
+[node name="Interactable" type="Area3D" parent="." node_paths=PackedStringArray("look_point")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 3)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_interactable")
+prompt = "Examiner l'imprimante"
+look_point = NodePath("../Body/Screen")
+
+[node name="Shape" type="CollisionShape3D" parent="Interactable"]
+shape = SubResource("Shape_reach")

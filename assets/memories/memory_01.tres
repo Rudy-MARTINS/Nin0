@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MemoryData" load_steps=2 format=3 uid="uid://unvd3fubvwgv"]
+
+[ext_resource type="Script" uid="uid://dd5enw7lqlhs1" path="res://scripts/memory/memory_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"memory_01"
+slot = 1
+title = "Fragment 01"
+lines = PackedStringArray("Bzzzt…", "…", "Je… bzzzt…", "…demain…", "Bzzz… pourquoi… ?")
+object_name = "Dessin d'enfant (placard)"
+comment = "Ce dessin… il me parle ?"

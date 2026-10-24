@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://d3rug69saobh"]
+
+[ext_resource type="Script" uid="uid://el8cj8nuscuq" path="res://scripts/dev/apartment_dev.gd" id="1_dev"]
+[ext_resource type="PackedScene" uid="uid://b1kg1ymd11olt" path="res://scenes/levels/game.tscn" id="2_game"]
+
+[node name="Apartment" type="Node3D"]
+script = ExtResource("1_dev")
+
+[node name="Game" parent="." instance=ExtResource("2_game")]

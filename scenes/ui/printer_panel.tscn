@@ -1,0 +1,215 @@
+[gd_scene format=3 uid="uid://4cueqe4lfzlt"]
+
+[ext_resource type="Theme" uid="uid://yd1jwxm3yn2b" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" uid="uid://cotr6fsxpu2n4" path="res://scripts/ui/printer_panel.gd" id="2_printer_pane"]
+[ext_resource type="Script" uid="uid://b374td7jp875m" path="res://scripts/ui/leg_icon.gd" id="3_leg_icon"]
+[ext_resource type="Script" uid="uid://hl2nj6v1r3uw" path="res://scripts/ui/service_icon.gd" id="4_service_icon"]
+
+
+
+[node name="PrinterPanel" type="CanvasLayer"]
+layer = 5
+script = ExtResource("2_printer_pane")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.45)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_nino_theme")
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Imprimante 3D"
+theme_override_font_sizes/font_size = 28
+
+[node name="PowerRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PowerLabel" type="Label" parent="Center/Panel/Margin/VBox/PowerRow"]
+layout_mode = 2
+text = "Alimentation :"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.7)
+
+[node name="Status" type="Label" parent="Center/Panel/Margin/VBox/PowerRow"]
+layout_mode = 2
+text = "Coupée"
+theme_override_font_sizes/font_size = 16
+
+[node name="Spacer" type="Control" parent="Center/Panel/Margin/VBox/PowerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Fragments" type="Label" parent="Center/Panel/Margin/VBox/PowerRow"]
+layout_mode = 2
+text = ""
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.95)
+
+[node name="Plans" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Plans disponibles : 1"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.6)
+
+[node name="Separator" type="HSeparator" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="LegsCard" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Icon" type="Control" parent="Center/Panel/Margin/VBox/LegsCard"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("3_leg_icon")
+
+[node name="Info" type="VBoxContainer" parent="Center/Panel/Margin/VBox/LegsCard"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Name" type="Label" parent="Center/Panel/Margin/VBox/LegsCard/Info"]
+layout_mode = 2
+text = "Jambes mécaniques"
+theme_override_font_sizes/font_size = 21
+theme_override_colors/font_color = Color(1, 0.86, 0.62, 1)
+
+[node name="Description" type="Label" parent="Center/Panel/Margin/VBox/LegsCard/Info"]
+layout_mode = 2
+text = "Deux jambes articulées. Plus lentes que les roues, elles permettent de sauter et de franchir de petits obstacles."
+theme_override_font_sizes/font_size = 15
+custom_minimum_size = Vector2(330, 0)
+autowrap_mode = 3
+
+[node name="Requirement" type="Label" parent="Center/Panel/Margin/VBox/LegsCard/Info"]
+layout_mode = 2
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Button" type="Button" parent="Center/Panel/Margin/VBox/LegsCard"]
+custom_minimum_size = Vector2(150, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Imprimer"
+
+[node name="RepairCard" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Icon" type="Control" parent="Center/Panel/Margin/VBox/RepairCard"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("4_service_icon")
+kind = 0
+
+[node name="Info" type="VBoxContainer" parent="Center/Panel/Margin/VBox/RepairCard"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Name" type="Label" parent="Center/Panel/Margin/VBox/RepairCard/Info"]
+layout_mode = 2
+text = "Réparation"
+theme_override_font_sizes/font_size = 21
+theme_override_colors/font_color = Color(1, 0.86, 0.62, 1)
+
+[node name="Description" type="Label" parent="Center/Panel/Margin/VBox/RepairCard/Info"]
+layout_mode = 2
+text = "La machine reconstruit les pièces abîmées de Nin0 à partir de filament."
+theme_override_font_sizes/font_size = 15
+custom_minimum_size = Vector2(330, 0)
+autowrap_mode = 3
+
+[node name="Requirement" type="Label" parent="Center/Panel/Margin/VBox/RepairCard/Info"]
+layout_mode = 2
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Button" type="Button" parent="Center/Panel/Margin/VBox/RepairCard"]
+custom_minimum_size = Vector2(150, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Réparer"
+
+[node name="UpgradeCard" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Icon" type="Control" parent="Center/Panel/Margin/VBox/UpgradeCard"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+script = ExtResource("4_service_icon")
+kind = 1
+
+[node name="Info" type="VBoxContainer" parent="Center/Panel/Margin/VBox/UpgradeCard"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Name" type="Label" parent="Center/Panel/Margin/VBox/UpgradeCard/Info"]
+layout_mode = 2
+text = "Renfort de châssis I"
+theme_override_font_sizes/font_size = 21
+theme_override_colors/font_color = Color(1, 0.86, 0.62, 1)
+
+[node name="Description" type="Label" parent="Center/Panel/Margin/VBox/UpgradeCard/Info"]
+layout_mode = 2
+text = ""
+theme_override_font_sizes/font_size = 15
+custom_minimum_size = Vector2(330, 0)
+autowrap_mode = 3
+
+[node name="Requirement" type="Label" parent="Center/Panel/Margin/VBox/UpgradeCard/Info"]
+layout_mode = 2
+text = ""
+theme_override_font_sizes/font_size = 15
+
+[node name="Button" type="Button" parent="Center/Panel/Margin/VBox/UpgradeCard"]
+custom_minimum_size = Vector2(150, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Fabriquer"
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="CloseButton" type="Button" parent="Center/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(180, 46)
+layout_mode = 2
+text = "Fermer"
+
+[node name="Footer" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "E : valider    ·    Échap : fermer"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.5)
+horizontal_alignment = 1

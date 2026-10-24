@@ -1,0 +1,129 @@
+[gd_scene format=3 uid="uid://bfkcopexd3n4x"]
+
+[ext_resource type="Theme" uid="uid://yd1jwxm3yn2b" path="res://assets/ui/nino_theme.tres" id="1_nino_theme"]
+[ext_resource type="Script" uid="uid://bkw07nod26lij" path="res://scripts/ui/pause_menu.gd" id="2_pause_menu"]
+
+
+
+[node name="PauseMenu" type="CanvasLayer"]
+layer = 10
+script = ExtResource("2_pause_menu")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_nino_theme")
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Pause"
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+
+[node name="Buttons" type="VBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResumeButton" type="Button" parent="Center/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Reprendre"
+
+[node name="RestartButton" type="Button" parent="Center/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Recommencer la démo"
+
+[node name="QuitButton" type="Button" parent="Center/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Quitter"
+
+[node name="Separator" type="HSeparator" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Controls" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Z Q S D / flèches : se déplacer
+Souris : orienter la caméra
+E : interagir
+C : lâcher une paroi
+R : revenir au dernier point sûr"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.75)
+
+[node name="FocusControls" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Clic droit / Maj (maintenir) : observer"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.75)
+
+[node name="LegsControls" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "F : changer de mode (à l'arrêt, au sol)
+Espace : sauter (mode jambes)"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.75)
+
+[node name="Discoveries" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Découvertes : 0 / 0"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.8, 0.55, 0.9)
+
+[node name="Archives" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Center/Panel/Margin/VBox/Archives"]
+layout_mode = 2
+text = "Archives fragmentées — 0/7"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.55, 0.95, 1, 0.9)
+size_flags_horizontal = 3
+
+[node name="ArchivesButton" type="Button" parent="Center/Panel/Margin/VBox/Archives"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "Consulter"
+
+[node name="ArchivesText" type="RichTextLabel" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 15
+theme_override_colors/default_color = Color(0.55, 0.95, 1, 0.85)
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="Note" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "« Recommencer » efface la progression sauvegardée."
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.95, 0.92, 0.86, 0.45)

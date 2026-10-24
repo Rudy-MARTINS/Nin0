@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://b1kg1ymd11olt"]
+
+[ext_resource type="Script" uid="uid://c4odhq3x08n5c" path="res://scripts/zones/game_world.gd" id="1_world"]
+[ext_resource type="PackedScene" uid="uid://b7hov6j8fy1c4" path="res://scenes/levels/workshop.tscn" id="2_workshop"]
+[ext_resource type="PackedScene" uid="uid://bj1oku4qfzd6b" path="res://scenes/levels/apartment_blockout.tscn" id="3_blockout"]
+[ext_resource type="PackedScene" uid="uid://bt01v2y6r0esy" path="res://scenes/zones/sas_zone.tscn" id="4_sas"]
+[ext_resource type="PackedScene" uid="uid://6b1cg52t0a7e" path="res://scenes/zones/bathroom_zone.tscn" id="5_bath"]
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="Workshop" parent="." instance=ExtResource("2_workshop")]
+embedded = true
+
+[node name="Blockout" parent="." instance=ExtResource("3_blockout")]
+
+[node name="SasZone" parent="." instance=ExtResource("4_sas")]
+
+[node name="BathroomZone" parent="." instance=ExtResource("5_bath")]

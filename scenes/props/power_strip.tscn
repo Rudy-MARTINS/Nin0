@@ -1,0 +1,116 @@
+[gd_scene format=3 uid="uid://bv3cvtke34ay3"]
+
+[ext_resource type="Script" uid="uid://dgwiobun1l3rk" path="res://scripts/level/power_strip.gd" id="1_power_strip"]
+[ext_resource type="Script" uid="uid://ism7yuwslbf4" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" uid="uid://byyw6fy2uvul7" path="res://scripts/tools/procedural_mesh.gd" id="3_procedural_m"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_plastic"]
+albedo_color = Color(0.84, 0.8, 0.7, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_dark"]
+albedo_color = Color(0.1, 0.1, 0.11, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_switch"]
+albedo_color = Color(0.85, 0.15, 0.1, 1)
+roughness = 0.25
+emission_enabled = true
+emission = Color(1.0, 0.2, 0.08, 1)
+emission_energy_multiplier = 0.6
+
+[sub_resource type="BoxShape3D" id="BoxShape_2p6_0p36_0p62"]
+size = Vector3(2.6, 0.36, 0.62)
+
+[sub_resource type="BoxShape3D" id="Shape_reach"]
+size = Vector3(2.0, 1.2, 2.2)
+
+[node name="PowerStrip" type="Node3D"]
+script = ExtResource("1_power_strip")
+
+[node name="Body" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
+shape = SubResource("BoxShape_2p6_0p36_0p62")
+
+[node name="Casing" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
+material_override = SubResource("Mat_plastic")
+script = ExtResource("3_procedural_m")
+kind = 0
+size = Vector3(2.6, 0.36, 0.62)
+bevel = 0.1
+
+[node name="Socket0" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 0.36, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("3_procedural_m")
+kind = 1
+size = Vector3(0.34, 0.03, 0.34)
+bevel = 0.01
+segments = 18
+
+[node name="Socket1" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0.36, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("3_procedural_m")
+kind = 1
+size = Vector3(0.34, 0.03, 0.34)
+bevel = 0.01
+segments = 18
+
+[node name="Plug" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.5, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("3_procedural_m")
+kind = 0
+size = Vector3(0.3, 0.32, 0.3)
+bevel = 0.06
+
+[node name="SocketWithPlug" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.36, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("3_procedural_m")
+kind = 1
+size = Vector3(0.34, 0.03, 0.34)
+bevel = 0.01
+segments = 18
+
+[node name="SwitchHousing" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 0.37, 0)
+material_override = SubResource("Mat_dark")
+script = ExtResource("3_procedural_m")
+kind = 0
+size = Vector3(0.36, 0.06, 0.42)
+bevel = 0.02
+
+[node name="Rocker" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.984808, -0.173648, 0, 0.173648, 0.984808, 1.05, 0.4, 0)
+
+[node name="Switch" type="MeshInstance3D" parent="Rocker"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+material_override = SubResource("Mat_switch")
+script = ExtResource("3_procedural_m")
+kind = 0
+size = Vector3(0.26, 0.1, 0.34)
+bevel = 0.035
+
+[node name="Glow" type="OmniLight3D" parent="Rocker"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+light_color = Color(1, 0.3, 0.15, 1)
+light_energy = 0.25
+omni_range = 1.2
+
+[node name="Interactable" type="Area3D" parent="." node_paths=PackedStringArray("look_point")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.4, 0.4)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("2_interactable")
+prompt = "Appuyer sur l'interrupteur"
+look_point = NodePath("../Rocker")
+
+[node name="Shape" type="CollisionShape3D" parent="Interactable"]
+shape = SubResource("Shape_reach")
