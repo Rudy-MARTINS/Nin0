@@ -1,9 +1,11 @@
 class_name ChapterEnd
 extends CanvasLayer
 ## Fin de chapitre (lot 5 : la cuisine est ouverte). Sobre ; le joueur continue dans
-## la cuisine (lot 6, rien n'est perdu) ou quitte.
+## la cuisine ou reste dans le sas (lot 7 : rien n'est perdu, il pourra revenir plus tard).
+## Ce choix ne quitte jamais le jeu (le menu principal garde son bouton « Quitter »).
 
 signal continue_requested
+signal stay_requested
 
 var _root: Control
 var _content: Control
@@ -33,7 +35,7 @@ func _init() -> void:
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	_continue = UiKit.button(buttons, "Entrer dans la cuisine")
 	_continue.pressed.connect(_on_continue)
-	UiKit.button(buttons, "Quitter").pressed.connect(func() -> void: get_tree().quit())
+	UiKit.button(buttons, "Rester dans le sas").pressed.connect(_on_stay)
 	visible = false
 
 
@@ -50,8 +52,17 @@ func show_end() -> void:
 
 
 func _on_continue() -> void:
+	_close()
+	continue_requested.emit()
+
+
+func _on_stay() -> void:
+	_close()
+	stay_requested.emit()
+
+
+func _close() -> void:
 	visible = false
 	get_tree().paused = false
 	GameState.modal_open = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	continue_requested.emit()

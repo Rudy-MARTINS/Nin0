@@ -67,13 +67,16 @@ g.prop("ShoeBSole", D, (1.15, 0.25, 2.75), (-21.8, 0.12, -10.6), "sole", rot=ry(
 g.prop("UmbrellaShaft", D, (0.25, 10.0, 0.25), (-37.0, 0.35, 10.3), "metal", rot=mul(ry(-6), rz(90)), cyl=True)
 g.prop("UmbrellaCanopy", D, (1.1, 5.0, 1.1), (-38.6, 0.6, 10.0), "umbrella", rot=mul(ry(-6), rz(90)), cyl=True, bevel=0.4)
 g.prop("UmbrellaHandle", D, (0.5, 1.2, 0.5), (-32.4, 0.4, 11.1), "wood_dark", rot=mul(ry(-6), rz(90)), cyl=True)
-# Débris : boulette de papier, feuille morte, éclats de plâtre (fissure du plafond).
+# Débris : boulette de papier, feuille morte. (Lot 7 : les éclats de plâtre gris, pris pour
+# des déchets d'impression, sont retirés ; les tirages aléatoires sont conservés pour que
+# le reste du décor ne bouge pas.)
 g.mat("paper_b", (0.8, 0.78, 0.72), 0.95)
 g.mat("ink", (0.25, 0.25, 0.32), 0.9)
 g.crumpled_paper("PaperBall", D, (-38.0, 0.0, -5.5), 0.62, ["paper", "paper_b"], ink="ink")
 g.prop("DeadLeaf", D, (1.6, 0.05, 2.4), (-25.0, 0.03, 4.0), "leaf", rot=ry(35), collide=False)
 for i in range(7):
-    g.prop(f"PlasterChip{i}", D, (random.uniform(0.2, 0.6), 0.12, random.uniform(0.2, 0.5)), (-33.0 + random.uniform(-2.5, 2.5), 0.06, -6.0 + random.uniform(-2, 2)), "plaster", rot=ry(random.uniform(0, 90)), collide=False)
+    for _ in range(5):
+        random.uniform(0, 1)
 # Paillasson devant la porte du placard, patère et écharpe.
 g.prop("DoorMat", D, (4.0, 0.06, 6.0), (-19.0, 0.03, 5.5), "mat", collide=False, bevel=0.02)
 g.prop("CoatRail", D, (0.3, 0.4, 6.0), (-15.9, 17.5, -8.0), "wood_dark", collide=False)

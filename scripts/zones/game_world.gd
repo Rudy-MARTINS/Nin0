@@ -181,9 +181,8 @@ func _build_ui() -> void:
 	(workshop.get_node("PauseMenu") as PauseMenu).inventory = inventory
 	chapter_end = ChapterEnd.new()
 	add_child(chapter_end)
-	chapter_end.continue_requested.connect(func() -> void:
-		if current_zone == ZONE_KITCHEN:
-			play_kitchen_intro())
+	chapter_end.continue_requested.connect(_on_enter_kitchen_confirmed)
+	chapter_end.stay_requested.connect(_on_enter_kitchen_cancelled)
 	cine = CineCamera.new()
 	cine.changed.connect(func(active: bool) -> void:
 		hud.set_gameplay_visible(not active)
@@ -236,7 +235,7 @@ func _apply_saved_world() -> void:
 		commands.enabled = true
 		commands.set_status(&"follow")
 	salon.box_focus.enabled = GameState.protection_done and not GameState.has_memory(&"memory_05")
-	nino.charged_jump_unlocked = GameState.has_upgrade(&"charged_jump")
+	nino.charged_jump_unlocked = GameState.charged_jump_learned
 	for node in get_tree().get_nodes_in_group(&"resource_pickups"):
 		(node as ResourcePickup).refresh()
 	for node in get_tree().get_nodes_in_group(&"focus_targets"):
@@ -368,9 +367,7 @@ func _on_zone_changed(_previous: int, zone: int) -> void:
 		ZONE_BATH:
 			if not GameState.bathroom_entered:
 				GameState.set_flag(&"bathroom_entered")
-				nino.get_visual().show_emotion(NinoVisual.Emotion.SURPRISED, 1.4)
-				thoughts.think([&"ant", &"ant", &"eye"], "", 2.4)
-				_glance(Vector3(-50.3, 0.2, -14.2), 1.6)
+				play_maze_intro()
 			_set_resume(&"bath", bath.marker("BathEntry"))
 		ZONE_KITCHEN:
 			if GameState.kitchen_unlocked and not GameState.chapter2_completed:
@@ -388,6 +385,44 @@ func _on_zone_changed(_previous: int, zone: int) -> void:
 				_set_resume(&"salon", salon.marker("SalonEntry"))
 				if not salon.nathan.is_awake():
 					_notice_nathan()
+
+
+## Première entrée dans les galeries des fourmis (une seule fois) : Nin0 s'arrête, regarde
+## autour de lui, découvre les galeries de linge et les ouvrières qui circulent ; curiosité,
+## puis un peu d'inquiétude. Dangers suspendus pendant tout le retrait du contrôle.
+func play_maze_intro() -> void:
+	if _sequence or cine.is_active():
+		return
+	_sequence = true
+	await _wait_until(1.5, func() -> bool: return nino.is_on_floor())
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	var visual := nino.get_visual()
+	cine.reason = &"maze_intro"
+	cine.begin(58.0)
+	var p := nino.global_position
+	# 1. Nin0, minuscule au seuil des galeries.
+	cine.shot(p + Vector3(1.6, 0.6, -1.2), p + Vector3.UP * 0.3)
+	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 1.6)
+	await _wait(1.0)
+	# 2. Il regarde à gauche, puis à droite : murs de linge, galeries.
+	visual.look_target = Vector3(-56.0, 1.0, -5.0)
+	await cine.move(p + Vector3(-1.0, 2.6, 1.6), Vector3(-52.0, 3.2, -3.0), Vector3(-58.0, 0.6, -7.0), 2.4)
+	visual.look_target = Vector3(-50.3, 0.4, -16.0)
+	# 3. Les ouvrières circulent jusqu'au nid, sous le carreau cassé.
+	await cine.move(Vector3(-46.6, 2.4, -12.0), Vector3(-47.2, 1.8, -14.0), Vector3(-50.3, 0.2, -15.0), 2.2)
+	# 4. Retour sur Nin0 : curiosité, puis légère inquiétude.
+	cine.shot(nino.global_position + Vector3(-1.2, 0.7, 1.3), nino.global_position + Vector3.UP * 0.35)
+	visual.look_target = null
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 1.6)
+	thoughts.think([&"ant", &"ant", &"eye"], "", 1.8, true)
+	await _wait(1.6)
+	visual.show_emotion(NinoVisual.Emotion.WORRIED, 1.4)
+	thoughts.think([&"ant_soldier", &"question"], "", 1.6)
+	await _wait(1.2)
+	cine.end()
+	nino.controls_enabled = true
+	_sequence = false
 
 
 ## Points sûrs de la salle de bain : pied de l'escabeau, haut de l'escabeau.
@@ -488,24 +523,62 @@ func play_kitchen_intro() -> void:
 		_hint_once(&"scan_flea", "Observez la [color=#ffd28a]puce[/color] avec la vision focalisée", 6.0)
 
 
-## Observer → comprendre : les pattes de la puce stockent l'énergie, puis la libèrent.
+## Observer → comprendre → adapter : les pattes de la puce stockent l'énergie, puis la
+## libèrent d'un coup. Nin0 essaie aussitôt avec ses propres jambes : aucune pièce à
+## fabriquer, c'est une technique de déplacement apprise par observation (lot 7).
 func _flea_reflection() -> void:
+	if GameState.charged_jump_learned:
+		return
 	var visual := nino.get_visual()
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	GameState.suspend_hazards(&"learning")
 	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 2.0)
 	thoughts.think([&"eye", &"flea"], "Ses pattes se replient…", 2.2, true)
 	await _wait(2.4)
 	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
 	thoughts.think([&"legs", &"energy"], "…comme un ressort ?", 2.2, true)
 	await _wait(2.4)
-	visual.show_emotion(NinoVisual.Emotion.ENTHUSIASTIC, 1.5)
-	thoughts.think([&"robot", &"legs", &"idea"], "Mes jambes aussi pourraient !", 2.4, true)
-	await _wait(2.0)
 	species_card.hide_card()
-	await blueprint.present(&"charged_jump", "SAUT CHARGÉ",
-			"Amélioration permanente des jambes : des ressorts accumulent l'énergie pendant que Nin0 se ramasse, puis la libèrent d'un coup. Appui bref : saut normal ; appui maintenu : saut bien plus haut. À fabriquer à l'imprimante du placard (filament structurel).",
+	# Il essaie : jambes déployées, il se ramasse, frémit… et comprend.
+	nino.force_mode(NinoController.Mode.LEGS)
+	cine.reason = &"learning"
+	cine.begin(52.0)
+	var p := nino.global_position
+	var side := nino.global_basis.x
+	cine.shot(p + side * 1.3 + Vector3.UP * 0.45 - nino.global_basis.z * 0.9, p + Vector3.UP * 0.25)
+	await _wait(0.4)
+	Sfx.play(&"charge", -6.0)
+	var crouch := create_tween()
+	crouch.tween_method(func(k: float) -> void: visual.set_charge(k), 0.0, 1.0, 1.1)
+	await crouch.finished
+	await _wait(0.3)
+	visual.set_charge(0.0)
+	visual.react_to_jump()
+	Sfx.play(&"charged_jump", -6.0)
+	visual.show_emotion(NinoVisual.Emotion.ENTHUSIASTIC, 1.8)
+	thoughts.think([&"robot", &"legs", &"idea"], "Mes jambes peuvent le faire !", 2.2, true)
+	await _wait(1.6)
+	cine.end()
+	await blueprint.present(&"charged_jump", "TECHNIQUE APPRISE — SAUT CHARGÉ",
+			"Nin0 a compris le geste de la puce : se ramasser sur ses jambes pour accumuler l'énergie, puis la libérer d'un coup. Aucune pièce à fabriquer. Appui bref : saut normal ; appui maintenu (jambes déployées) : Nin0 se ramasse, puis bondit bien plus haut au relâchement.",
 			[&"flea", &"arrow", &"legs", &"up"])
-	GameState.add_discovery(&"plan_charged_jump")
-	hud.show_toast("Plan découvert : Saut chargé", 3.0)
+	learn_charged_jump()
+	GameState.resume_hazards(&"learning")
+	nino.controls_enabled = true
+	_sequence = false
+	_hint_once(&"charged_jump", "Jambes déployées : maintenez %s pour charger, relâchez pour bondir" % Hud.key("Espace"), 8.0)
+
+
+## Le saut chargé devient disponible (technique apprise, sauvegardée).
+func learn_charged_jump() -> void:
+	if not GameState.charged_jump_learned:
+		GameState.set_flag(&"charged_jump_learned")
+		hud.show_toast("Technique apprise : saut chargé", 3.0)
+		director.reactions.react(&"upgrade", null, true)
+		_charge_tutorial = true
+	nino.charged_jump_unlocked = true
 
 
 func _on_upgrade_added(id: StringName) -> void:
@@ -513,13 +586,6 @@ func _on_upgrade_added(id: StringName) -> void:
 		cannon.select_ammo(&"sting_bead")
 		await _wait_until(30.0, func() -> bool: return nino.controls_enabled and not _sequence)
 		_hint_once(&"sting_bead", "%s : changer de munition (billes / billes pointues)" % Hud.key("A"), 7.0)
-		return
-	if id != &"charged_jump":
-		return
-	nino.charged_jump_unlocked = true
-	_charge_tutorial = true
-	await _wait_until(30.0, func() -> bool: return nino.controls_enabled and not _sequence)
-	_hint_once(&"charged_jump", "Jambes déployées : maintenez %s pour charger, relâchez pour bondir" % Hud.key("Espace"), 8.0)
 
 
 ## Souvenir n° 3 : Nin0 déchiffre la liste ligne par ligne ; silence particulier devant
@@ -1158,7 +1224,7 @@ func _on_species_analyzed(data: SpeciesData) -> void:
 	if data.unlocks_plan == &"plan_armor_1" and not GameState.has_discovery(&"plan_armor_1"):
 		await _wait(1.2)
 		await _armor_reflection()
-	elif data.unlocks_plan == &"plan_charged_jump" and not GameState.has_discovery(&"plan_charged_jump"):
+	elif data.id == &"flea" and not GameState.charged_jump_learned:
 		await _wait(1.2)
 		await _flea_reflection()
 
@@ -1363,13 +1429,45 @@ func _on_kitchen_unlocked() -> void:
 	hud.show_toast("La porte de la cuisine s'est ouverte", 3.0)
 
 
+## Seuil de la cuisine : Nin0 s'arrête, regarde, puis le joueur choisit d'entrer ou de
+## rester dans le sas. Le chapitre n'est validé qu'à l'entrée confirmée.
 func _complete_chapter() -> void:
-	GameState.set_flag(&"chapter2_completed")
+	if _sequence or chapter_end.visible:
+		return
+	_sequence = true
+	nino.controls_enabled = false
+	nino.velocity = Vector3.ZERO
+	GameState.suspend_hazards(&"kitchen_threshold")
 	nino.get_visual().show_emotion(NinoVisual.Emotion.CURIOUS, 3.0)
-	thoughts.think([&"eye", &"question"], "", 2.4)
-	await _wait(2.2)
-	chapter_completed.emit()
+	thoughts.think([&"eye", &"question"], "", 2.0)
+	await _wait(1.6)
 	chapter_end.show_end()
+
+
+func _on_enter_kitchen_confirmed() -> void:
+	GameState.set_flag(&"chapter2_completed")
+	GameState.resume_hazards(&"kitchen_threshold")
+	nino.controls_enabled = true
+	_sequence = false
+	chapter_completed.emit()
+	_set_resume(&"kitchen", kitchen.marker("KitchenEntry"))
+	if current_zone == ZONE_KITCHEN:
+		play_kitchen_intro()
+
+
+## « Rester dans le sas » : Nin0 fait demi-tour, rien n'est perdu ; il pourra revenir.
+func _on_enter_kitchen_cancelled() -> void:
+	var fade := hud.fade_to(1.0, 0.35)
+	await fade.finished
+	var spot := sas.marker("KitchenDoorFront")
+	_teleport(Transform3D(spot.basis.rotated(Vector3.UP, PI), spot.origin))
+	current_zone = ZONE_SAS
+	await _wait(0.1)
+	hud.fade_to(0.0, 0.45)
+	GameState.resume_hazards(&"kitchen_threshold")
+	nino.controls_enabled = true
+	_sequence = false
+	thoughts.think([&"house", &"ellipsis"], "Plus tard…", 1.8)
 
 
 # --- Salle de bain : soldats, reine ----------------------------------------------------
@@ -1447,7 +1545,24 @@ func _on_queen_defeated() -> void:
 	_update_music()
 
 
+## Canon installé : Nin0 repense au crochet qui bloque la porte de la cuisine, dans le sas,
+## et se dit que son canon pourrait peut-être l'atteindre. L'énigme reste au joueur.
 func _on_cannon_installed() -> void:
+	if GameState.kitchen_unlocked or _shown.has(&"cannon_idea"):
+		_hint_once(&"cannon_ammo", "Les billes consomment du [color=#7fb8ff]plastique à projectiles[/color]", 5.0)
+		return
+	_shown[&"cannon_idea"] = true
+	await _wait_until(10.0, func() -> bool: return nino.controls_enabled and not _sequence)
+	var visual := nino.get_visual()
+	visual.show_emotion(NinoVisual.Emotion.FOCUSED, 2.0)
+	thoughts.think([&"door", &"lock", &"up"], "Ce crochet, dans le sas…", 2.4, true)
+	await _wait(2.6)
+	visual.set_tilt(8.0)
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	thoughts.think([&"cannon", &"arrow", &"lock", &"question"], "Peut-être… avec mon canon ?", 2.6, true)
+	await _wait(2.4)
+	visual.set_tilt(0.0)
+	visual.show_emotion(NinoVisual.Emotion.ENTHUSIASTIC, 1.4)
 	_hint_once(&"cannon_ammo", "Les billes consomment du [color=#7fb8ff]plastique à projectiles[/color]", 5.0)
 
 
@@ -1500,9 +1615,10 @@ func run_dev_scenario(scenario: StringName) -> void:
 		&"salon":
 			GameState.queen_defeated = true
 			bath.arena.apply_saved_state()
-			for id in [&"cannon", &"charged_jump", &"sting_bead"]:
+			for id in [&"cannon", &"sting_bead"]:
 				if not GameState.has_upgrade(id):
 					GameState.add_upgrade(id)
+			GameState.charged_jump_learned = true
 			nino.charged_jump_unlocked = true
 			GameState.add_plastic(GameState.PLASTIC_MAX)
 			nino.get_visual().set_cannon_installed(true)
@@ -1518,9 +1634,9 @@ func run_dev_scenario(scenario: StringName) -> void:
 		&"wasps", &"salon_door":
 			GameState.queen_defeated = true
 			bath.arena.apply_saved_state()
-			for id in [&"cannon", &"charged_jump"]:
-				if not GameState.has_upgrade(id):
-					GameState.add_upgrade(id)
+			if not GameState.has_upgrade(&"cannon"):
+				GameState.add_upgrade(&"cannon")
+			GameState.charged_jump_learned = true
 			nino.charged_jump_unlocked = true
 			GameState.add_plastic(GameState.PLASTIC_MAX)
 			nino.get_visual().set_cannon_installed(true)

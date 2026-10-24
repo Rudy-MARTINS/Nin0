@@ -239,6 +239,8 @@ func service(nino: NinoController, duration: float) -> void:
 	await _move_bed(bed_presented_z, 0.8)
 	_screen_material.set_shader_parameter("mode", 0)
 	_rider = null
+	# Nin0 redescend du plateau à sa place d'attente avant de reprendre le contrôle.
+	await _hop_to(nino, waiting_spot(nino), 0.5)
 	state = State.EMPTY
 	nino.end_scripted()
 	service_finished.emit()
@@ -348,6 +350,7 @@ func fabricate_and_install(nino: NinoController, part: Node3D, mount: Callable, 
 	await _move_bed(bed_presented_z, 0.8)
 	_screen_material.set_shader_parameter("mode", 0)
 	_rider = null
+	await _hop_to(nino, waiting_spot(nino), 0.5)
 	state = State.EMPTY
 	nino.end_scripted()
 	installation_finished.emit()
@@ -461,9 +464,36 @@ func _update_filament() -> void:
 ## la machine, hors du plateau (évite qu'il soit poussé ou téléporté au départ).
 func _step_to_waiting_spot(nino: NinoController) -> void:
 	nino.velocity = Vector3.ZERO
+	await _hop_to(nino, waiting_spot(nino), 0.45)
+
+
+## Place d'attente face à la machine, posée sur le vrai sol (le plan de l'imprimante),
+## quelle que soit la hauteur d'où Nin0 a lancé l'interface (pente, livre, rebord…).
+func waiting_spot(nino: NinoController) -> Vector3:
 	var spot := to_global(Vector3(0.0, 0.0, bed_presented_z + 2.1))
-	spot.y = nino.global_position.y
-	var step := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	step.tween_property(nino, "global_position", spot, clampf(nino.global_position.distance_to(spot) * 0.5, 0.15, 0.6))
-	step.tween_property(nino, "rotation:y", global_rotation.y, 0.4)
-	await step.finished
+	var space := get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(spot + Vector3.UP * 1.5, spot + Vector3.DOWN * 1.5, 1, [nino.get_rid()])
+	var hit := space.intersect_ray(query)
+	spot.y = (hit.position as Vector3).y if not hit.is_empty() else global_position.y
+	return spot
+
+
+## Petit bond lisible (arc) vers un point, en se tournant vers la machine. Sans saut de
+## position : la trajectoire part toujours de la position réelle de Nin0.
+func _hop_to(nino: NinoController, spot: Vector3, duration: float) -> void:
+	var from := nino.global_position
+	if from.distance_to(spot) < 0.03:
+		var turn := create_tween()
+		turn.tween_property(nino, "rotation:y", global_rotation.y, 0.3)
+		await turn.finished
+		return
+	var lift := clampf(absf(spot.y - from.y) * 0.5 + 0.15, 0.15, 0.6)
+	var apex := (from + spot) * 0.5 + Vector3.UP * (maxf(spot.y, from.y) - (from.y + spot.y) * 0.5 + lift)
+	var hop := create_tween().set_trans(Tween.TRANS_SINE)
+	hop.tween_method(func(k: float) -> void:
+		nino.global_position = from.lerp(apex, k).lerp(apex.lerp(spot, k), k)
+	, 0.0, 1.0, clampf(from.distance_to(spot) * 0.4, 0.25, duration))
+	hop.parallel().tween_property(nino, "rotation:y", global_rotation.y, 0.35)
+	await hop.finished
+	nino.velocity = Vector3.ZERO
+	nino.get_visual().react_to_landing(2.0)

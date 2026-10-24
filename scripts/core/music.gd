@@ -23,7 +23,7 @@ extends Node
 ##   0,35 s vers la reprise à 35,84 s (similarité spectrale 0,76 sur 6 s, attaques alignées
 ##   à l'échantillon près : 0,81), 40,4 s de boucle.
 const TRACKS := {
-	&"intro": {"path": "res://assets/music/intro_prototype.ogg", "loop": false, "volume": -4.0},
+	&"intro": {"path": "res://assets/music/intro_prototype.ogg", "loop": false, "volume": -9.1},
 	# « Petit Refuge » : placard-hub et sas.
 	&"hub": {"path": "res://assets/music/petit_refuge.ogg", "loop": true, "loop_offset": 164817.0 / 44100.0, "volume": -3.2},
 	# « ant labyrinth - Nin0 », V3 : salle de bain.
@@ -33,7 +33,7 @@ const TRACKS := {
 	# « kitchen - Nin0 » : cuisine (lot 6).
 	&"kitchen": {"path": "res://assets/music/kitchen.ogg", "loop": true, "loop_offset": 1124374.0 / 44100.0, "volume": 3.0},
 	# « living room - Nin0 » : salon (lot 7), coupé avant le fondu final, boucle de 40,4 s.
-	&"living_room": {"path": "res://assets/music/living_room.ogg", "loop": true, "loop_offset": 1580653.0 / 44100.0, "volume": 2.4},
+	&"living_room": {"path": "res://assets/music/living_room.ogg", "loop": true, "loop_offset": 1580653.0 / 44100.0, "volume": 3.5},
 }
 const DEFAULT_VOLUME := -6.0
 const CROSSFADE := 0.8

@@ -22,8 +22,21 @@ func _ready() -> void:
 		_players.append(player)
 
 
+## Correctifs de niveau par son (dB), d'après la mesure des crêtes et de l'intensité
+## (lot 7) : les clics et chocs très « pointus » sont adoucis, les sons de Nin0 et les
+## alertes restent au-dessus de la musique sans l'écraser.
+const LEVELS := {
+	&"click": -3.0, &"impact_small": -3.0, &"door_latch": -3.0, &"impact": -2.5, &"book_fall": -3.0,
+	&"spool_drop": -3.0, &"bite": -2.0, &"glitch": -3.0, &"spark": -1.5, &"yeah": -2.0, &"hurt": -1.5,
+	&"queen_roar": -1.0, &"power_on": -1.5, &"power_up": -1.5, &"shot": -1.0, &"larva_drop": -2.0,
+	&"web_thread": 3.0, &"print_motor": 2.0, &"charge": 2.0, &"scan": 2.0, &"focus_out": 2.0,
+	&"thought": 1.0, &"toy_voice": 1.0, &"chirp_known": 1.0, &"chirp_hesitant": 1.0,
+}
+
+
 ## Joue un son court. volume_db : volume relatif ; pitch : hauteur.
 func play(sound: StringName, volume_db := 0.0, pitch := 1.0) -> void:
+	volume_db += float(LEVELS.get(sound, 0.0))
 	var stream: AudioStream = _streams.get(sound)
 	if stream == null:
 		push_warning("Son inconnu : %s" % sound)
@@ -46,6 +59,7 @@ func jingle(id: StringName) -> void:
 
 ## Démarre (ou ajuste) un son en boucle identifié par `key`.
 func set_loop(key: StringName, sound: StringName, volume_db: float, pitch := 1.0) -> void:
+	volume_db += float(LEVELS.get(sound, 0.0))
 	var player: AudioStreamPlayer = _loops.get(key)
 	if player == null:
 		player = AudioStreamPlayer.new()

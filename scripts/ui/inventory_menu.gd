@@ -171,6 +171,14 @@ func _fill_equipment(page: VBoxContainer) -> void:
 			_upgrade_row(page, upgrade, "Plan connu · à fabriquer à l'imprimante", true)
 	if not any:
 		UiKit.label(page, "Aucune.", 14, UiKit.DIM_COLOR)
+	if GameState.charged_jump_learned:
+		UiKit.label(page, "TECHNIQUES (apprises par observation)", 13, UiKit.SCAN_COLOR)
+		var row := UiKit.hbox(page, 12)
+		var col := UiKit.vbox(row, 1)
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiKit.label(col, "Saut chargé  ·  Technique", 17, UiKit.TITLE_COLOR)
+		UiKit.label(col, "Jambes déployées : maintenir Espace pour se ramasser, relâcher pour bondir bien plus haut.", 14, Color.WHITE, true)
+		UiKit.label(col, "Appris en observant la puce", 13, UiKit.SCAN_COLOR)
 	UiKit.label(page, "MODULES — emplacements %d / %d (échange hors combat)" % [GameState.equipped_modules.size(), GameState.module_slots], 13, UiKit.SCAN_COLOR)
 	var modules := 0
 	for upgrade in UpgradeCatalog.all():

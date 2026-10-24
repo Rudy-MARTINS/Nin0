@@ -213,17 +213,22 @@ func _test_bathroom() -> void:
 	var bath := _game.bath
 	# Musique des labyrinthes dans la salle de bain, retour au hub dans le sas.
 	_teleport_marker(bath.get_node("Markers/BathEntry"))
-	await _wait(0.6)
+	var intro := await _wait_until(3.0, func() -> bool: return _game.cine.is_active() and _game.cine.reason == &"maze_intro")
+	_check(intro and not _nino.controls_enabled and GameState.hazards_suspended(), "première entrée : courte découverte des galeries (contrôle retiré, dangers suspendus)")
+	var hp := GameState.integrity + GameState.shield
+	var intro_done := await _wait_until(20.0, func() -> bool: return _nino.controls_enabled and not _game.cine.is_active())
+	_check(intro_done and GameState.integrity + GameState.shield >= hp - 0.01, "contrôle rendu, aucun dégât pendant la découverte")
 	_check(Music.desired == &"labyrinth", "salle de bain : musique des labyrinthes")
 	_place(Vector3(-40.0, 0.05, 0.0), 90.0)
 	await _wait(0.6)
 	_check(Music.desired == &"hub", "retour au sas : musique du hub")
 	_teleport_marker(bath.get_node("Markers/BathEntry"))
 	await _wait(0.6)
+	_check(not _game.cine.is_active() and _nino.controls_enabled, "la découverte des galeries ne se rejoue pas")
 	# Soldats : plus nombreux, sur les deux chemins, trajets praticables.
 	var soldiers := bath.get_soldiers()
 	var left_count := soldiers.filter(func(s: AntSoldier) -> bool: return s.patrol_points[0].z > -13.0).size()
-	_check(soldiers.size() >= 10 and left_count >= 3, "soldats : %d au total, %d sur le chemin du ticket" % [soldiers.size(), left_count])
+	_check(soldiers.size() >= 15 and left_count >= 5, "soldats : %d au total, %d sur le chemin du ticket" % [soldiers.size(), left_count])
 	_check(soldiers.all(func(s: AntSoldier) -> bool: return s.patrol_points.size() >= 2 and s.patrol_points[0].distance_to(s.patrol_points[1]) > 0.5), "soldats en patrouille (aucun garde immobile)")
 	_check(soldiers.all(func(s: AntSoldier) -> bool: return _path_clear(s.patrol_points)), "trajets de patrouille praticables (aucun obstacle)")
 	var ticket_pos := bath.ticket_focus.global_position
@@ -438,12 +443,14 @@ func _test_boss() -> void:
 	var inside := true
 	var start_pos := queen.global_position
 	_place(Vector3(-62.4, 8.2, -30.25), 90.0)
+	var farthest := 0.0
 	for i in 16:
 		await _wait(0.5)
+		farthest = maxf(farthest, queen.global_position.distance_to(start_pos))
 		inside = inside and queen.is_inside_walk_area(queen.global_position) and queen.global_position.y > 7.4 and queen.global_position.y < 8.6
 		if i == 5:
 			_place(Vector3(-55.4, 8.2, -30.2), -90.0)
-	_check(queen.travelled > 1.0 and queen.global_position.distance_to(start_pos) > 0.5, "la reine se déplace (%.1f u parcourues)" % queen.travelled)
+	_check(queen.travelled > 1.0 and farthest > 0.5, "la reine se déplace (%.1f u parcourues)" % queen.travelled)
 	_check(inside, "elle reste dans la vasque, sur les zones praticables")
 	# Enlisement dans la matière.
 	GameState.restore_integrity(GameState.integrity_max)
@@ -546,6 +553,7 @@ func _test_boss() -> void:
 	await _wait(0.8)
 	_check(Music.desired == &"labyrinth", "après la victoire, retour à la musique des labyrinthes")
 	_check(_objective() == "Fabriquer le canon à l'imprimante", "objectif : retour à l'imprimante")
+	_check(not _director._printer_upgrades().any(func(u: UpgradeData) -> bool: return u.cost_fragments > 0 and u.id == &"charged_jump"), "aucune fabrication de saut chargé proposée")
 	_place(Vector3(-64.4, 8.55, -31.75), -90.0)
 	await _wait(1.0)
 	_check(arena.phase == SinkArena.Phase.DONE, "victoire définitive (pas de nouveau combat)")
@@ -558,10 +566,29 @@ func _test_cannon() -> void:
 	await _wait(0.5)
 	_check(_director._printer_upgrades().any(func(u: UpgradeData) -> bool: return u.id == &"cannon"), "imprimante : plan du canon proposé")
 	GameState.fragments = 4
+	# Nin0 lance l'impression un peu de côté et légèrement en hauteur (cas réel) : il doit
+	# rejoindre sa place sans téléportation ni flottement.
+	var printer := _director.printer as Printer3D
+	_nino.global_position = printer.waiting_spot(_nino) + Vector3(0.7, 0.25, 0.4)
+	await _wait(0.2)
+	var jumps := [0.0, _nino.global_position]
+	var track := func() -> void:
+		jumps[0] = maxf(jumps[0], (_nino.global_position as Vector3).distance_to(jumps[1]))
+		jumps[1] = _nino.global_position
+	get_tree().physics_frame.connect(track)
 	_director._on_upgrade_requested(&"cannon")
 	await _wait(0.5)
 	_check(not _nino.controls_enabled and _director.printer.state == Printer3D.State.SERVICING, "impression du canon en cours")
 	var done := await _wait_until(40.0, func() -> bool: return GameState.has_cannon() and _nino.controls_enabled)
+	get_tree().physics_frame.disconnect(track)
+	_check(jumps[0] < 0.25, "installation fluide : aucun saut de position (déplacement max %.2f u par image)" % jumps[0])
+	var rest := printer.waiting_spot(_nino)
+	await _wait(0.3)
+	_check(_nino.is_on_floor() and _nino.global_position.distance_to(rest) < 0.3, "contrôle rendu à la place d'attente, posé au sol (écart %.2f)" % _nino.global_position.distance_to(rest))
+	var idea := await _wait_until(8.0, func() -> bool: return _game._shown.has(&"cannon_idea") and _game.thoughts.is_busy())
+	_check(idea, "réflexion : le crochet du sas… le canon pourrait l'atteindre")
+	_check(_objective() == "Retourner à la porte de la cuisine, dans le sas", "objectif : retourner à la porte de la cuisine (sans dévoiler la visée)")
+	_check(not GameState.kitchen_unlocked, "l'énigme n'est pas résolue automatiquement")
 	var model := _nino.get_visual().get_cannon()
 	_check(done and model != null and model.visible, "canon imprimé puis installé physiquement sur Nin0")
 	_check(GameState.ammo_plastic >= 6 and GameState.fragments == 1, "premier chargement de billes (%d)" % GameState.ammo_plastic)
@@ -641,9 +668,26 @@ func _test_kitchen() -> void:
 	var reached := await _drive(Vector3(-40.0, 0.05, 3.6), 90.0, 4, 6.0)
 	_check(reached, "la cuisine est accessible")
 	var ended := await _wait_until(6.0, func() -> bool: return _game.chapter_end.visible)
-	_check(ended and GameState.chapter2_completed, "fin du chapitre 2 à l'entrée de la cuisine")
+	_check(ended and not GameState.chapter2_completed and not _nino.controls_enabled, "seuil de la cuisine : choix proposé (rien n'est encore validé)")
+	var labels := Array(_game.chapter_end.find_children("*", "Button", true, false).map(func(b: Node) -> String: return (b as Button).text))
+	_check(labels.has("Rester dans le sas") and not labels.has("Quitter"), "boutons : entrer ou rester dans le sas (aucun « Quitter » ici)")
+	await _wait(1.8)
+	var fragments := GameState.fragments
+	var upgrades := GameState.upgrades.duplicate()
+	_game.chapter_end._on_stay()
+	var back := await _wait_until(3.0, func() -> bool: return _nino.controls_enabled)
+	await _wait(0.4)
+	_check(back and not get_tree().paused and _game.zone_at(_nino.global_position) == 2 and not GameState.chapter2_completed,
+			"« Rester dans le sas » : Nin0 reste dans le sas, contrôle rendu, le jeu continue")
+	_check(GameState.fragments == fragments and GameState.upgrades == upgrades and GameState.has_cannon() and GameState.kitchen_unlocked,
+			"progression et équipements conservés")
+	_check(_objective() == "Entrer dans la cuisine", "objectif inchangé : il pourra revenir plus tard")
+	var again := await _drive(Vector3(-40.0, 0.05, 3.6), 90.0, 4, 6.0)
+	var asked := await _wait_until(6.0, func() -> bool: return _game.chapter_end.visible)
+	_check(again and asked, "retour vers la cuisine : le choix est reproposé")
 	await _wait(1.8)
 	_game.chapter_end._on_continue()
+	_check(GameState.chapter2_completed, "« Entrer dans la cuisine » valide la fin du chapitre 2")
 	await _wait(0.3)
 	var intro := _game.cine.is_active() and not _nino.controls_enabled
 	var resumed := await _wait_until(30.0, func() -> bool: return _nino.controls_enabled and not _game.cine.is_active())

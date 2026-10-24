@@ -5194,6 +5194,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50.9, 0.02, -21.1)
 script = ExtResource("8_ant_soldier")
 patrol_points = PackedVector3Array(-50.9, 0.02, -21.1, -48.0, 0.02, -21.1)
 
+[node name="SoldierLeftCenterB" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.5, 0.02, -7.6)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-62.5, 0.02, -7.6, -55.5, 0.02, -7.6)
+
+[node name="SoldierGravelB" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.2, 0.02, -20.3)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-48.2, 0.02, -20.3, -47.6, 0.02, -16.0)
+
+[node name="SoldierCorridorB" type="CharacterBody3D" parent="Soldiers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.6, 0.02, -21.2)
+script = ExtResource("8_ant_soldier")
+patrol_points = PackedVector3Array(-55.6, 0.02, -21.2, -56.4, 0.02, -20.6)
+
 [node name="Puddle0" type="MeshInstance3D" parent="MazeRight"]
 transform = Transform3D(1, 0, 0, 0, 6.12323e-17, 1, 0, -1, 6.12323e-17, -58.4, 0.016, -2.6)
 material_override = SubResource("Mat_puddle")

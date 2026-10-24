@@ -597,62 +597,6 @@ bevel = 0.03
 material = SubResource("Mat_leaf")
 collide = false
 
-[node name="PlasterChip0" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.335752, 0, 0.94195, 0, 1, 0, -0.94195, 0, 0.335752, -35.0543, 0.06, -6.91076)
-script = ExtResource("1_prop_block")
-size = Vector3(0.399729, 0.12, 0.301544)
-bevel = 0.03
-material = SubResource("Mat_plaster")
-collide = false
-
-[node name="PlasterChip1" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.461536, 0, 0.887121, 0, 1, 0, -0.887121, 0, 0.461536, -31.5699, 0.06, -4.90041)
-script = ExtResource("1_prop_block")
-size = Vector3(0.546955, 0.12, 0.308398)
-bevel = 0.03
-material = SubResource("Mat_plaster")
-collide = false
-
-[node name="PlasterChip2" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.904256, 0, 0.42699, 0, 1, 0, -0.42699, 0, 0.904256, -33.6828, 0.06, -5.18212)
-script = ExtResource("1_prop_block")
-size = Vector3(0.465607, 0.12, 0.427892)
-bevel = 0.03
-material = SubResource("Mat_plaster")
-collide = false
-
-[node name="PlasterChip3" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.0854294, 0, 0.996344, 0, 1, 0, -0.996344, 0, 0.0854294, -32.0456, 0.06, -6.82459)
-script = ExtResource("1_prop_block")
-size = Vector3(0.394274, 0.12, 0.430924)
-bevel = 0.03
-material = SubResource("Mat_plaster")
-collide = false
-
-[node name="PlasterChip4" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.923463, 0, 0.383688, 0, 1, 0, -0.383688, 0, 0.923463, -35.4421, 0.06, -5.81204)
-script = ExtResource("1_prop_block")
-size = Vector3(0.459877, 0.12, 0.374198)
-bevel = 0.03
-material = SubResource("Mat_plaster")
-collide = false
-
-[node name="PlasterChip5" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.312561, 0, 0.949898, 0, 1, 0, -0.949898, 0, 0.312561, -31.4166, 0.06, -5.41025)
-script = ExtResource("1_prop_block")
-size = Vector3(0.468657, 0.12, 0.338882)
-bevel = 0.03
-material = SubResource("Mat_plaster")
-collide = false
-
-[node name="PlasterChip6" type="StaticBody3D" parent="Decor"]
-transform = Transform3D(0.852603, 0, 0.522559, 0, 1, 0, -0.522559, 0, 0.852603, -31.8109, 0.06, -4.68725)
-script = ExtResource("1_prop_block")
-size = Vector3(0.339154, 0.12, 0.393219)
-bevel = 0.03
-material = SubResource("Mat_plaster")
-collide = false
-
 [node name="DoorMat" type="StaticBody3D" parent="Decor"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19, 0.03, 5.5)
 script = ExtResource("1_prop_block")

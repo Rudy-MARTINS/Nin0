@@ -91,6 +91,8 @@ var queen_defeated := false
 var kitchen_unlocked := false
 var chapter2_completed := false
 # --- Lot 7 : guêpes, billes pointues, salon ------------------------------------------------
+## Saut chargé : technique apprise en observant la puce (plus une amélioration fabriquée).
+var charged_jump_learned := false
 var wasp_started := false
 ## Phase 2 atteinte : en cas d'échec, le combat reprend en phase 2.
 var wasp_phase2 := false
@@ -176,7 +178,7 @@ func save() -> void:
 ## Indicateurs sauvegardés en plus des jambes (lot 3).
 const SAVED_FLAGS := [&"legs_deployed_once", &"reached_window", &"handle_identified", &"door_opened", &"injured", &"repaired",
 		&"sas_entered", &"worker_met", &"bathroom_entered", &"boss_started", &"queen_defeated", &"kitchen_unlocked", &"chapter2_completed",
-		&"wasp_started", &"wasp_phase2", &"wasp_defeated", &"salon_opened", &"salon_entered",
+		&"charged_jump_learned", &"wasp_started", &"wasp_phase2", &"wasp_defeated", &"salon_opened", &"salon_entered",
 		&"seesaw_done", &"protection_done"]
 
 
@@ -220,6 +222,11 @@ func load_save() -> void:
 	for key in reads:
 		memory_reads[StringName(key)] = reads[key]
 	ammo_plastic = clampi(int(config.get_value("nino", "ammo_plastic", 0)), 0, PLASTIC_MAX)
+	# Lot 7 (correctifs) : l'ancien « saut chargé » fabriqué, ou son plan déjà trouvé (la
+	# puce a été observée), devient la technique apprise ; l'entrée d'amélioration disparaît.
+	if upgrades.has(&"charged_jump") or discoveries.has(&"plan_charged_jump"):
+		charged_jump_learned = true
+	upgrades.erase(&"charged_jump")
 	ammo_type = StringName(config.get_value("nino", "ammo_type", "bead"))
 	if ammo_type != &"bead" and not upgrades.has(ammo_type):
 		ammo_type = &"bead"
@@ -262,6 +269,7 @@ func reset_progress() -> void:
 	queen_defeated = false
 	kitchen_unlocked = false
 	chapter2_completed = false
+	charged_jump_learned = false
 	wasp_started = false
 	wasp_phase2 = false
 	wasp_defeated = false
@@ -656,15 +664,15 @@ func get_objective() -> String:
 			return "Fabriquer les billes pointues à l'imprimante"
 		if wasp_started:
 			return "Chasser les guêpes de la fenêtre"
-		if has_upgrade(&"charged_jump"):
+		if charged_jump_learned:
 			return "Explorer les hauteurs de la cuisine"
-		if has_discovery(&"plan_charged_jump"):
-			return "Fabriquer le saut chargé à l'imprimante"
+		if seen_notices.has(&"kitchen_intro"):
+			return "Observer la puce"
 		return "Explorer la cuisine"
 	if kitchen_unlocked:
 		return "Entrer dans la cuisine"
 	if has_cannon():
-		return "Ouvrir la porte de la cuisine"
+		return "Retourner à la porte de la cuisine, dans le sas"
 	if queen_defeated:
 		return "Fabriquer le canon à l'imprimante"
 	if boss_started:

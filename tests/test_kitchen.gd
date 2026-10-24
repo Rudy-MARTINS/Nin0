@@ -86,7 +86,7 @@ func _test_layout() -> void:
 	var length := (load(track.path) as AudioStream).get_length()
 	_check(track.loop_offset > 20.0 and length - track.loop_offset > 45.0 and length < 80.0,
 			"boucle de la cuisine : reprise après l'intro (%.2f s), fin coupée avant le fondu (%.2f s)" % [track.loop_offset, length])
-	_check(_objective() == "Explorer la cuisine", "objectif : explorer la cuisine")
+	_check(_objective() == "Observer la puce", "objectif après la présentation : observer la puce")
 	var volumes := _game.blockout.get_node("Volumes")
 	_check(["KitchenCounter", "KitchenUpper", "KitchenFridge", "KitchenTable"].all(func(n: String) -> bool: return volumes.get_node_or_null(n) == null),
 			"volumes provisoires de la cuisine retirés du blockout")
@@ -134,15 +134,15 @@ func _test_routes() -> void:
 			"aucune surface escaladable dans la cuisine (escalade retirée)")
 	_nino.force_mode(NinoController.Mode.LEGS)
 	await _wait(0.6)
-	# Avant l'amélioration : le plan de travail reste hors de portée.
+	# Avant d'avoir appris la technique : le plan de travail reste hors de portée.
 	_check(not _nino.charged_jump_unlocked, "pas encore de saut chargé")
 	var crate := await _hop(Vector3(-71.6, 0.05, 14.15), Vector3(-71.6, 0.7, 15.2))
 	var too_high := await _hop(Vector3(-71.6, 0.75, 15.6), Vector3(-71.6, 3.4, 16.8))
 	_check(crate and not too_high, "sans saut chargé : la caisse oui, le grand carton non")
-	# Après l'amélioration (installée par le scénario de test).
-	GameState.add_upgrade(&"charged_jump")
+	# Technique apprise (la vraie séquence d'apprentissage est testée avec la puce).
+	_game.learn_charged_jump()
 	await _wait(0.3)
-	_check(_nino.charged_jump_unlocked, "saut chargé débloqué par l'amélioration")
+	_check(_nino.charged_jump_unlocked and GameState.charged_jump_learned, "saut chargé disponible une fois la technique apprise")
 	var a := await _charged_hop(Vector3(-71.6, 0.75, 15.75), Vector3(-71.6, 3.4, 16.8), 0.8)
 	var b := a and await _charged_hop(Vector3(-71.1, 3.45, 16.9), Vector3(-72.0, 6.2, 18.5), 1.0)
 	var c := b and await _charged_hop(Vector3(-72.4, 6.25, 19.0), Vector3(-72.4, 9.0, 21.2), 1.0)
@@ -455,23 +455,33 @@ func _test_resources() -> void:
 
 
 func _test_flea_and_jump() -> void:
-	# Puce : pacifique, analysable, inspire le plan du saut chargé.
+	# Puce : pacifique, analysable ; l'observer apprend une technique (rien à fabriquer).
 	var flea := _kitchen.get_flea()
-	_check(flea.focus.species.unlocks_plan == &"plan_charged_jump" and flea.get_node_or_null("HitBody") == null, "puce : pacifique (aucun corps de combat), inspire un plan")
+	_check(flea.focus.species.unlocks_plan == &"" and flea.get_node_or_null("HitBody") == null, "puce : pacifique (aucun corps de combat), aucun plan à fabriquer")
 	_place(flea.global_position + Vector3(0.0, 0.05, -0.5), 0.0)
 	await _wait(0.6)
 	_check(flea.jumps >= 2 or flea.flying, "trop près, la puce bondit ailleurs")
-	GameState.discoveries.erase(&"plan_charged_jump")
+	# Retour à l'état « pas encore appris » pour jouer la vraie séquence.
+	GameState.charged_jump_learned = false
+	_nino.charged_jump_unlocked = false
+	_check(_objective() == "Observer la puce", "objectif : observer la puce (après la présentation de la cuisine)")
+	var fragments := GameState.fragments
 	_director.focus_vision.target_identified.emit(flea.focus)
+	var learning := await _wait_until(8.0, func() -> bool: return not _nino.controls_enabled and GameState.hazards_suspended())
+	_check(learning, "analyse de la puce → réflexion (contrôle retiré, dangers suspendus)")
+	var demo := await _wait_until(8.0, func() -> bool: return _game.cine.is_active() and _game.cine.reason == &"learning")
+	_check(demo and _nino.mode == NinoController.Mode.LEGS, "Nin0 essaie le geste : jambes déployées, il se ramasse")
 	var opened := await _wait_until(12.0, func() -> bool: return _game.blueprint._open)
-	_check(GameState.has_species(&"flea") and opened, "analyse de la puce → réflexion → plan « Saut chargé »")
+	_check(GameState.has_species(&"flea") and opened and _game.blueprint._title.text.contains("TECHNIQUE"), "présentation : technique apprise (pas un plan d'impression)")
 	await _wait(2.6)
 	_game.blueprint.close()
-	await _wait(0.4)
-	_check(GameState.has_discovery(&"plan_charged_jump"), "plan du saut chargé enregistré")
-	_check(_director._printer_upgrades().any(func(u: UpgradeData) -> bool: return u.id == &"charged_jump"), "l'imprimante propose de fabriquer le saut chargé")
-	var upgrade := UpgradeCatalog.find(&"charged_jump")
-	_check(upgrade.category == UpgradeData.Category.MAJOR, "capacité permanente (pas un module secondaire)")
+	var learned := await _wait_until(3.0, func() -> bool: return GameState.charged_jump_learned and _nino.controls_enabled)
+	_check(learned and _nino.charged_jump_unlocked, "saut chargé débloqué directement, contrôle rendu")
+	_check(GameState.fragments == fragments and not GameState.has_discovery(&"plan_charged_jump"), "aucun coût en fragments, aucun plan d'impression")
+	_check(UpgradeCatalog.find(&"charged_jump") == null and not _director._printer_upgrades().any(func(u: UpgradeData) -> bool: return u.id == &"charged_jump"),
+			"l'imprimante ne propose plus de fabriquer le saut chargé")
+	_check(_objective() == "Explorer les hauteurs de la cuisine", "objectif : explorer les hauteurs de la cuisine")
+	_check(_game._shown.has(&"charged_jump"), "tutoriel contextuel du saut chargé")
 	# Saut chargé : appui bref = saut normal ; appui long = saut bien plus haut ; jamais en l'air.
 	_nino.force_mode(NinoController.Mode.LEGS)
 	await _wait(0.6)
@@ -542,6 +552,20 @@ func _test_saves() -> void:
 	_check(GameState.collected_pickups == snapshot.pickups and GameState.ammo_plastic == snapshot.ammo, "sauvegarde : ressources ramassées")
 	_check(GameState.chapter2_completed and GameState.resume_point == &"kitchen" and (_game._resume_transform() as Transform3D).origin.distance_to(_kitchen.marker("KitchenEntry").origin) < 0.1,
 			"reprise dans la cuisine")
+	# Anciennes sauvegardes du lot 7 : saut chargé fabriqué, ou plan seulement trouvé.
+	for legacy in [["upgrades", "charged_jump"], ["discoveries", "plan_charged_jump"]]:
+		var config := ConfigFile.new()
+		config.load(GameState.save_path)
+		config.erase_section_key("progress", "charged_jump_learned")
+		var section := "collections" if legacy[0] == "upgrades" else "progress"
+		var list: Array = config.get_value(section, legacy[0], [])
+		list.append(legacy[1])
+		config.set_value(section, legacy[0], list)
+		config.save(GameState.save_path)
+		GameState.load_save()
+		_check(GameState.charged_jump_learned and not GameState.upgrades.has(&"charged_jump"),
+				"ancienne sauvegarde (%s) : saut chargé reconnu comme technique apprise" % legacy[1])
+		_check(GameState.get_objective() != "Fabriquer le saut chargé à l'imprimante", "aucun objectif impossible (ancien retour à l'imprimante)")
 	GameState.erase_save()
 	GameState.save_path = GameState.SAVE_PATH
 	GameState.dev_mode = true

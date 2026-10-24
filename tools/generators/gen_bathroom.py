@@ -289,6 +289,11 @@ soldier("SoldierLeftUpper", [(-61.5, 0.02, -12.0), (-55.0, 0.02, -12.0)])
 # Lot 7 : patrolles un peu plus denses (rondes croisées sur des couloirs déjà dégagés).
 soldier("SoldierLeftSouthB", [(-63.5, 0.02, -2.6), (-53.0, 0.02, -2.6)])
 soldier("SoldierStepB", [(-50.9, 0.02, -21.1), (-48.0, 0.02, -21.1)])
+# Lot 7 (correctifs) : un peu plus de pression, toujours sur des couloirs dégagés, rondes
+# décalées (jamais deux soldats arrêtés au même endroit), refuges et souvenir accessibles.
+soldier("SoldierLeftCenterB", [(-62.5, 0.02, -7.6), (-55.5, 0.02, -7.6)])
+soldier("SoldierGravelB", [(-48.2, 0.02, -20.3), (-47.6, 0.02, -16.0)])
+soldier("SoldierCorridorB", [(-55.6, 0.02, -21.2), (-56.4, 0.02, -20.6)])
 # Flaques d'eau savonneuse : ralentissent (roues et jambes), éclaboussent.
 g.mat("puddle", (0.62, 0.72, 0.8), 0.05, extra="transparency = 1\nalbedo_color = Color(0.62, 0.72, 0.8, 0.45)\nmetallic_specular = 1.0")
 for i, (px, pz, sx, sz) in enumerate(((-58.4, -2.6, 2.6, 1.8), (-59.6, -7.6, 2.2, 1.6), (-55.4, -22.4, 1.8, 1.4))):
