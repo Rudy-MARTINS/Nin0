@@ -119,6 +119,7 @@ func _ready() -> void:
 	GameState.progress_changed.connect(_refresh_objective)
 	GameState.modules_changed.connect(_refresh_equipment)
 
+	thoughts.avoid = hud.text_controls()
 	Sfx.stop_all_loops()
 	Sfx.set_loop(&"ambience", &"ambience", -18.0)
 	nino.set_checkpoint(_checkpoint("Start"))
@@ -254,6 +255,8 @@ func _begin_play_at(spot: Transform3D) -> void:
 
 ## Remet le monde dans l'état sauvegardé (porte, vision, souvenirs, objets emportés).
 func _refresh_saved_world() -> void:
+	if GameState.door_opened:
+		_place_fallen_eraser()
 	focus_vision.unlocked = GameState.reached_window
 	for node in get_tree().get_nodes_in_group(&"focus_targets"):
 		var target := node as FocusTarget
@@ -575,8 +578,11 @@ func _on_examined(data: DiscoveryData) -> void:
 
 
 func _on_printer_interacted(_by: Node3D) -> void:
+	var first_look := not GameState.printer_seen
 	GameState.set_flag(&"printer_seen")
 	_disable_play()
+	if first_look:
+		await _discover_printer()
 	if printer.is_powered() and not GameState.printer_understood:
 		# Observer → comprendre : la machine fabrique des pièces.
 		var visual := nino.get_visual()
@@ -592,6 +598,35 @@ func _on_printer_interacted(_by: Node3D) -> void:
 		printer_panel.open(true, true, REPAIR_COST, _printer_upgrades())
 	else:
 		printer_panel.open(printer.is_powered(), GameState.legs_printed)
+
+
+## Première rencontre avec la machine : Nin0 l'observe pièce par pièce (tête, plateau,
+## bobine), penche la tête, cherche à comprendre, avant que l'interface s'ouvre.
+func _discover_printer() -> void:
+	var visual := nino.get_visual()
+	var points := [
+		printer.to_global(Vector3(0.0, 2.3, 0.2)),   # tête d'impression
+		printer.to_global(Vector3(0.0, 0.25, 0.9)),  # plateau
+		printer.to_global(Vector3(1.6, 1.4, -0.4)),  # bobine de filament
+	]
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 5.0)
+	visual.look_target = points[0]
+	Sfx.play(&"servo", -16.0, 1.5)
+	thoughts.think([&"eye", &"question"], "", 1.4, true)
+	await _wait(1.1)
+	visual.look_target = points[1]
+	Sfx.play(&"servo", -16.0, 1.7)
+	await _wait(0.9)
+	visual.look_target = points[2]
+	visual.set_tilt(10.0)
+	Sfx.play(&"servo", -16.0, 1.6)
+	await _wait(1.0)
+	visual.set_tilt(-6.0)
+	visual.look_target = points[0]
+	thoughts.think([&"printer", &"gear", &"question"], "", 1.6)
+	await _wait(1.4)
+	visual.set_tilt(0.0)
+	visual.look_target = null
 
 
 func _on_panel_closed() -> void:
@@ -932,16 +967,90 @@ func _open_door() -> void:
 	var follow := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
 	follow.tween_property(camera, "pitch", deg_to_rad(-32.0), 0.9)
 	follow.tween_property(camera, "arm_length", 3.0, 0.9)
-	nino.end_scripted()
-	nino.velocity = Vector3(1.7, 0.8, 0.3)
-	var landed := [false]
-	var on_land := func(_speed: float) -> void: landed[0] = true
-	nino.landed.connect(on_land, CONNECT_ONE_SHOT)
-	await _wait(0.2)
-	await _wait_until(3.0, func() -> bool: return landed[0] or (nino.is_on_floor() and nino.global_position.y < 1.0))
-	if nino.landed.is_connected(on_land):
-		nino.landed.disconnect(on_land)
+	await _cascade_fall()
 	await _injury_reaction()
+
+
+## Chute en cascade (gag) : projeté sur le coin de l'étagère, Nin0 glisse, rebondit
+## sur le coussin de sol et atterrit ; la gomme délogée au passage lui tombe sur la
+## tête. Trajectoires en arcs lisibles, rythmées par des sons cartoon.
+func _cascade_fall() -> void:
+	var visual := nino.get_visual()
+	var shelf_corner := Vector3(-13.35, 9.85, 0.25)
+	var cushion_top := Vector3(-13.3, 1.32, 1.85)
+	var floor_spot := _checkpoint("FallSpot").origin
+	var follow := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	follow.tween_property(camera, "pitch", deg_to_rad(-26.0), 0.9)
+	follow.tween_property(camera, "arm_length", 3.4, 0.9)
+	# 1. Projeté sur le coin du dessus de l'étagère.
+	await _arc(nino, nino.global_position, shelf_corner, 0.5, 0.42)
+	Sfx.play(&"bonk", -6.0, 1.1)
+	visual.react_to_landing(9.0)
+	visual.set_tilt(-25.0)
+	_knock_eraser()
+	await _wait(0.25)
+	# 2. Il vacille, glisse et tombe.
+	visual.set_tilt(30.0)
+	Sfx.play(&"cartoon_fall", -6.0, 1.15)
+	await _arc(nino, shelf_corner, cushion_top, 0.3, 0.68)
+	# 3. Rebond sur le coussin.
+	Sfx.play(&"boing", -4.0)
+	visual.react_to_landing(14.0)
+	visual.set_tilt(-40.0)
+	await _arc(nino, cushion_top, floor_spot, 1.3, 0.55)
+	# 4. Au sol : petite glissade.
+	Sfx.play(&"thud", -4.0)
+	visual.react_to_landing(16.0)
+	visual.set_tilt(80.0)
+	var skid := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	skid.tween_property(nino, "global_position", floor_spot + Vector3(0.25, 0.0, 0.35), 0.35)
+	await skid.finished
+	nino.global_position = floor_spot + Vector3(0.25, 0.0, 0.35)
+	# 5. La gomme termine sa chute… sur sa tête.
+	await _eraser_bonk()
+	nino.end_scripted()
+	nino.velocity = Vector3.ZERO
+
+
+## Arc de chute de `from` à `to`, hauteur de bosse `bump`, en `duration` secondes.
+func _arc(node: Node3D, from: Vector3, to: Vector3, bump: float, duration: float) -> void:
+	var tween := create_tween()
+	tween.tween_method(func(t: float) -> void:
+		node.global_position = from.lerp(to, t) + Vector3.UP * (4.0 * bump * t * (1.0 - t)), 0.0, 1.0, duration)
+	await tween.finished
+
+
+func _knock_eraser() -> void:
+	var eraser := get_node_or_null("Geometry/Eraser") as Node3D
+	if eraser:
+		var wobble := create_tween()
+		wobble.tween_property(eraser, "rotation:z", 0.4, 0.15)
+		wobble.tween_property(eraser, "rotation:z", -0.2, 0.15)
+
+
+func _eraser_bonk() -> void:
+	var eraser := get_node_or_null("Geometry/Eraser") as Node3D
+	if eraser == null:
+		return
+	var head := nino.global_position + Vector3(0.0, 0.62, 0.0)
+	await _arc(eraser, eraser.global_position, eraser.global_position + Vector3(0.05, -8.2, 1.4), 0.2, 0.5)
+	await _arc(eraser, eraser.global_position, head, 0.6, 0.35)
+	Sfx.play(&"bonk", -2.0, 1.6)
+	var visual := nino.get_visual()
+	visual.react_to_landing(8.0)
+	visual.show_emotion(NinoVisual.Emotion.DIZZY, 2.0)
+	thoughts.think([&"damage", &"ellipsis"], "", 1.4, true)
+	await _arc(eraser, head, nino.global_position + Vector3(0.7, 0.11, -0.4), 0.5, 0.4)
+	eraser.rotation = Vector3(0.0, 0.6, PI * 0.5)
+	await _wait(0.5)
+
+
+## Gomme déjà tombée (partie reprise après la chute).
+func _place_fallen_eraser() -> void:
+	var eraser := get_node_or_null("Geometry/Eraser") as Node3D
+	if eraser:
+		eraser.global_position = _checkpoint("FallSpot").origin + Vector3(0.95, 0.11, -0.05)
+		eraser.rotation = Vector3(0.0, 0.6, PI * 0.5)
 
 
 ## Blessure : choc, étincelles, écran parasité, yeux étourdis, relevé difficile ;

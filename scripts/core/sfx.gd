@@ -169,6 +169,11 @@ func _build_sounds() -> void:
 	_streams[&"empty_click"] = _tone([[1500.0, 1400.0, 0.03]], 0.1, true)
 	_streams[&"unlock"] = _tone([[700.0, 700.0, 0.05], [1046.0, 1046.0, 0.08], [1318.0, 1400.0, 0.2]], 0.16)
 	_streams[&"repair_done"] = _tone([[523.0, 523.0, 0.1], [784.0, 784.0, 0.1], [1046.0, 1046.0, 0.1], [1568.0, 1568.0, 0.3]], 0.2)
+	# Lot 7 : gag de la chute, saut chargé.
+	_streams[&"bonk"] = _tone([[900.0, 380.0, 0.09]], 0.22)
+	_streams[&"boing"] = _boing(0.45)
+	_streams[&"charge"] = _tone([[300.0, 900.0, 0.8]], 0.08)
+	_streams[&"charged_jump"] = _tone([[260.0, 1300.0, 0.18], [1300.0, 1100.0, 0.06]], 0.2)
 	# Lot 6 : cuisine (araignées, cafards).
 	_streams[&"spider_hiss"] = _hiss(0.45)
 	_streams[&"roach_skitter"] = _skitter(0.4)
@@ -393,6 +398,19 @@ func _chitter(duration: float) -> AudioStreamWAV:
 		var t := float(i) / RATE
 		var tick := _step(0.6, sin(TAU * 38.0 * t))
 		samples.append(sin(TAU * 3200.0 * t) * tick * 0.12 * exp(-t * 4.0))
+	return _to_wav(samples)
+
+
+## Ressort cartoon : glissando vibrant amorti.
+func _boing(duration: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(duration * RATE)
+	var phase := 0.0
+	for i in count:
+		var t := float(i) / RATE
+		var freq := 220.0 + 260.0 * exp(-t * 5.0) + sin(t * 70.0) * 40.0 * exp(-t * 3.0)
+		phase += TAU * freq / RATE
+		samples.append(sin(phase) * 0.28 * exp(-t * 5.0) * minf(t / 0.01, 1.0))
 	return _to_wav(samples)
 
 

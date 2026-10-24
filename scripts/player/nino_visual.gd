@@ -53,6 +53,8 @@ var _blink_time_left := 0.0
 var _glance := Vector2.ZERO
 var _glance_timer := 2.0
 var _squash := 0.0
+## Charge du saut (0 à 1) : Nin0 se ramasse et frémit.
+var _charge := 0.0
 var _squash_velocity := 0.0
 var _step_side := 1.0
 ## Dommages visibles (0 = intact, 1 = très abîmé) : parasites et étincelles.
@@ -160,6 +162,10 @@ func react_to_landing(impact_speed: float) -> void:
 		show_emotion(Emotion.SURPRISED, 0.9)
 	if impact_speed > 3.0:
 		Sfx.play(&"thud", linear_to_db(clampf(impact_speed / 15.0, 0.2, 1.0)))
+
+
+func set_charge(value: float) -> void:
+	_charge = value
 
 
 func react_to_jump() -> void:
@@ -353,7 +359,8 @@ func _update_squash(delta: float) -> void:
 	_squash_velocity += (-_squash * 180.0 - _squash_velocity * 14.0) * delta
 	_squash += _squash_velocity * delta
 	_squash = clampf(_squash, -0.25, 0.2)
-	_rig.scale = Vector3(1.0 - _squash * 0.5, 1.0 + _squash, 1.0 - _squash * 0.5)
+	var crouch := _squash - _charge * 0.2 + (sin(Time.get_ticks_msec() * 0.06) * 0.012 * _charge)
+	_rig.scale = Vector3(1.0 - crouch * 0.5, 1.0 + crouch, 1.0 - crouch * 0.5)
 
 
 # --- Roues, jambes et transformation -----------------------------------------------

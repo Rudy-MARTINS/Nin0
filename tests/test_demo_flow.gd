@@ -302,6 +302,8 @@ func _run() -> void:
 	_check(fell and _level.door.is_open, "la porte s'ouvre et Nin0 lâche prise")
 	_check(_thought_texts.has("LEEEROOOY JENKINS !"), "bulle « LEEEROOOY JENKINS ! » avant le saut décisif")
 	_check(_nino.global_position.y < 0.3, "Nin0 est réellement tombé au sol (y = %.2f)" % _nino.global_position.y)
+	var eraser: Node3D = _level.get_node("Geometry/Eraser")
+	_check(eraser.global_position.y < 0.5 and eraser.global_position.distance_to(_nino.global_position) < 1.6, "gag : la gomme délogée est tombée sur sa tête, puis au sol à côté")
 	_check(is_equal_approx(GameState.integrity, 100.0 - _level.DOOR_FALL_DAMAGE) and is_equal_approx(GameState.shield, GameState.shield_max),
 			"chute : intégrité %d / 100, bouclier intact (choc direct)" % roundi(GameState.integrity))
 	_check(_level.hud.get_node("Status").visible, "la jauge d'intégrité apparaît")
@@ -322,10 +324,11 @@ func _run() -> void:
 	_nino.emit_signal("landed", 10.0)
 	_check(is_equal_approx(GameState.integrity, integrity_before) and is_equal_approx(GameState.shield, GameState.shield_max), "une petite chute ne coûte rien")
 
-	# 13c. Retour à l'imprimante avec les jambes : carton, pile de livres, table.
-	_place(Vector3(-9.5, 0.05, 0.6), 0.0)
-	var on_box := await _hold_until(["move_forward"], 8.0, func() -> bool: return _nino.global_position.y > 3.9 and _nino.state == NinoController.State.FREE)
-	_check(on_box, "Nin0 escalade le carton derrière la chaise (y = %.2f)" % _nino.global_position.y)
+	# 13c. Retour à l'imprimante avec les jambes : règle en pente, carton, pile de livres, table.
+	_check(not _nino.climbing_enabled, "escalade libre désactivée (lot 7)")
+	_place(Vector3(-9.5, 0.05, 8.2), 0.0)
+	var on_box := await _hold_until(["move_forward"], 8.0, func() -> bool: return _nino.global_position.y > 3.9 and _nino.global_position.z < -0.95 and _nino.state == NinoController.State.FREE)
+	_check(on_box, "Nin0 monte la règle posée en pente jusqu'au carton (y = %.2f)" % _nino.global_position.y)
 	var on_bench := await _jump_route(["move_forward"], 14, func() -> bool: return _nino.global_position.y > 7.9 and _nino.global_position.z < -8.1)
 	_check(on_bench, "Nin0 rejoint la table par la pile de livres (y = %.2f, z = %.2f)" % [_nino.global_position.y, _nino.global_position.z])
 	_check(GameState.fragments >= _level.REPAIR_COST and GameState.collected_pickups.has(&"frag_chair_box") and GameState.collected_pickups.has(&"frag_chair_seat") and GameState.collected_pickups.has(&"frag_chair_books"), "les 3 fragments du chemin sont ramassés, assez pour réparer (%d)" % GameState.fragments)

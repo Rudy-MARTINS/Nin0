@@ -130,6 +130,16 @@ static func key(name: String) -> String:
 	return "[color=%s][b]%s[/b][/color]" % [KEY_COLOR, name]
 
 
+## Textes de l'interface que les bulles de pensée ne doivent pas recouvrir.
+func text_controls() -> Array[Control]:
+	var list: Array[Control] = [_objective_box, _hint_label, _toast_label, _notice]
+	for name in ["Status", "Prompt"]:
+		var node := get_node_or_null(name) as Control
+		if node:
+			list.append(node)
+	return list
+
+
 func set_objective(text: String) -> void:
 	if text == _objective_label.text and _objective_box.modulate.a > 0.5:
 		return

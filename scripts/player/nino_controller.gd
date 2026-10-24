@@ -20,6 +20,7 @@ signal mode_changed(new_mode: Mode)
 ## Émis quand un changement de mode est refusé (raison lisible par le joueur).
 signal transform_refused(reason: String)
 signal landed(impact_speed: float)
+signal charged_jump(power: float)
 signal jumped
 signal respawned
 
@@ -47,6 +48,14 @@ const CLIMBABLE_MASK := 1 << 1  # couche 2 « escaladable »
 @export_range(0.0, 1.0) var legs_air_control := 0.7
 ## Tolérance après avoir quitté un rebord, et mémorisation d'un appui anticipé.
 @export var coyote_time := 0.1
+## Saut chargé (amélioration inspirée de la puce, lot 7) : maintenir Espace au sol.
+@export var charged_jump_height := 3.2
+## Durée de maintien pour une charge complète, au-delà du simple appui.
+@export var charge_time := 0.85
+## En deçà, l'appui est un saut normal.
+@export var charge_min_hold := 0.16
+## Vitesse pendant la charge (Nin0 se ramasse).
+@export_range(0.0, 1.0) var charge_speed_factor := 0.3
 @export var jump_buffer_time := 0.12
 ## Durée de la transformation roues ↔ jambes (GDD : ~0,8 s, à tester).
 @export var transform_duration := 0.8
@@ -56,6 +65,10 @@ const CLIMBABLE_MASK := 1 << 1  # couche 2 « escaladable »
 @export var legs_capsule_height := 0.7
 
 @export_group("Escalade")
+## Escalade libre des parois (lots 1 à 6). Désactivée depuis le lot 7 (décision de
+## design) : la progression passe par les sauts, le saut chargé et les objets.
+## Le code reste disponible (tests, prototypes) mais aucun niveau ne l'utilise.
+@export var climbing_enabled := false
 @export var climb_speed := 1.1
 @export var climb_acceleration := 8.0
 ## Alignement minimal entre la direction demandée et la paroi pour s'accrocher (0..1).
@@ -116,6 +129,18 @@ var _slow_timer := 0.0
 var _slow_factor := 1.0
 ## Multiplicateur des dégâts reçus (ex. enlisé dans la matière du lavabo).
 var damage_taken_multiplier := 1.0
+## Saut chargé disponible (amélioration installée).
+var charged_jump_unlocked := false
+## Charge en cours (0 à 1), pour l'indicateur et l'animation.
+var charge := 0.0
+## Hauteur de la dernière chute (u), du point le plus haut à l'atterrissage.
+var last_fall_height := 0.0
+var _charging := false
+var _charge_hold := 0.0
+var _pending_jump_height := -1.0
+var _jump_no_cut := false
+var _air_peak := 0.0
+var _last_position := Vector3.ZERO
 
 @onready var _collision_shape: CollisionShape3D = $CollisionShape3D
 @onready var _visual: NinoVisual = $Visual
@@ -141,9 +166,15 @@ func _physics_process(delta: float) -> void:
 
 	if controls_enabled and not focus_lock:
 		if Input.is_action_just_pressed("jump"):
-			_jump_buffer = jump_buffer_time
+			if charged_jump_unlocked and mode == Mode.LEGS and state == State.FREE and is_on_floor():
+				_charging = true
+				_charge_hold = 0.0
+			else:
+				_jump_buffer = jump_buffer_time
 		if Input.is_action_just_pressed("switch_mode"):
 			request_mode_switch()
+	_update_charge(delta)
+	_track_fall_height()
 
 	match state:
 		State.FREE:
@@ -168,6 +199,9 @@ func set_checkpoint(checkpoint: Transform3D) -> void:
 
 func respawn() -> void:
 	global_transform = _spawn_transform
+	_air_peak = global_position.y
+	_last_position = global_position
+	cancel_charge()
 	velocity = Vector3.ZERO
 	_climb_velocity = Vector3.ZERO
 	_set_state(State.FREE)
@@ -304,6 +338,8 @@ func _process_free(delta: float) -> void:
 		_coyote_timer = maxf(_coyote_timer - delta, 0.0)
 
 	var top_speed := (legs_max_speed if legs else max_speed) * get_speed_factor()
+	if _charging:
+		top_speed *= charge_speed_factor
 	var rotation_speed := legs_turn_speed if legs else turn_speed
 
 	# Rotation progressive vers la direction demandée (rotation sur place possible).
@@ -339,7 +375,10 @@ func _process_free(delta: float) -> void:
 
 	# Saut : uniquement en mode jambes.
 	if legs and _jump_buffer > 0.0 and _coyote_timer > 0.0:
-		velocity.y = sqrt(2.0 * gravity * jump_height * get_jump_factor())
+		var height := _pending_jump_height if _pending_jump_height > 0.0 else jump_height
+		_jump_no_cut = _pending_jump_height > 0.0
+		_pending_jump_height = -1.0
+		velocity.y = sqrt(2.0 * gravity * height * get_jump_factor())
 		_jump_buffer = 0.0
 		_coyote_timer = 0.0
 		on_floor = false
@@ -350,7 +389,7 @@ func _process_free(delta: float) -> void:
 	if not on_floor:
 		var g := gravity
 		# Relâcher le saut tôt donne un saut plus court (meilleur contrôle).
-		if velocity.y > 0.0 and not (controls_enabled and Input.is_action_pressed("jump")):
+		if velocity.y > 0.0 and not _jump_no_cut and not (controls_enabled and Input.is_action_pressed("jump")):
 			g *= 2.2
 		velocity.y = maxf(velocity.y - g * delta, -max_fall_speed)
 
@@ -360,13 +399,62 @@ func _process_free(delta: float) -> void:
 	move_and_slide()
 	_push_bodies(moving_direction)
 	if is_on_floor() and not was_on_floor and fall_speed > 0.5:
+		last_fall_height = maxf(_air_peak - global_position.y, 0.0)
+		_air_peak = global_position.y
+		_jump_no_cut = false
 		landed.emit(fall_speed)
 		_visual.react_to_landing(fall_speed)
 
-	if is_on_floor() and _attach_cooldown <= 0.0 and has_input:
+	if not climbing_enabled:
+		pass
+	elif is_on_floor() and _attach_cooldown <= 0.0 and has_input:
 		_try_attach_from_collisions(desired.normalized())
 	elif was_on_floor and not is_on_floor() and velocity.y <= 0.0 and has_input and grab_edge_when_leaving:
 		_try_grab_edge_below(moving_direction)
+
+
+## Saut chargé : maintien au sol → charge ; relâcher → saut normal (appui bref) ou
+## saut puissant proportionnel à la charge. Jamais en l'air (pas d'abus).
+func _update_charge(delta: float) -> void:
+	if not _charging:
+		return
+	if not controls_enabled or focus_lock or mode != Mode.LEGS or state != State.FREE or not is_on_floor():
+		cancel_charge()
+		return
+	if Input.is_action_pressed("jump"):
+		_charge_hold += delta
+		charge = clampf((_charge_hold - charge_min_hold) / charge_time, 0.0, 1.0)
+		return
+	# Relâchement.
+	if _charge_hold < charge_min_hold or charge <= 0.0:
+		_pending_jump_height = jump_height
+	else:
+		_pending_jump_height = lerpf(jump_height * 1.15, charged_jump_height, charge)
+		charged_jump.emit(charge)
+	_jump_buffer = jump_buffer_time
+	_charging = false
+	charge = 0.0
+
+
+func cancel_charge() -> void:
+	_charging = false
+	_charge_hold = 0.0
+	charge = 0.0
+
+
+func is_charging() -> bool:
+	return _charging
+
+
+## Hauteur de chute réelle : point le plus haut atteint depuis le dernier appui.
+## Un déplacement instantané (point de reprise, séquence) remet la mesure à zéro.
+func _track_fall_height() -> void:
+	var jump := global_position.distance_to(_last_position)
+	if jump > maxf(velocity.length() * get_physics_process_delta_time() * 3.0, 0.8) or state != State.FREE or is_on_floor():
+		_air_peak = global_position.y
+	else:
+		_air_peak = maxf(_air_peak, global_position.y)
+	_last_position = global_position
 
 
 func _push_bodies(moving: Vector3) -> void:
@@ -667,6 +755,7 @@ func _update_visual(delta: float) -> void:
 		speed = Vector3(velocity.x, 0.0, velocity.z).dot(-global_basis.z)
 		ratio = speed / max_speed
 	_visual.update_motion(speed, ratio, is_on_floor(), state == State.CLIMBING, delta)
+	_visual.set_charge(charge)
 
 
 func _update_audio() -> void:

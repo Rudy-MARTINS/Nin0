@@ -2,7 +2,9 @@ class_name NinoIntegrity
 extends Node
 ## Intégrité de Nin0 (santé) et bouclier, appliqués au personnage.
 ## Les valeurs vivent dans GameState (sauvegarde) ; ce nœud gère les règles :
-## - les grosses chutes abîment, les petites non (seuil de vitesse d'impact) ;
+## - les chutes abîment proportionnellement à leur hauteur, les petites non ;
+## - à faible intégrité, Nin0 paraît abîmé (parasites, étincelles, démarche un peu
+##   irrégulière) sans que les passages deviennent impossibles ;
 ## - le bouclier absorbe d'abord et se recharge après un moment sans dégâts ;
 ## - à 0, Nin0 se met en veille et redémarre au dernier point sûr (pas de mort).
 ## Le bouclier est distinct du futur module « défense active ».
@@ -10,13 +12,17 @@ extends Node
 signal damaged(integrity_loss: float, shield_loss: float)
 signal shutdown_started
 signal shutdown_finished
+signal damaged_changed(active: bool)
 
 @export var nino: NinoController
 @export var shield_recharge_delay := 4.0
 @export var shield_recharge_rate := 8.0
-## Vitesse d'impact (u/s) au-delà de laquelle une chute fait des dégâts.
-@export var fall_damage_threshold := 18.0
-@export var fall_damage_per_speed := 3.0
+## Hauteur de chute (u) sans dégâts : sauts, saut chargé et petites descentes.
+@export var fall_safe_height := 4.5
+## Dégâts par unité de hauteur au-delà (chute du plan de travail, 9 u : ≈ 10).
+@export var fall_damage_per_unit := 2.2
+## Fraction d'intégrité en dessous de laquelle Nin0 paraît abîmé.
+@export var damaged_threshold := 0.35
 ## Intégrité rendue au redémarrage après une mise en veille (fraction du maximum).
 @export_range(0.1, 1.0) var shutdown_restore := 0.4
 ## Brève protection après un coup ennemi : pas de dégâts répétés à chaque image.
@@ -27,6 +33,10 @@ var enabled := true
 var _since_damage := 0.0
 var _shutting_down := false
 var _protection := 0.0
+## État abîmé (faible intégrité) : effets ponctuels, vitesse un peu réduite.
+var damaged_state := false
+var _damaged_timer := 2.0
+var _damaged_time := 0.0
 
 
 func _ready() -> void:
@@ -45,6 +55,7 @@ func _physics_process(delta: float) -> void:
 	_protection = maxf(_protection - delta, 0.0)
 	if _since_damage > shield_recharge_delay and not _shutting_down:
 		GameState.recharge_shield(shield_recharge_rate * delta)
+	_update_damaged_state(delta)
 
 
 ## Coup porté par une créature : protection temporaire, recul et dégâts typés.
@@ -93,10 +104,45 @@ func take_damage(amount: float, bypass_shield := false, kind: StringName = &"phy
 	return loss
 
 
-func _on_landed(impact_speed: float) -> void:
-	if not enabled or impact_speed <= fall_damage_threshold:
+func _on_landed(_impact_speed: float) -> void:
+	var damage := fall_damage(nino.last_fall_height)
+	if not enabled or damage <= 0.0:
 		return
-	take_damage((impact_speed - fall_damage_threshold) * fall_damage_per_speed)
+	take_damage(damage)
+
+
+## Dégâts d'une chute de `height` unités (0 pour les sauts et petites descentes).
+func fall_damage(height: float) -> float:
+	return maxf(height - fall_safe_height, 0.0) * fall_damage_per_unit
+
+
+## Faible intégrité : parasites du visage, étincelles, pas un peu hésitant.
+func _update_damaged_state(delta: float) -> void:
+	var low := GameState.integrity / maxf(GameState.integrity_max, 1.0) < damaged_threshold and not _shutting_down
+	if low != damaged_state:
+		damaged_state = low
+		if low:
+			nino.set_speed_modifier(&"damaged", 0.88)
+			damaged_changed.emit(true)
+		else:
+			nino.clear_modifier(&"damaged")
+			nino.get_visual().set_tilt(0.0)
+			damaged_changed.emit(false)
+	if not damaged_state:
+		return
+	var visual := nino.get_visual()
+	_damaged_time += delta
+	# Démarche irrégulière : légère inclinaison quand il avance.
+	var moving := Vector2(nino.velocity.x, nino.velocity.z).length() > 0.3 and nino.is_on_floor()
+	if nino.state == NinoController.State.FREE and nino.controls_enabled:
+		visual.set_tilt(sin(_damaged_time * 9.0) * 4.0 if moving else 0.0)
+	_damaged_timer -= delta
+	if _damaged_timer <= 0.0:
+		_damaged_timer = randf_range(2.5, 4.5)
+		visual.glitch_pulse(0.45, 0.25)
+		if randf() < 0.6:
+			visual.emit_sparks(4)
+			Sfx.play(&"spark", -16.0, randf_range(0.9, 1.2))
 
 
 func _refresh_visual() -> void:

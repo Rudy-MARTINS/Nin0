@@ -469,7 +469,6 @@ shape = 1
 size = Vector3(0.5, 1.2, 0.5)
 bevel = 0.03
 material = SubResource("Mat_wood_dark")
-collide = false
 
 [node name="PaperBall" type="Node3D" parent="Decor"]
 

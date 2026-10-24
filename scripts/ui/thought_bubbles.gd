@@ -16,6 +16,8 @@ const HEAD_OFFSET := Vector3(0.0, 0.85, 0.0)
 
 ## Nœud au-dessus duquel la bulle apparaît (Nin0).
 @export var anchor: Node3D
+## Textes d'interface à ne jamais recouvrir (objectif, messages, aides…).
+var avoid: Array[Control] = []
 
 var _queue: Array[Dictionary] = []
 var _showing := false
@@ -122,6 +124,29 @@ func _process(delta: float) -> void:
 	var target := screen + Vector2(26.0, -_bubble.size.y - 24.0 + sin(_time * 2.2) * 3.0)
 	target.x = clampf(target.x, 12.0, viewport.x - _bubble.size.x - 12.0)
 	target.y = clampf(target.y, 12.0, viewport.y - _bubble.size.y - 60.0)
+	target = _avoid_interface(target, viewport)
 	_bubble.position = target
 	_bubble.tail_target = screen - target
 	_bubble.queue_redraw()
+
+
+## Écarte la bulle des textes visibles de l'interface : sous un bloc du haut, au-dessus
+## d'un bloc du bas, ou à côté si la place manque.
+func _avoid_interface(target: Vector2, viewport: Vector2) -> Vector2:
+	for pass_index in 2:
+		var rect := Rect2(target, _bubble.size)
+		for control in avoid:
+			if not is_instance_valid(control) or not control.is_visible_in_tree() or control.modulate.a < 0.05:
+				continue
+			var other := control.get_global_rect().grow(8.0)
+			if not rect.intersects(other):
+				continue
+			if other.get_center().y < viewport.y * 0.5:
+				target.y = other.end.y
+			else:
+				target.y = other.position.y - _bubble.size.y
+			if target.y < 12.0 or target.y + _bubble.size.y > viewport.y - 12.0:
+				target.y = clampf(target.y, 12.0, viewport.y - _bubble.size.y - 12.0)
+				target.x = other.end.x if other.get_center().x < viewport.x * 0.5 else other.position.x - _bubble.size.x
+			rect = Rect2(target, _bubble.size)
+	return target

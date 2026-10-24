@@ -187,6 +187,7 @@ func service(nino: NinoController, duration: float) -> void:
 	state = State.SERVICING
 	nino.begin_scripted()
 	var visual := nino.get_visual()
+	await _step_to_waiting_spot(nino)
 	_screen_material.set_shader_parameter("mode", 1)
 	_screen_material.set_shader_parameter("progress", 0.0)
 	# 1. Nin0 se hisse sur le plateau présenté à l'avant.
@@ -253,6 +254,7 @@ func fabricate_and_install(nino: NinoController, part: Node3D, mount: Callable, 
 	state = State.SERVICING
 	nino.begin_scripted()
 	var visual := nino.get_visual()
+	await _step_to_waiting_spot(nino)
 	# 1. Impression sur le plateau, à l'avant de la zone de Nin0.
 	var pivot := Node3D.new()
 	_bed.add_child(pivot)
@@ -453,3 +455,15 @@ func _update_filament() -> void:
 	var points := PackedVector3Array([start, middle, finish])
 	if points != _filament.points:
 		_filament.points = points
+
+
+## Avant que le plateau bouge : Nin0 recule doucement à une place d'attente, face à
+## la machine, hors du plateau (évite qu'il soit poussé ou téléporté au départ).
+func _step_to_waiting_spot(nino: NinoController) -> void:
+	nino.velocity = Vector3.ZERO
+	var spot := to_global(Vector3(0.0, 0.0, bed_presented_z + 2.1))
+	spot.y = nino.global_position.y
+	var step := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	step.tween_property(nino, "global_position", spot, clampf(nino.global_position.distance_to(spot) * 0.5, 0.15, 0.6))
+	step.tween_property(nino, "rotation:y", global_rotation.y, 0.4)
+	await step.finished
