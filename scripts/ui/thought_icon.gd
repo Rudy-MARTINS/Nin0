@@ -14,6 +14,7 @@ const ICONS := [
 	&"question", &"exclamation", &"ellipsis", &"idea", &"happy", &"eye", &"printer", &"legs",
 	&"plug", &"energy", &"arrow", &"up", &"down", &"gear", &"door", &"handle", &"spool", &"robot",
 	&"check", &"cross", &"frame", &"house", &"book", &"sun", &"wrench", &"damage", &"filament",
+	&"ant", &"ant_soldier", &"ant_queen", &"shield", &"cannon", &"acid", &"lock", &"plastic",
 ]
 
 @export var icon: StringName = &"question":
@@ -162,5 +163,49 @@ func _draw_icon(name: StringName, area: Vector2) -> void:
 				var t := float(k) / 39.0
 				coil.append(c + Vector2.from_angle(t * TAU * 2.2) * (8.0 + t * 24.0) * s)
 			draw_polyline(coil, ACCENT, w * 0.8, true)
+		&"ant", &"ant_soldier", &"ant_queen":
+			# Fourmi de profil : trois segments, pattes, antenne, œil.
+			var body := Color(0.45, 0.24, 0.16) if name == &"ant" else (Color(0.36, 0.14, 0.1) if name == &"ant_soldier" else Color(0.45, 0.18, 0.26))
+			var head_r := 10.0 if name == &"ant" else 13.0
+			var abdomen := Vector2(16, 12) if name != &"ant_queen" else Vector2(22, 16)
+			for k in 3:
+				var x := -14.0 + k * 12.0
+				draw_line(c + Vector2(x, 4) * s, c + Vector2(x - 6, 22) * s, INK, w * 0.5, true)
+			_draw_ellipse(c + Vector2(-22, 0) * s, abdomen * s, body)
+			_draw_ellipse(c + Vector2(-2, 0) * s, Vector2(9, 7) * s, body)
+			draw_circle(c + Vector2(18, -4) * s, head_r * s, body)
+			draw_circle(c + Vector2(21, -7) * s, 4.0 * s, Color.WHITE)
+			draw_circle(c + Vector2(22, -7) * s, 2.0 * s, INK)
+			draw_polyline(PackedVector2Array([c + Vector2(22, -14) * s, c + Vector2(28, -30) * s, c + Vector2(36, -32) * s]), INK, w * 0.45, true)
+			if name == &"ant_soldier":
+				draw_line(c + Vector2(28, 2) * s, c + Vector2(38, 8) * s, ACCENT, w * 0.8, true)
+			if name == &"ant_queen":
+				draw_colored_polygon(PackedVector2Array([c + Vector2(10, -16) * s, c + Vector2(14, -26) * s, c + Vector2(18, -18) * s, c + Vector2(22, -26) * s, c + Vector2(26, -16) * s]), ENERGY)
+		&"shield":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-26, -28) * s, c + Vector2(26, -28) * s, c + Vector2(22, 8) * s, c + Vector2(0, 32) * s, c + Vector2(-22, 8) * s]), Color(0.93, 0.89, 0.8))
+			draw_polyline(PackedVector2Array([c + Vector2(-26, -28) * s, c + Vector2(26, -28) * s, c + Vector2(22, 8) * s, c + Vector2(0, 32) * s, c + Vector2(-22, 8) * s, c + Vector2(-26, -28) * s]), INK, w * 0.7, true)
+			draw_line(c + Vector2(-20, -6) * s, c + Vector2(20, -6) * s, ACCENT, w, true)
+		&"cannon":
+			draw_rect(Rect2(c + Vector2(-28, -10) * s, Vector2(40, 20) * s), Color(0.93, 0.89, 0.8))
+			draw_rect(Rect2(c + Vector2(-28, -10) * s, Vector2(40, 20) * s), INK, false, w * 0.6)
+			draw_rect(Rect2(c + Vector2(12, -6) * s, Vector2(18, 12) * s), ACCENT)
+			draw_circle(c + Vector2(38, 0) * s, 5.0 * s, COOL)
+		&"acid":
+			draw_circle(c + Vector2(0, 8) * s, 18.0 * s, Color(0.55, 0.85, 0.2))
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-14, 0) * s, c + Vector2(0, -32) * s, c + Vector2(14, 0) * s]), Color(0.55, 0.85, 0.2))
+		&"lock":
+			draw_arc(c + Vector2(0, -8) * s, 14.0 * s, PI, TAU, 16, INK, w, true)
+			draw_rect(Rect2(c + Vector2(-20, -8) * s, Vector2(40, 32) * s), ACCENT)
+		&"plastic":
+			for k in 3:
+				draw_circle(c + Vector2(-14 + k * 14, (k % 2) * 10 - 4) * s, 11.0 * s, COOL)
+				draw_circle(c + Vector2(-17 + k * 14, (k % 2) * 10 - 8) * s, 3.5 * s, Color(1, 1, 1, 0.8))
 		_:
 			draw_circle(c, 10.0 * s, INK)
+
+
+func _draw_ellipse(center: Vector2, radii: Vector2, color: Color) -> void:
+	var points := PackedVector2Array()
+	for k in 24:
+		points.append(center + Vector2.from_angle(TAU * k / 24.0) * radii)
+	draw_colored_polygon(points, color)

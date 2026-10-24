@@ -13,17 +13,26 @@ signal discovery_added(id: StringName)
 signal stats_changed
 signal memory_added(id: StringName)
 signal upgrade_added(id: StringName)
+signal species_added(id: StringName)
+signal modules_changed
+## Première découverte d'un type de ressource (explication affichée une seule fois).
+signal resource_discovered(kind: StringName)
 
 ## Sauvegarde du joueur. Les tests automatiques utilisent TEST_SAVE_PATH (voir
 ## `save_path`) pour ne jamais toucher à la sauvegarde personnelle.
 const SAVE_PATH := "user://nino_demo.cfg"
 const TEST_SAVE_PATH := "user://nino_test.cfg"
-## 1 = lot 1-2 (jambes + découvertes) ; 3 = lot 3.
-const SAVE_VERSION := 3
+## 1 = lot 1-2 (jambes + découvertes) ; 3 = lot 3 ; 5 = lot 5 (sas, salle de bain).
+const SAVE_VERSION := 5
 const BASE_INTEGRITY := 100.0
 const BASE_SHIELD := 20.0
 ## Archives fragmentées (souvenirs) : paramètres communs.
 const ARCHIVE: MemoryArchive = preload("res://assets/memories/archive.tres")
+## Plastique à munitions transportable au maximum.
+const PLASTIC_MAX := 24
+## Ressources ordinaires (réapparaissent) : identifiants des types.
+const RESOURCE_FILAMENT := &"filament"
+const RESOURCE_PLASTIC := &"plastic"
 
 ## Étapes de progression, dans l'ordre normal (l'ordre réel peut varier :
 ## la multiprise peut être rallumée avant d'avoir examiné l'imprimante).
@@ -64,8 +73,36 @@ var repairs_done := 0
 var memories: Array[StringName] = []
 ## Améliorations fabriquées (identifiants).
 var upgrades: Array[StringName] = []
-## Emplacements de modules secondaires (donnée préparée ; aucun module dans la démo).
+## Emplacements de modules secondaires (2 au départ, 3 plus tard).
 var module_slots := 2
+## Modules secondaires équipés (identifiants d'améliorations MODULE possédées).
+var equipped_modules: Array[StringName] = []
+
+# --- Lot 5 : chapitre du sas et de la salle de bain -------------------------------------
+var sas_entered := false
+var worker_met := false
+var bathroom_entered := false
+var boss_started := false
+var queen_defeated := false
+var kitchen_unlocked := false
+var chapter2_completed := false
+## Espèces analysées (encyclopédie biologique), dans l'ordre.
+var species: Array[StringName] = []
+## Plastique à munitions (une bille = une unité).
+var ammo_plastic := 0
+## Temps de jeu cumulé (secondes) : sert à la réapparition des ressources ordinaires.
+var playtime := 0.0
+## Ressource ordinaire ramassée → temps de jeu au ramassage.
+var pickup_times := {}
+## Explications déjà présentées (première découverte de chaque ressource, etc.).
+var seen_notices: Array[StringName] = []
+## Lectures des souvenirs (historique conservé, jamais effacé) :
+## identifiant → liste de { "found": n, "lines": PackedStringArray, "comment": String }.
+var memory_reads := {}
+## Dernier point de reprise du chapitre (« Continuer »).
+var resume_point: StringName = &""
+## Vrai pendant qu'un ennemi poursuit Nin0 (changement de modules interdit).
+var in_combat := false
 
 ## Vrai quand une interface modale (imprimante, pause, fin) capte la souris.
 var modal_open := false:
@@ -108,11 +145,20 @@ func save() -> void:
 	config.set_value("collections", "pickups", _to_strings(collected_pickups))
 	config.set_value("collections", "memories", _to_strings(memories))
 	config.set_value("collections", "upgrades", _to_strings(upgrades))
+	config.set_value("collections", "equipped_modules", _to_strings(equipped_modules))
+	config.set_value("collections", "species", _to_strings(species))
+	config.set_value("collections", "seen_notices", _to_strings(seen_notices))
+	config.set_value("collections", "pickup_times", _string_keys(pickup_times))
+	config.set_value("collections", "memory_reads", _string_keys(memory_reads))
+	config.set_value("nino", "ammo_plastic", ammo_plastic)
+	config.set_value("progress", "playtime", playtime)
+	config.set_value("progress", "resume_point", String(resume_point))
 	config.save(save_path)
 
 
 ## Indicateurs sauvegardés en plus des jambes (lot 3).
-const SAVED_FLAGS := [&"legs_deployed_once", &"reached_window", &"handle_identified", &"door_opened", &"injured", &"repaired"]
+const SAVED_FLAGS := [&"legs_deployed_once", &"reached_window", &"handle_identified", &"door_opened", &"injured", &"repaired",
+		&"sas_entered", &"worker_met", &"bathroom_entered", &"boss_started", &"queen_defeated", &"kitchen_unlocked", &"chapter2_completed"]
 
 
 func load_save() -> void:
@@ -140,6 +186,23 @@ func load_save() -> void:
 		_append_unique(memories, StringName(id))
 	for id in config.get_value("collections", "upgrades", []):
 		_append_unique(upgrades, StringName(id))
+	# Lot 5 (absents des anciennes sauvegardes : valeurs par défaut).
+	for id in config.get_value("collections", "equipped_modules", []):
+		if upgrades.has(StringName(id)):
+			_append_unique(equipped_modules, StringName(id))
+	for id in config.get_value("collections", "species", []):
+		_append_unique(species, StringName(id))
+	for id in config.get_value("collections", "seen_notices", []):
+		_append_unique(seen_notices, StringName(id))
+	var times: Dictionary = config.get_value("collections", "pickup_times", {})
+	for key in times:
+		pickup_times[StringName(key)] = float(times[key])
+	var reads: Dictionary = config.get_value("collections", "memory_reads", {})
+	for key in reads:
+		memory_reads[StringName(key)] = reads[key]
+	ammo_plastic = clampi(int(config.get_value("nino", "ammo_plastic", 0)), 0, PLASTIC_MAX)
+	playtime = maxf(float(config.get_value("progress", "playtime", 0.0)), 0.0)
+	resume_point = StringName(config.get_value("progress", "resume_point", ""))
 	fragments = maxi(int(config.get_value("nino", "fragments", 0)), 0)
 	repairs_done = maxi(int(config.get_value("nino", "repairs_done", 0)), 0)
 	integrity_known = bool(config.get_value("nino", "integrity_known", false))
@@ -168,6 +231,22 @@ func reset_progress() -> void:
 	repaired = false
 	demo_completed = false
 	discoveries.clear()
+	sas_entered = false
+	worker_met = false
+	bathroom_entered = false
+	boss_started = false
+	queen_defeated = false
+	kitchen_unlocked = false
+	chapter2_completed = false
+	species.clear()
+	equipped_modules.clear()
+	seen_notices.clear()
+	pickup_times.clear()
+	memory_reads.clear()
+	ammo_plastic = 0
+	playtime = 0.0
+	resume_point = &""
+	in_combat = false
 	collected_pickups.clear()
 	memories.clear()
 	upgrades.clear()
@@ -250,13 +329,51 @@ func restore_integrity(value: float) -> void:
 	stats_changed.emit()
 
 
-## Ramasse un fragment de filament (identifiant unique) ; false s'il l'était déjà.
-func collect_fragment(pickup_id: StringName, amount := 1) -> bool:
-	if collected_pickups.has(pickup_id):
+## Ramasse un fragment de filament ; false s'il n'est pas disponible.
+func collect_fragment(pickup_id: StringName, amount := 1, respawn_delay := 0.0) -> bool:
+	return collect_resource(pickup_id, RESOURCE_FILAMENT, amount, respawn_delay)
+
+
+## Ramasse une ressource ordinaire (filament ou plastique).
+## respawn_delay = 0 : jamais réapparue ; sinon disponible de nouveau après ce temps de jeu.
+func collect_resource(pickup_id: StringName, kind: StringName, amount := 1, respawn_delay := 0.0) -> bool:
+	if not is_pickup_available(pickup_id, respawn_delay):
 		return false
-	collected_pickups.append(pickup_id)
-	fragments += amount
+	_append_unique(collected_pickups, pickup_id)
+	pickup_times[pickup_id] = playtime
+	if kind == RESOURCE_PLASTIC:
+		ammo_plastic = mini(ammo_plastic + amount, PLASTIC_MAX)
+	else:
+		fragments += amount
+	var notice := StringName("resource_" + String(kind))
+	if not seen_notices.has(notice):
+		seen_notices.append(notice)
+		resource_discovered.emit(kind)
 	_save_if_started()
+	stats_changed.emit()
+	return true
+
+
+## Vrai si une ressource peut être ramassée (jamais prise, ou réapparue).
+func is_pickup_available(pickup_id: StringName, respawn_delay := 0.0) -> bool:
+	if not collected_pickups.has(pickup_id):
+		return true
+	if respawn_delay <= 0.0:
+		return false
+	return playtime - float(pickup_times.get(pickup_id, 0.0)) >= respawn_delay
+
+
+## Plastique donné hors ramassage (premier chargement du canon, mode développement).
+func add_plastic(amount: int) -> void:
+	ammo_plastic = clampi(ammo_plastic + amount, 0, PLASTIC_MAX)
+	_save_if_started()
+	stats_changed.emit()
+
+
+func spend_plastic(amount := 1) -> bool:
+	if ammo_plastic < amount:
+		return false
+	ammo_plastic -= amount
 	stats_changed.emit()
 	return true
 
@@ -303,6 +420,67 @@ func add_upgrade(id: StringName) -> bool:
 	return true
 
 
+# --- Modules secondaires (emplacements équipables) ----------------------------------------
+
+func is_equipped(id: StringName) -> bool:
+	return equipped_modules.has(id)
+
+
+## Équipe un module possédé s'il reste un emplacement (hors combat).
+func equip_module(id: StringName) -> bool:
+	if in_combat or not upgrades.has(id) or equipped_modules.has(id) or equipped_modules.size() >= module_slots:
+		return false
+	var data := UpgradeCatalog.find(id)
+	if data == null or data.category != UpgradeData.Category.MODULE:
+		return false
+	equipped_modules.append(id)
+	_save_if_started()
+	modules_changed.emit()
+	stats_changed.emit()
+	return true
+
+
+func unequip_module(id: StringName) -> bool:
+	if in_combat or not equipped_modules.has(id):
+		return false
+	equipped_modules.erase(id)
+	_save_if_started()
+	modules_changed.emit()
+	stats_changed.emit()
+	return true
+
+
+## Réduction des dégâts physiques apportée par les modules équipés (0..0,9).
+func physical_damage_reduction() -> float:
+	var total := 0.0
+	for id in equipped_modules:
+		var data := UpgradeCatalog.find(id)
+		if data:
+			total += data.physical_damage_reduction
+	return clampf(total, 0.0, 0.9)
+
+
+func has_cannon() -> bool:
+	return upgrades.has(&"cannon")
+
+
+# --- Encyclopédie biologique ----------------------------------------------------------------
+
+func has_species(id: StringName) -> bool:
+	return species.has(id)
+
+
+## Enregistre une espèce analysée ; false si elle l'était déjà.
+func add_species(id: StringName) -> bool:
+	if id == &"" or species.has(id):
+		return false
+	species.append(id)
+	_save_if_started()
+	species_added.emit(id)
+	progress_changed.emit()
+	return true
+
+
 func _recompute_stats() -> void:
 	integrity_max = BASE_INTEGRITY
 	shield_max = BASE_SHIELD
@@ -325,10 +503,29 @@ func add_memory(id: StringName) -> bool:
 	if id == &"" or memories.has(id):
 		return false
 	memories.append(id)
+	# Nouvelle lecture de chaque souvenir connu : la dégradation a changé, les lectures
+	# précédentes restent dans l'historique.
+	for known in memories:
+		var memory := ARCHIVE.get_entry(known)
+		if memory:
+			record_memory_read(memory)
 	_save_if_started()
 	memory_added.emit(id)
 	progress_changed.emit()
 	return true
+
+
+## Conserve une lecture du souvenir (texte tel qu'il est perçu maintenant + commentaire
+## de Nin0). L'historique n'est jamais effacé : les premières réactions restent consultables.
+func record_memory_read(memory: MemoryData) -> void:
+	var lines := PackedStringArray()
+	for i in memory.lines.size():
+		lines.append(MemoryArchive.degrade(memory.lines[i], memory_corruption(), hash(memory.id) + i * 31 + memories.size() * 7))
+	var history: Array = memory_reads.get(memory.id, [])
+	if not history.is_empty() and int(history[-1].get("found", 0)) == memories.size():
+		return
+	history.append({"found": memories.size(), "lines": lines, "comment": memory.comment})
+	memory_reads[memory.id] = history
 
 
 func memory_count() -> int:
@@ -356,6 +553,18 @@ func _append_unique(list: Array[StringName], id: StringName) -> void:
 		list.append(id)
 
 
+func _string_keys(dict: Dictionary) -> Dictionary:
+	var out := {}
+	for key in dict:
+		out[String(key)] = dict[key]
+	return out
+
+
+func _process(delta: float) -> void:
+	if woke_up and not get_tree().paused and not modal_open:
+		playtime += delta
+
+
 func _to_strings(list: Array[StringName]) -> Array:
 	return list.map(func(id: StringName) -> String: return String(id))
 
@@ -364,10 +573,27 @@ func _to_strings(list: Array[StringName]) -> Array:
 ## L'objectif dit ce que le joueur cherche à accomplir ; les pensées de Nin0
 ## disent ce qu'il observe ou comprend (pas de répétition entre les deux).
 func get_objective() -> String:
-	if dev_mode or not woke_up or demo_completed:
+	if dev_mode or not woke_up:
 		return ""
 	if not tutorial_done:
 		return "Prendre ses repères"
+	# Chapitre 2 (jeu complet) : objectifs au-delà du seuil du placard.
+	if chapter2_completed:
+		return ""
+	if kitchen_unlocked:
+		return "Entrer dans la cuisine"
+	if has_cannon():
+		return "Ouvrir la porte de la cuisine"
+	if queen_defeated:
+		return "Fabriquer le canon à l'imprimante"
+	if boss_started:
+		return "Traverser le lavabo"
+	if bathroom_entered:
+		return "Atteindre le lavabo"
+	if sas_entered:
+		return "Explorer le sas"
+	if demo_completed:
+		return ""
 	if repaired:
 		return "Franchir la porte"
 	if injured:

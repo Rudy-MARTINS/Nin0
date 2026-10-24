@@ -11,3 +11,7 @@ extends Resource
 @export var title := ""
 ## Lignes de l'enregistrement, avant dégradation. Texte provisoire : à valider.
 @export var lines: PackedStringArray = []
+## Objet associé (désignation discrète, affichée dans les archives).
+@export var object_name := ""
+## Commentaire de Nin0 après l'analyse (son interprétation, pas une information).
+@export var comment := ""

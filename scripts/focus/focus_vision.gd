@@ -78,6 +78,9 @@ func find_aimed(origin: Vector3, forward: Vector3) -> Dictionary:
 		var target := node as FocusTarget
 		if not target.enabled or not target.is_visible_in_tree():
 			continue
+		# Une espèce déjà analysée n'est plus « à identifier ».
+		if target.species and GameState.has_species(target.species.id):
+			continue
 		var profile := get_profile(target)
 		var to_target := target.global_position - origin
 		var distance := to_target.length()

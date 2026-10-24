@@ -20,6 +20,8 @@ const KEY_COLOR := "#ffd08a"
 @onready var _gauge: IntegrityGauge = $Status/Gauge
 @onready var _fragments_box: Control = $Fragments
 @onready var _fragments_label: Label = $Fragments/Count
+@onready var _plastic_box: Control = $Plastic
+@onready var _plastic_label: Label = $Plastic/Count
 
 var _hint_tween: Tween
 var _hint_serial := 0
@@ -28,6 +30,12 @@ var _objective_tween: Tween
 var _mode_known := false
 var _gameplay_visible := true
 var _last_fragments := -1
+var _last_plastic := -1
+var _notice: PanelContainer
+var _notice_title: Label
+var _notice_text: Label
+var _notice_icon: ThoughtIcon
+var _notice_tween: Tween
 
 
 func _ready() -> void:
@@ -37,6 +45,8 @@ func _ready() -> void:
 	_mode_box.visible = false
 	_toast_label.modulate.a = 0.0
 	GameState.stats_changed.connect(refresh_stats)
+	GameState.resource_discovered.connect(_on_resource_discovered)
+	_build_notice()
 	refresh_stats()
 
 
@@ -53,6 +63,66 @@ func refresh_stats() -> void:
 			pop.tween_property(_fragments_box, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK)
 		_last_fragments = GameState.fragments
 		_fragments_label.text = str(GameState.fragments)
+	var plastic_known := GameState.seen_notices.has(&"resource_plastic") or GameState.has_cannon()
+	_plastic_box.visible = _gameplay_visible and plastic_known
+	if GameState.ammo_plastic != _last_plastic:
+		if _last_plastic >= 0 and GameState.ammo_plastic > _last_plastic:
+			var pop2 := create_tween()
+			_plastic_box.scale = Vector2.ONE * 1.25
+			_plastic_box.pivot_offset = _plastic_box.size * Vector2(1.0, 0.5)
+			pop2.tween_property(_plastic_box, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK)
+		_last_plastic = GameState.ammo_plastic
+		_plastic_label.text = "%d / %d" % [GameState.ammo_plastic, GameState.PLASTIC_MAX]
+
+
+## Explication affichée une seule fois, à la première découverte d'une ressource.
+## Ne bloque rien : un petit cartouche en bas à droite, qui disparaît seul.
+func show_notice(icon: StringName, title: String, text: String, duration := 5.0) -> void:
+	_notice_icon.icon = icon
+	_notice_title.text = title
+	_notice_text.text = text
+	if _notice_tween:
+		_notice_tween.kill()
+	_notice.visible = _gameplay_visible
+	_notice_tween = create_tween()
+	_notice_tween.tween_property(_notice, "modulate:a", 1.0, 0.3)
+	_notice_tween.tween_interval(duration)
+	_notice_tween.tween_property(_notice, "modulate:a", 0.0, 0.6)
+
+
+func _on_resource_discovered(kind: StringName) -> void:
+	if kind == GameState.RESOURCE_PLASTIC:
+		show_notice(&"plastic", "Plastique à projectiles découvert", "Permet de fabriquer les munitions du canon.")
+	else:
+		show_notice(&"filament", "Filament structurel découvert", "Matériau de réparation et de fabrication.")
+
+
+func _build_notice() -> void:
+	_notice = PanelContainer.new()
+	_notice.theme = _objective_box.theme
+	_notice.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_notice.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_notice.offset_left = -430.0
+	_notice.offset_top = -150.0
+	_notice.offset_right = -28.0
+	_notice.offset_bottom = -70.0
+	_notice.modulate.a = 0.0
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	_notice.add_child(row)
+	_notice_icon = ThoughtIcon.new()
+	_notice_icon.custom_minimum_size = Vector2(52, 52)
+	row.add_child(_notice_icon)
+	var col := VBoxContainer.new()
+	row.add_child(col)
+	_notice_title = Label.new()
+	_notice_title.add_theme_font_size_override("font_size", 18)
+	_notice_title.add_theme_color_override("font_color", Color(1, 0.86, 0.62))
+	col.add_child(_notice_title)
+	_notice_text = Label.new()
+	_notice_text.add_theme_font_size_override("font_size", 15)
+	col.add_child(_notice_text)
+	add_child(_notice)
 
 
 ## Met en forme une touche dans un texte d'indice : « [E] ».
@@ -131,6 +201,8 @@ func set_gameplay_visible(value: bool) -> void:
 	_gameplay_visible = value
 	for node: CanvasItem in [_objective_box, _hint_label, _toast_label]:
 		node.visible = value
+	if _notice:
+		_notice.visible = value
 	_mode_box.visible = value and _mode_known
 	refresh_stats()
 	if not value:

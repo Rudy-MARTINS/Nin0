@@ -56,7 +56,10 @@ var _glitch := 0.0
 var _glitch_pulse := 0.0
 var _spark_timer := 2.0
 var _tilt := 0.0
+var _sink := 0.0
 var _sparks: CPUParticles3D
+var _cannon: CannonModel
+var _armor: Node3D
 
 @onready var _rig: Node3D = $Rig
 @onready var _head: Node3D = $Rig/Head
@@ -176,6 +179,73 @@ func emit_sparks(amount := 14) -> void:
 	_sparks.emitting = true
 
 
+## Enfoncement visuel dans une matière molle (unités, 0 = aucun).
+## Canon à projectiles plastiques (amélioration majeure, lot 5), fixé sur l'épaule droite.
+func set_cannon_installed(installed: bool) -> void:
+	if installed and _cannon == null:
+		_cannon = CannonModel.new()
+		_cannon.name = "Cannon"
+		_cannon.position = get_cannon_mount_local()
+		_rig.add_child(_cannon)
+	if _cannon:
+		_cannon.visible = installed
+
+
+func get_cannon_mount_local() -> Vector3:
+	return Vector3(0.2, 0.25, -0.01)
+
+
+func get_cannon_mount_position() -> Vector3:
+	return _rig.to_global(get_cannon_mount_local())
+
+
+func get_cannon() -> CannonModel:
+	return _cannon
+
+
+## Armure I (module équipé) : plaques segmentées inspirées de l'exosquelette des fourmis.
+func set_armor_visible(value: bool) -> void:
+	if value and _armor == null:
+		_armor = _build_armor()
+	if _armor:
+		_armor.visible = value
+
+
+func _build_armor() -> Node3D:
+	var root := Node3D.new()
+	root.name = "Armor"
+	_rig.add_child(root)
+	var plate := StandardMaterial3D.new()
+	plate.albedo_color = Color(0.62, 0.36, 0.22)
+	plate.roughness = 0.35
+	plate.metallic = 0.15
+	var edge := StandardMaterial3D.new()
+	edge.albedo_color = Color(0.93, 0.48, 0.14)
+	edge.roughness = 0.45
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(1, 1, 1)
+	var bands := [
+		[Vector3(0.0, 0.215, -0.152), Vector3(0.26, 0.05, 0.014), plate],
+		[Vector3(0.0, 0.17, -0.156), Vector3(0.28, 0.045, 0.014), plate],
+		[Vector3(0.0, 0.243, -0.15), Vector3(0.27, 0.008, 0.016), edge],
+		[Vector3(-0.172, 0.215, 0.05), Vector3(0.012, 0.05, 0.16), plate],
+		[Vector3(0.172, 0.215, 0.05), Vector3(0.012, 0.05, 0.16), plate],
+		[Vector3(0.0, 0.252, 0.06), Vector3(0.2, 0.012, 0.14), plate],
+	]
+	for band in bands:
+		var part := MeshInstance3D.new()
+		part.mesh = mesh
+		part.material_override = band[2]
+		part.position = band[0]
+		part.scale = band[1]
+		root.add_child(part)
+	return root
+
+
+func set_sink(depth: float) -> void:
+	_sink = depth
+
+
 ## Inclinaison du corps sur le côté (chute, relevé difficile), en degrés.
 func set_tilt(degrees: float) -> void:
 	_tilt = deg_to_rad(degrees)
@@ -187,6 +257,7 @@ func _update_damage(delta: float) -> void:
 	_glitch = lerpf(_glitch, resting if _glitch_pulse <= 0.0 else _glitch, 1.0 - exp(-6.0 * delta))
 	_face_material.set_shader_parameter("glitch", _glitch)
 	_rig.rotation.z = lerpf(_rig.rotation.z, _tilt, 1.0 - exp(-10.0 * delta))
+	position.y = lerpf(position.y, -_sink, 1.0 - exp(-8.0 * delta))
 	if _damage <= 0.05:
 		return
 	_spark_timer -= delta

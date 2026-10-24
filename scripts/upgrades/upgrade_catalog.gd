@@ -4,7 +4,10 @@ extends RefCounted
 ## Liste explicite : fonctionne aussi dans un jeu exporté.
 
 const PATHS := [
+	"res://assets/upgrades/legs.tres",
 	"res://assets/upgrades/chassis_reinforcement_1.tres",
+	"res://assets/upgrades/armor_1.tres",
+	"res://assets/upgrades/cannon.tres",
 ]
 
 

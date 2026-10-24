@@ -19,9 +19,15 @@ enum Category { MAJOR, MODULE, EVOLUTION }
 @export var tier := 1
 ## Amélioration remplacée par celle-ci (ex. Renfort II remplace Renfort I).
 @export var replaces: StringName
+## Proposée par le panneau « améliorations » de l'imprimante (les jambes ont leur carte dédiée).
+@export var fabricable := true
 ## Fragments de filament nécessaires à la fabrication.
 @export var cost_fragments := 0
 ## Découverte (plan) nécessaire pour que l'imprimante propose la fabrication.
 @export var required_discovery: StringName
-## Effets appliqués tant que l'amélioration est possédée.
+## Effets appliqués tant que l'amélioration est possédée (MODULE : tant qu'il est équipé).
 @export var max_integrity_bonus := 0.0
+## Réduction des dégâts physiques (morsures, coups, chutes), 0..1 (modules équipés).
+@export var physical_damage_reduction := 0.0
+## Effet réel, en une phrase (inventaire).
+@export var effect_text := ""

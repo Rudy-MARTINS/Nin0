@@ -15,6 +15,8 @@ signal identified(target: FocusTarget)
 @export var facing := Vector3.ZERO
 ## Souvenir associé : l'observer l'ajoute aux archives fragmentées.
 @export var memory: MemoryData
+## Espèce associée (créature) : l'observer l'ajoute à l'encyclopédie biologique.
+@export var species: SpeciesData
 ## Pensée affichée à l'identification.
 @export var thought_icons: Array[StringName] = [&"exclamation"]
 @export var thought_text := ""

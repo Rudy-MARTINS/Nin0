@@ -8,3 +8,5 @@ id = &"memory_01"
 slot = 1
 title = "Fragment 01"
 lines = PackedStringArray("Bzzzt…", "…", "Je… bzzzt…", "…demain…", "Bzzz… pourquoi… ?")
+object_name = "Dessin d'enfant (placard)"
+comment = "Ce dessin… il me parle ?"

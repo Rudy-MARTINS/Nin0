@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://b7f5ezwk2q1ui"]
+
+[ext_resource type="Script" uid="uid://cfw45n4p3ofep" path="res://scripts/upgrades/upgrade_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"legs"
+title = "Jambes mécaniques"
+description = "Deux jambes articulées, installées sur le plateau de l'imprimante."
+category = 0
+family = &"locomotion"
+fabricable = false
+effect_text = "Permettent le saut et le déplacement à pied (F : roues ↔ jambes)."

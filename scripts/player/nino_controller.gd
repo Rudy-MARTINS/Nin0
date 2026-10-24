@@ -106,12 +106,22 @@ var _spawn_transform: Transform3D
 var _coyote_timer := 0.0
 var _jump_buffer := 0.0
 var _mode_blend := 0.0
+## Modificateurs de terrain et d'état (lot 5), clé → facteur. Les valeurs de conduite
+## de base ne changent pas : seules des zones ou des effets temporaires les multiplient.
+var _speed_mods := {}
+var _wheels_mods := {}
+var _jump_mods := {}
+var _slow_timer := 0.0
+var _slow_factor := 1.0
+## Multiplicateur des dégâts reçus (ex. enlisé dans la matière du lavabo).
+var damage_taken_multiplier := 1.0
 
 @onready var _collision_shape: CollisionShape3D = $CollisionShape3D
 @onready var _visual: NinoVisual = $Visual
 
 
 func _ready() -> void:
+	add_to_group(&"nino")
 	_spawn_transform = global_transform
 	# Copie locale de la forme : sa hauteur change avec le mode.
 	_collision_shape.shape = _collision_shape.shape.duplicate()
@@ -121,6 +131,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_attach_cooldown = maxf(_attach_cooldown - delta, 0.0)
+	_slow_timer = maxf(_slow_timer - delta, 0.0)
 	_jump_buffer = maxf(_jump_buffer - delta, 0.0)
 
 	if global_position.y < kill_height or (controls_enabled and Input.is_action_just_pressed("respawn")):
@@ -208,6 +219,54 @@ func request_mode_switch() -> void:
 	_start_transform(target)
 
 
+## Modificateur de vitesse (zone, effet) ; facteur 1 = aucun effet.
+func set_speed_modifier(key: StringName, factor: float) -> void:
+	_speed_mods[key] = factor
+
+
+## Modificateur appliqué seulement en mode roues (gravier, cailloux…).
+func set_wheels_modifier(key: StringName, factor: float) -> void:
+	_wheels_mods[key] = factor
+
+
+func set_jump_modifier(key: StringName, factor: float) -> void:
+	_jump_mods[key] = factor
+
+
+func clear_modifier(key: StringName) -> void:
+	_speed_mods.erase(key)
+	_wheels_mods.erase(key)
+	_jump_mods.erase(key)
+
+
+## Ralentissement temporaire (ex. acide). Le plus fort l'emporte.
+func apply_slow(factor: float, duration: float) -> void:
+	if _slow_timer <= 0.0 or factor < _slow_factor:
+		_slow_factor = factor
+	_slow_timer = maxf(_slow_timer, duration)
+
+
+func is_slowed() -> bool:
+	return _slow_timer > 0.0
+
+
+func get_speed_factor() -> float:
+	var factor := _slow_factor if _slow_timer > 0.0 else 1.0
+	for value in _speed_mods.values():
+		factor *= value
+	if mode == Mode.WHEELS:
+		for value in _wheels_mods.values():
+			factor *= value
+	return factor
+
+
+func get_jump_factor() -> float:
+	var factor := 1.0
+	for value in _jump_mods.values():
+		factor *= value
+	return factor
+
+
 ## Place Nin0 directement dans un mode (chargement de sauvegarde, tests).
 func force_mode(new_mode: Mode) -> void:
 	mode = new_mode
@@ -230,7 +289,7 @@ func _process_free(delta: float) -> void:
 	else:
 		_coyote_timer = maxf(_coyote_timer - delta, 0.0)
 
-	var top_speed := legs_max_speed if legs else max_speed
+	var top_speed := (legs_max_speed if legs else max_speed) * get_speed_factor()
 	var rotation_speed := legs_turn_speed if legs else turn_speed
 
 	# Rotation progressive vers la direction demandée (rotation sur place possible).
@@ -265,7 +324,7 @@ func _process_free(delta: float) -> void:
 
 	# Saut : uniquement en mode jambes.
 	if legs and _jump_buffer > 0.0 and _coyote_timer > 0.0:
-		velocity.y = sqrt(2.0 * gravity * jump_height)
+		velocity.y = sqrt(2.0 * gravity * jump_height * get_jump_factor())
 		_jump_buffer = 0.0
 		_coyote_timer = 0.0
 		on_floor = false

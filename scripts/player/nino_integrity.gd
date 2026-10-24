@@ -19,14 +19,18 @@ signal shutdown_finished
 @export var fall_damage_per_speed := 3.0
 ## Intégrité rendue au redémarrage après une mise en veille (fraction du maximum).
 @export_range(0.1, 1.0) var shutdown_restore := 0.4
+## Brève protection après un coup ennemi : pas de dégâts répétés à chaque image.
+@export var hit_protection := 0.9
 
 ## Désactivé pendant les séquences scriptées (la chute de la porte gère ses dégâts).
 var enabled := true
 var _since_damage := 0.0
 var _shutting_down := false
+var _protection := 0.0
 
 
 func _ready() -> void:
+	add_to_group(&"nino_integrity")
 	nino.landed.connect(_on_landed)
 	GameState.stats_changed.connect(_refresh_visual)
 	_refresh_visual()
@@ -34,12 +38,38 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_since_damage += delta
+	_protection = maxf(_protection - delta, 0.0)
 	if _since_damage > shield_recharge_delay and not _shutting_down:
 		GameState.recharge_shield(shield_recharge_rate * delta)
 
 
+## Coup porté par une créature : protection temporaire, recul et dégâts typés.
+## Renvoie false si Nin0 était encore protégé (le coup ne compte pas).
+func hit(amount: float, kind: StringName = &"physical", from: Vector3 = Vector3.INF) -> bool:
+	if _protection > 0.0 or _shutting_down:
+		return false
+	_protection = hit_protection
+	take_damage(amount, false, kind)
+	if from != Vector3.INF and nino.state == NinoController.State.FREE:
+		var away := nino.global_position - from
+		away.y = 0.0
+		if away.length() > 0.01:
+			nino.velocity += away.normalized() * 2.2 + Vector3.UP * 2.5
+	nino.get_visual().show_emotion(NinoVisual.Emotion.HURT, 0.8)
+	Sfx.play(&"hurt", -8.0)
+	return true
+
+
+func is_protected() -> bool:
+	return _protection > 0.0
+
+
 ## Inflige des dégâts ; `bypass_shield` pour un choc direct (chute scriptée).
-func take_damage(amount: float, bypass_shield := false) -> float:
+## kind « physical » : réduit par l'Armure I équipée ; « acid » : non réduit.
+func take_damage(amount: float, bypass_shield := false, kind: StringName = &"physical") -> float:
+	amount *= nino.damage_taken_multiplier
+	if kind == &"physical":
+		amount *= 1.0 - GameState.physical_damage_reduction()
 	var shield_before := GameState.shield
 	var loss := GameState.apply_damage(amount, bypass_shield)
 	_since_damage = 0.0

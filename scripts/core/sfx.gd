@@ -112,6 +112,26 @@ func _build_sounds() -> void:
 	_streams[&"fragment"] = _tone([[1300.0, 1700.0, 0.06], [2000.0, 2000.0, 0.07]], 0.14)
 	_streams[&"repair_loop"] = _repair_loop()
 	_streams[&"cartoon_fall"] = _slide_whistle(0.9)
+	# Lot 5 : fourmis, analyse, combat, lavabo, canon.
+	_streams[&"ant_chitter"] = _chitter(0.35)
+	_streams[&"scan"] = _tone([[600.0, 1800.0, 0.5], [1800.0, 1700.0, 0.1]], 0.08)
+	_streams[&"species"] = _tone([[880.0, 880.0, 0.07], [1175.0, 1175.0, 0.07], [1568.0, 1760.0, 0.18]], 0.14)
+	_streams[&"blueprint"] = _tone([[523.0, 523.0, 0.08], [659.0, 659.0, 0.08], [784.0, 784.0, 0.08], [1046.0, 1100.0, 0.3]], 0.16)
+	_streams[&"soldier_alert"] = _tone([[300.0, 520.0, 0.08], [520.0, 300.0, 0.1]], 0.2, true)
+	_streams[&"bite"] = _noise_burst(0.12, 0.8, 0.003)
+	_streams[&"windup"] = _tone([[200.0, 420.0, 0.35]], 0.12, true)
+	_streams[&"larva_warn"] = _crackle(0.6, 0.35)
+	_streams[&"larva_drop"] = _noise_burst(0.25, 0.7, 0.01)
+	_streams[&"acid_spit"] = _spit()
+	_streams[&"acid_sizzle"] = _crackle(0.8, 0.3)
+	_streams[&"sludge"] = _squelch()
+	_streams[&"drain"] = _gurgle_loop()
+	_streams[&"queen_roar"] = _tone([[160.0, 110.0, 0.5], [110.0, 140.0, 0.3]], 0.25, true)
+	_streams[&"queen_defeat"] = _tone([[400.0, 120.0, 1.2]], 0.2, true)
+	_streams[&"shot"] = _shot()
+	_streams[&"impact_small"] = _click()
+	_streams[&"empty_click"] = _tone([[1500.0, 1400.0, 0.03]], 0.1, true)
+	_streams[&"unlock"] = _tone([[700.0, 700.0, 0.05], [1046.0, 1046.0, 0.08], [1318.0, 1400.0, 0.2]], 0.16)
 	_streams[&"repair_done"] = _tone([[523.0, 523.0, 0.1], [784.0, 784.0, 0.1], [1046.0, 1046.0, 0.1], [1568.0, 1568.0, 0.3]], 0.2)
 
 
@@ -255,6 +275,63 @@ func _ambience(duration: float) -> AudioStreamWAV:
 			value = raw[i] * t + raw[count - fade + i] * (1.0 - t)
 		samples.append(value * 0.25)
 	return _to_wav(samples, true)
+
+
+## Cliquetis de mandibules et d'antennes (fourmis).
+func _chitter(duration: float) -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(duration * RATE)
+	for i in count:
+		var t := float(i) / RATE
+		var tick := _step(0.6, sin(TAU * 38.0 * t))
+		samples.append(sin(TAU * 3200.0 * t) * tick * 0.12 * exp(-t * 4.0))
+	return _to_wav(samples)
+
+
+## Crachat liquide (jet acide).
+func _spit() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(0.4 * RATE)
+	var low := 0.0
+	for i in count:
+		var t := float(i) / RATE
+		low = lerpf(low, randf_range(-1.0, 1.0), 0.35)
+		samples.append(low * 0.5 * exp(-t * 9.0) + sin(TAU * (900.0 - t * 1500.0) * t) * 0.1 * exp(-t * 12.0))
+	return _to_wav(samples)
+
+
+## Pas dans la matière visqueuse.
+func _squelch() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(0.3 * RATE)
+	var low := 0.0
+	for i in count:
+		var t := float(i) / count
+		low = lerpf(low, randf_range(-1.0, 1.0), 0.06)
+		samples.append((low * 1.6 + sin(TAU * (180.0 - 120.0 * t) * t * 0.3) * 0.2) * sin(PI * t) * 0.5)
+	return _to_wav(samples)
+
+
+## Vidange : glouglou en boucle.
+func _gurgle_loop() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var low := 0.0
+	for i in RATE:
+		var t := float(i) / RATE
+		low = lerpf(low, randf_range(-1.0, 1.0), 0.04)
+		var bubble := sin(TAU * (220.0 + 80.0 * sin(TAU * 6.0 * t)) * t) * 0.08 * _step(0.3, sin(TAU * 9.0 * t))
+		samples.append(low * 0.9 + bubble)
+	return _to_wav(samples, true)
+
+
+## Tir du canon : déclic de ressort et souffle.
+func _shot() -> AudioStreamWAV:
+	var samples := PackedFloat32Array()
+	var count := int(0.18 * RATE)
+	for i in count:
+		var t := float(i) / RATE
+		samples.append((sin(TAU * 700.0 * t) * exp(-t * 60.0) * 0.4) + randf_range(-1.0, 1.0) * 0.25 * exp(-t * 30.0))
+	return _to_wav(samples)
 
 
 ## Sifflet à coulisse descendant (chute cartoon).

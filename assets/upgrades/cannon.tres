@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://ui1vz3ett2rm"]
+
+[ext_resource type="Script" uid="uid://cfw45n4p3ofep" path="res://scripts/upgrades/upgrade_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"cannon"
+title = "Canon à projectiles plastiques"
+description = "Petit canon artisanal qui propulse des billes de plastique par un ressort."
+category = 0
+family = &"weapon"
+cost_fragments = 3
+required_discovery = &"plan_cannon"
+effect_text = "Tire des billes de plastique (clic gauche ou X) ; une bille = une unité de plastique."

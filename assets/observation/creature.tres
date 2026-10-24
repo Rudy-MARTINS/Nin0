@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ObservationProfile" format=3 uid="uid://sbsx1jq6bdhw"]
+
+[ext_resource type="Script" uid="uid://d21kdohnlvyp3" path="res://scripts/focus/observation_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+max_distance = 6.0
+lock_time = 1.1
+min_aim_degrees = 5.0
+aim_scale = 1.6

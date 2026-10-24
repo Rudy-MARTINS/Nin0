@@ -3,8 +3,9 @@
 [ext_resource type="Script" uid="uid://bocfd2qg22eq7" path="res://scripts/memory/memory_archive.gd" id="1"]
 [ext_resource type="Resource" uid="uid://unvd3fubvwgv" path="res://assets/memories/memory_01.tres" id="2"]
 [ext_resource type="Script" uid="uid://dd5enw7lqlhs1" path="res://scripts/memory/memory_data.gd" id="3"]
+[ext_resource type="Resource" uid="uid://t847gt2lrz9o" path="res://assets/memories/memory_02.tres" id="4"]
 
 [resource]
 script = ExtResource("1")
 total = 7
-entries = Array[ExtResource("3")]([ExtResource("2")])
+entries = Array[ExtResource("3")]([ExtResource("2"), ExtResource("4")])
