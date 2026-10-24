@@ -159,6 +159,50 @@ Les scènes de zones sont produites par des générateurs Python hors dépôt (b
 ### Première ouvrière
 - Après l'arrêt de l'ouvrière : Nin0 l'observe, **ses yeux se calibrent** (deux plissements, déclic optique), pensée **jumelles + fourmi** ; le contrôle revient ; une **cible pulsante** apparaît sous l'ouvrière (et son repère dans la vision focalisée) avec l'indication « Maintenez clic droit : vision focalisée — visez la fourmi ». L'ouvrière **attend** jusqu'à 14 s (tant que Nin0 reste à moins de 3,5 u). Le scan n'est jamais automatique. Après l'analyse : jingle, fiche, réaction à l'exosquelette, plan Armure I ; puis elle repart.
 
+## Finitions après validation (branche `claude/lot6-cuisine-finitions`) [DÉVELOPPÉ, à retester]
+
+Le chapitre 2 a été validé par le créateur et fusionné dans `main` (PR #1). Ces finitions le polissent sans le reconstruire.
+
+### Bugs corrigés
+- **Souvenirs dangereux** : pendant un souvenir (et toute séquence sans contrôle : installations, mises en scène, réflexions, rencontre de l'ouvrière, cinématiques de la reine, mise en scène du verrou), les dangers sont **suspendus** par un mécanisme réutilisable (`GameState.suspend_hazards` / `resume_hazards`, un verrou par séquence) : soldats immobilisés (une morsure en préparation est annulée), reine figée, larves arrêtées, acide et flaques sans effet, plus d'enlisement, aucune attaque ne touche (`NinoIntegrity.hit`). L'interface et les effets visuels continuent (pas de pause globale). À la reprise : 1 s de protection et les soldats attendent 1 s avant de reprendre.
+- **Objet étrange traversable** : la **boule de papier du sas** (`Decor/PaperBall`, `sas_zone.tscn`) était une sphère lisse sans collision. Elle devient une boule de papier froissé à facettes, avec traces d'encre, et une vraie collision (cylindre). Autres cas trouvés : le second caillou des galeries (`PebbleB`) n'avait pas de collision (ajoutée) ; les chiffons au sol, simples ellipses, deviennent de vrais tissus pliés posés à plat (sans collision : Nin0 roule dessus comme sur un tissu).
+- **Plateau de l'imprimante** : son corps de collision (`Bed/BedBody`) ne suivait pas le plateau visible (synchronisation physique, même défaut que la porte du placard au lot 4) ; Nin0 pouvait flotter, glisser ou traverser. Corrigé (`sync_to_physics = false`).
+- **Verrou de la cuisine trop haut** : la caméra ne montait qu'à 30°. En vision focalisée (vue subjective), on peut maintenant lever les yeux jusqu'à 62° ; les billes compensent la gravité pour arriver au point visé ; une aide à la visée légère (6°) cible les mécanismes ; voir la mise en scène ci-dessous.
+- Parapluie du sas réorienté (il traversait la pièce, dès le lot 5).
+
+### Musique
+Pack intégré (voir `assets/music/LISEZMOI.md`) : « Petit Refuge » (intro + boucle), « ant labyrinth » V3 (intro + boucle), « boss fight » V2 édité (intro + deux sections en boucle, la fin n'est jamais jouée), « kitchen » prête pour le lot 6, « living room » rangée hors du jeu. Volumes équilibrés par piste. L'introduction s'efface dès le début du réveil, pendant que « Petit Refuge » arrive (fondu de 4 s) : le réveil allongé accompagne la transition sans la masquer.
+
+### Réveil et tutoriel
+- Réveil progressif (≈ 10 s de jeu, contre ≈ 5,5 s) : l'écran du visage s'allume par à-coups, étourdissement, surprise, regards à gauche, à droite, vers la lumière, vers le bas, Nin0 s'ébroue sur ses roues, puis la caméra se place.
+- Nin0 se réveille dans un **bac de recharge à rebords** (0,24 u, infranchissable sur roues) : il y apprend **avancer, reculer, tourner, orienter la caméra**. À la fin, la rampe avant s'abaisse et les autres rebords se rétractent dans le socle : l'établi redevient libre. Le bac est ouvert d'emblée en reprise de partie.
+
+### Vision focalisée au rebord
+Nin0 regarde à gauche, à droite, fixe quelque chose au loin, penche la tête, réfléchit (pensées œil + interrogation, puis œil + idée), plisse les yeux, puis le calibrage optique et le tutoriel apparaissent. Règles d'observation inchangées.
+
+### Personnalité de Nin0
+- `NinoReactions` : réactions brèves selon le contexte — objet inconnu (curiosité), déjà vu (reconnaissance : petit hochement, sans répéter la pensée), créature pacifique (intérêt), danger (inquiétude, à chaque alerte d'un soldat), découverte (satisfaction), échec (frustration légère : mise en veille, canon vide), amélioration (enthousiasme + « Yeeeaah ! »), objet étrange (hésitation : portes fermées), événement incompréhensible (larve qui tombe tout près). Chaque type a son délai et une part de hasard pour les pensées : Nin0 ne commente pas tout. Petits regards autour de lui au repos.
+- Quatre nouvelles expressions composées (inquiet, frustré, hésitant, enthousiaste) et petits sons robotiques.
+- Les objets examinables n'affichent plus tous « Examiner » : Observer, Regarder de plus près, Inspecter, Jeter un œil… puis « Revoir » une fois découverts.
+
+### Première ouvrière
+Après l'arrêt : Nin0 l'observe, elle penche la tête, puis **s'approche prudemment, antennes tendues** vers lui, Nin0 sursaute, elle recule d'un pas ; calibrage des yeux, pensée jumelles, cible au sol ; elle **attend jusqu'à 25 s**. Toujours aucun scan automatique.
+
+### Sons
+Petite voix robotique originale « Yeeeaah ! » (synthèse de formants i → a, ≈ 0,75 s), jouée après chaque installation d'amélioration. Jingles inchangés (scan, plan, installation).
+
+### Verrou de la cuisine
+Au retour dans le sas avec le canon : Nin0 regarde la porte, une caméra de mise en scène montre le crochet (qui se met à luire), « Ce crochet… », puis « Avec mon canon ! ». Contrôle rendu, un **repère lumineux au sol** indique une position de tir d'où le crochet se vise à ≈ 50° en vision focalisée. Le joueur tire lui-même. La porte ne s'entrouvre plus que de **16°** (au lieu de 34°) : juste assez pour passer, la cuisine reste dans la pénombre.
+
+### Plastique à munitions
+Nouvel aspect : amas de filament extrudé (« poop » d'impression) — tortillons bleus, cyan et blancs emmêlés autour d'une petite masse fondue. Le filament de réparation garde sa spirale orange. Compteurs, inventaire et réapparition inchangés.
+
+### Labyrinthe : légère extension
+L'ancienne zone fermée derrière le couloir de la marche devient l'**alcôve du linge** (≈ 0,8 × 0,5 m à l'échelle humaine) : entrée depuis le couloir de la marche ; refuge en hauteur fait de piles de vêtements en escalier (0,5 / 1,0 / 1,5 u, les soldats ne détectent pas Nin0 là-haut) ; plastique au sommet, filament au sol ; sortie vers l'escabeau sous une serviette tendue à 0,6 u (en roues seulement). Les deux branches, le ticket et l'escabeau sont inchangés.
+
+### Reine
+Combat inchangé. Dans le liquide seulement (plus sur les débris) : vitesse ×0,38, **accélération ×0,3** (inertie), enfoncement plus profond (0,2 u) et plus rapide, éclaboussures quand Nin0 avance, saut réduit, dégâts ×1,25. Les débris flottants sont de vrais refuges. Les dangers sont suspendus pendant les cinématiques de début et de fin.
+
 ### Captures du lot 5.1
 
 | | | |

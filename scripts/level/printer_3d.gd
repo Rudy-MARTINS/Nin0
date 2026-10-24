@@ -62,6 +62,9 @@ func _ready() -> void:
 	_nozzle_material = ($Gantry/Head/Nozzle as MeshInstance3D).material_override
 	_led_material = ($Body/PowerLed as MeshInstance3D).material_override
 	_gantry_rest_y = _gantry.position.y
+	# Le corps de collision du plateau suit réellement le plateau (sinon, synchronisé
+	# à la physique, il restait en arrière : Nin0 flottait ou traversait le plateau).
+	($Bed/BedBody as AnimatableBody3D).sync_to_physics = false
 	for mesh in _printed_legs.find_children("*", "MeshInstance3D", true, false):
 		var material := (mesh as MeshInstance3D).material_override as ShaderMaterial
 		if material and not _print_materials.has(material):

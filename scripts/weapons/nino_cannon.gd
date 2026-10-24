@@ -47,7 +47,15 @@ func _physics_process(delta: float) -> void:
 
 
 ## Point visé : centre de l'écran, premier obstacle sur la ligne de visée.
+## Aide à la visée : un mécanisme (groupe « cannon_targets ») proche du centre de la
+## vue devient le point visé.
+const ASSIST_DEGREES := 6.0
+
+
 func aim_point() -> Vector3:
+	var assisted := _assisted_target()
+	if assisted != Vector3.INF:
+		return assisted
 	var cam := camera.get_camera()
 	var origin := cam.global_position
 	var forward := -cam.global_basis.z
@@ -70,13 +78,51 @@ func fire() -> bool:
 	var visual := nino.get_visual()
 	var model := visual.get_cannon()
 	var muzzle := model.get_muzzle() if model else nino.global_position + Vector3.UP * 0.3
-	var direction := (aim_point() - muzzle).normalized()
+	var direction := launch_direction(muzzle, aim_point())
 	if model:
 		model.recoil()
 	Sfx.play(&"shot", -6.0, randf_range(0.95, 1.08))
 	fired.emit()
 	_launch(muzzle, direction * ammo.speed)
 	return true
+
+
+## Direction de tir qui compense la chute de la bille (trajectoire tendue) pour qu'elle
+## arrive au point visé ; tir droit si le point est hors de portée balistique.
+func launch_direction(from: Vector3, target: Vector3) -> Vector3:
+	var to := target - from
+	var flat := Vector3(to.x, 0.0, to.z)
+	var x := flat.length()
+	var y := to.y
+	var v := ammo.speed
+	var g := ammo.gravity
+	if x < 0.01 or g <= 0.0:
+		return to.normalized()
+	var disc := v * v * v * v - g * (g * x * x + 2.0 * y * v * v)
+	if disc < 0.0:
+		return to.normalized()
+	var angle := atan((v * v - sqrt(disc)) / (g * x))
+	return (flat.normalized() * cos(angle) + Vector3.UP * sin(angle)).normalized()
+
+
+func _assisted_target() -> Vector3:
+	var cam := camera.get_camera()
+	var forward := -cam.global_basis.z
+	var best := Vector3.INF
+	var best_angle := deg_to_rad(ASSIST_DEGREES)
+	for node in get_tree().get_nodes_in_group(&"cannon_targets"):
+		var target := node as Node3D
+		if not target.is_visible_in_tree():
+			continue
+		var point: Vector3 = target.get_meta("aim_point", target.global_position) if target.has_meta("aim_point") else target.global_position
+		var to := point - cam.global_position
+		if to.length() > ammo.max_range + 3.0:
+			continue
+		var angle := forward.angle_to(to)
+		if angle < best_angle:
+			best_angle = angle
+			best = point
+	return best
 
 
 func _launch(from: Vector3, velocity: Vector3) -> void:

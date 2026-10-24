@@ -28,7 +28,12 @@ const FIRST_REPAIR_DURATION := 6.0
 const REPAIR_DURATION := 3.0
 const UPGRADE_DURATION := 4.0
 
-enum Tutorial { NONE, FORWARD, BACK, CAMERA, DONE }
+enum Tutorial { NONE, FORWARD, BACK, TURN, CAMERA, DONE }
+
+## Bac de recharge du réveil : Nin0 y apprend les commandes, sa rampe avant s'abaisse
+## quand le tutoriel est terminé (dimensions en unités, centré sur le socle).
+const TRAY_SIZE := Vector2(2.6, 2.2)
+const TRAY_RIM := 0.24
 
 ## Intégré au jeu complet : pas de fin de démo au seuil (voir game_world.gd).
 @export var embedded := false
@@ -48,6 +53,10 @@ var _last_yaw := 0.0
 var _thoughts_shown := {}
 var _pending_handle_thought := false
 var _last_print_percent := -1
+var _turned_body := 0.0
+var _last_body_yaw := 0.0
+var _tray_ramp: Node3D
+var _tray_walls: Array[StaticBody3D] = []
 
 @onready var nino: NinoController = $Nino
 @onready var camera: ThirdPersonCamera = $ThirdPersonCamera
@@ -69,9 +78,16 @@ var _last_print_percent := -1
 @onready var drawing_focus: FocusTarget = $Geometry/DrawingFocus
 @onready var _interactor: Interactor = $Nino/Interactor
 @onready var _checkpoints: Node3D = $Checkpoints
+## Réactions contextuelles de Nin0 (personnalité).
+var reactions: NinoReactions
 
 
 func _ready() -> void:
+	reactions = NinoReactions.new()
+	reactions.name = "Reactions"
+	reactions.nino = nino
+	reactions.thoughts = thoughts
+	add_child(reactions)
 	nino.state_changed.connect(_on_nino_state_changed)
 	nino.mode_changed.connect(_on_mode_changed)
 	nino.transform_refused.connect(func(reason: String) -> void: hud.show_hint(reason, 2.0))
@@ -106,6 +122,7 @@ func _ready() -> void:
 	Sfx.stop_all_loops()
 	Sfx.set_loop(&"ambience", &"ambience", -18.0)
 	nino.set_checkpoint(_checkpoint("Start"))
+	_build_start_tray()
 	_set_sleeping()
 
 	if GameState.dev_mode:
@@ -211,6 +228,7 @@ func _apply_progress_world() -> void:
 	spool_slot.fill_immediately(spools[0])
 	nino.legs_available = true
 	nino.get_visual().set_power(1.0)
+	_open_start_tray(false)
 	_refresh_saved_world()
 
 
@@ -269,27 +287,43 @@ func _set_sleeping() -> void:
 	nino.get_visual().set_power(0.0)
 
 
-## Réveil : l'écran vacille, Nin0 est d'abord confus, puis curieux.
+## Réveil progressif : l'écran du visage s'allume par à-coups, les yeux clignent,
+## Nin0 regarde autour de lui (le bac, la pièce, la lumière), s'ébroue, puis la caméra
+## se place. L'introduction musicale s'efface pendant l'éveil, « Petit Refuge » arrive.
 func _boot_nino() -> void:
 	_sequence_running = true
 	hud.clear_hint()
 	var visual := nino.get_visual()
-	Sfx.play(&"boot", -4.0)
+	_start_exploration_music(4.0)
+	Sfx.play(&"boot", -6.0, 0.8)
 	var flicker := create_tween()
-	for value in [0.6, 0.0, 0.9, 0.2, 1.0]:
+	for value in [0.25, 0.0, 0.45, 0.1, 0.6, 0.3, 0.8, 0.55, 1.0]:
 		flicker.tween_callback(visual.set_power.bind(value))
-		flicker.tween_interval(0.12)
+		flicker.tween_interval(0.16)
 	await flicker.finished
+	Sfx.play(&"boot", -4.0)
+	visual.glitch_pulse(0.5, 0.4)
+	visual.show_emotion(NinoVisual.Emotion.DIZZY, 1.2)
+	await _wait(1.2)
 	visual.show_emotion(NinoVisual.Emotion.SURPRISED, 0.8)
 	thoughts.think([&"ellipsis"], "", 1.6)
 	await _wait(1.4)
+	# Premiers regards : à gauche, à droite, vers le haut (la lumière de la fenêtre).
 	visual.look_target = nino.global_position + nino.global_basis * Vector3(-1.5, 0.4, -1.0)
-	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.4)
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 3.4)
 	Sfx.play(&"curious", -8.0)
 	thoughts.think([&"question"], "", 1.6)
 	await _wait(1.0)
 	visual.look_target = nino.global_position + nino.global_basis * Vector3(1.5, 0.3, -1.0)
 	await _wait(1.0)
+	visual.look_target = nino.global_position + Vector3(0.0, 3.0, -2.5)
+	await _wait(0.9)
+	visual.look_target = nino.global_position + nino.global_basis * Vector3(0.0, -0.4, -0.5)
+	await _wait(0.6)
+	# Il s'ébroue sur ses roues.
+	visual.react_to_jump()
+	Sfx.play(&"servo", -12.0, 1.4)
+	await _wait(0.5)
 	visual.look_target = null
 	visual.show_emotion(NinoVisual.Emotion.HAPPY, 1.2)
 	Sfx.play(&"happy", -6.0)
@@ -302,17 +336,113 @@ func _boot_nino() -> void:
 	_enable_play()
 	hud.set_mode("Roues")
 	_start_tutorial_step(Tutorial.FORWARD)
-	_start_exploration_music()
 	play_began.emit()
+
+
+## Amélioration installée : jingle, puis petite voix « Yeeeaah ! » de Nin0.
+func _celebrate_install() -> void:
+	Sfx.jingle(&"jingle_install")
+	get_tree().create_timer(1.3).timeout.connect(func() -> void: reactions.react(&"upgrade", null, true))
+
+
+## Bac de recharge à rebords autour du socle : il retient Nin0 tant qu'il apprend les
+## commandes ; son rebord avant (vers l'établi) est une rampe qui s'abaisse ensuite.
+func _build_start_tray() -> void:
+	var start := _checkpoint("Start")
+	var center := Vector3(start.origin.x, 8.0, start.origin.z)
+	var root := Node3D.new()
+	root.name = "StartTray"
+	add_child(root)
+	root.global_position = center
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.24, 0.24, 0.27)
+	material.roughness = 0.45
+	var accent := StandardMaterial3D.new()
+	accent.albedo_color = Color(0.93, 0.48, 0.14)
+	var half := TRAY_SIZE * 0.5
+	var t := 0.08
+	# Côtés fixes (arrière, gauche, droite) ; l'avant (-X, regard de Nin0) est la rampe.
+	for spec in [[Vector3(half.x, TRAY_RIM * 0.5, 0.0), Vector3(t, TRAY_RIM, TRAY_SIZE.y)],
+			[Vector3(0.0, TRAY_RIM * 0.5, half.y), Vector3(TRAY_SIZE.x, TRAY_RIM, t)],
+			[Vector3(0.0, TRAY_RIM * 0.5, -half.y), Vector3(TRAY_SIZE.x, TRAY_RIM, t)]]:
+		var wall := _tray_wall(spec[0], spec[1], material)
+		root.add_child(wall)
+		_tray_walls.append(wall)
+	var stripe := MeshInstance3D.new()
+	var stripe_mesh := BoxMesh.new()
+	stripe_mesh.size = Vector3(TRAY_SIZE.x, 0.02, TRAY_SIZE.y)
+	stripe.mesh = stripe_mesh
+	stripe.material_override = material
+	stripe.position = Vector3(0.0, 0.01, 0.0)
+	root.add_child(stripe)
+	# Rampe articulée à sa base (charnière au ras de l'établi).
+	_tray_ramp = Node3D.new()
+	_tray_ramp.name = "Ramp"
+	_tray_ramp.position = Vector3(-half.x, 0.0, 0.0)
+	root.add_child(_tray_ramp)
+	var ramp := _tray_wall(Vector3(0.0, TRAY_RIM * 0.5, 0.0), Vector3(t, TRAY_RIM, TRAY_SIZE.y), material)
+	ramp.name = "Flap"
+	_tray_ramp.add_child(ramp)
+	var lip := MeshInstance3D.new()
+	var lip_mesh := BoxMesh.new()
+	lip_mesh.size = Vector3(t + 0.01, 0.03, TRAY_SIZE.y)
+	lip.mesh = lip_mesh
+	lip.material_override = accent
+	lip.position = Vector3(0.0, TRAY_RIM, 0.0)
+	_tray_ramp.add_child(lip)
+	if GameState.tutorial_done:
+		_open_start_tray(false)
+
+
+func _tray_wall(pos: Vector3, size: Vector3, material: Material) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.position = pos
+	body.collision_mask = 0
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	body.add_child(shape)
+	var mesh := MeshInstance3D.new()
+	var box_mesh := BoxMesh.new()
+	box_mesh.size = size
+	mesh.mesh = box_mesh
+	mesh.material_override = material
+	body.add_child(mesh)
+	return body
+
+
+## La rampe avant s'abaisse et les autres rebords se rétractent dans le socle : Nin0
+## peut quitter son bac, l'établi redevient entièrement libre.
+func _open_start_tray(animated := true) -> void:
+	if _tray_ramp == null:
+		return
+	var target := deg_to_rad(90.0)
+	if not animated:
+		_tray_ramp.rotation.z = target
+		for wall in _tray_walls:
+			wall.position.y = -TRAY_RIM * 0.5
+			wall.process_mode = Node.PROCESS_MODE_DISABLED
+		return
+	Sfx.play(&"servo", -8.0, 0.9)
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(_tray_ramp, "rotation:z", target, 0.7).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	for wall in _tray_walls:
+		tween.tween_property(wall, "position:y", -TRAY_RIM * 0.5, 0.6).set_trans(Tween.TRANS_SINE)
+	await tween.finished
+	for wall in _tray_walls:
+		wall.process_mode = Node.PROCESS_MODE_DISABLED
+	Sfx.play(&"thud", -10.0, 1.4)
 
 
 ## L'introduction s'arrête, « Petit Refuge » (placard et sas) prend le relais.
 ## Le jeu complet choisit ensuite la musique selon la zone (game_world.gd).
-func _start_exploration_music() -> void:
-	Music.play(&"hub", Music.DEFAULT_VOLUME, 2.0)
+func _start_exploration_music(fade := 2.0) -> void:
+	Music.play(&"hub", INF, fade)
 
 
 func _enable_play() -> void:
+	GameState.resume_hazards(&"director")
 	_sequence_running = false
 	nino.controls_enabled = true
 	camera.input_enabled = true
@@ -321,6 +451,8 @@ func _enable_play() -> void:
 
 
 func _disable_play() -> void:
+	# Séquence non interactive (souvenir, installation, mise en scène) : aucun danger.
+	GameState.suspend_hazards(&"director")
 	_sequence_running = true
 	nino.controls_enabled = false
 	camera.input_enabled = false
@@ -341,11 +473,17 @@ func _start_tutorial_step(step: Tutorial) -> void:
 			hud.show_hint("%s : avancer" % Hud.key("Z"))
 		Tutorial.BACK:
 			hud.show_hint("%s : reculer" % Hud.key("S"))
+		Tutorial.TURN:
+			_turned_body = 0.0
+			_last_body_yaw = nino.rotation.y
+			hud.show_hint("%s / %s : tourner" % [Hud.key("Q"), Hud.key("D")])
 		Tutorial.CAMERA:
 			hud.show_hint("%s : orienter la caméra" % Hud.key("Souris"))
 		Tutorial.DONE:
 			hud.clear_hint()
 			GameState.set_flag(&"tutorial_done")
+			# La rampe du bac s'abaisse : la pièce s'ouvre à lui.
+			_open_start_tray()
 			# Nin0 remarque la machine au bout de la table : un premier but visuel.
 			nino.get_visual().look_target = printer.global_position + Vector3.UP * 1.5
 			thoughts.think([&"eye", &"printer"], "", 2.4)
@@ -362,12 +500,17 @@ func _update_tutorial(_delta: float) -> void:
 		Tutorial.FORWARD:
 			if Input.is_action_pressed("move_forward"):
 				_step_distance += moved
-			if _step_distance > 1.2:
+			if _step_distance > 0.8:
 				_complete_tutorial_step(Tutorial.BACK)
 		Tutorial.BACK:
 			if Input.is_action_pressed("move_back"):
 				_step_distance += moved
-			if _step_distance > 0.8:
+			if _step_distance > 0.6:
+				_complete_tutorial_step(Tutorial.TURN)
+		Tutorial.TURN:
+			_turned_body += absf(wrapf(nino.rotation.y - _last_body_yaw, -PI, PI))
+			_last_body_yaw = nino.rotation.y
+			if _turned_body > 1.2:
 				_complete_tutorial_step(Tutorial.CAMERA)
 		Tutorial.CAMERA:
 			_turned += absf(wrapf(camera.rotation.y - _last_yaw, -PI, PI))
@@ -415,12 +558,16 @@ func _on_focus_changed(target: Interactable) -> void:
 
 func _on_examined(data: DiscoveryData) -> void:
 	var visual := nino.get_visual()
-	if GameState.add_discovery(data.id):
-		hud.show_toast("Découverte : %s" % data.title, 2.0)
-		if String(data.id).begins_with("plan_"):
-			Sfx.jingle(&"jingle_plan")
-		else:
-			Sfx.play(&"pickup" if data.collectible else &"discovery", -6.0)
+	if not GameState.add_discovery(data.id):
+		# Déjà observé : simple reconnaissance, sans redire la même pensée.
+		reactions.react(&"known", null, true)
+		return
+	hud.show_toast("Découverte : %s" % data.title, 2.0)
+	if String(data.id).begins_with("plan_"):
+		Sfx.jingle(&"jingle_plan")
+		reactions.react(&"discovery")
+	else:
+		Sfx.play(&"pickup" if data.collectible else &"discovery", -6.0)
 	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
 	thoughts.think(data.thought_icons, data.thought_text, 2.4, true)
 	if not data.conclusion_icons.is_empty():
@@ -508,7 +655,7 @@ func _install_legs() -> void:
 	await printer.install_legs(nino)
 	nino.legs_available = true
 	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
-	Sfx.jingle(&"jingle_install")
+	_celebrate_install()
 	GameState.set_flag(&"legs_installed")
 	nino.set_checkpoint(_checkpoint("Printer"))
 	hud.show_toast("Jambes mécaniques installées", 3.0)
@@ -677,10 +824,25 @@ func _reach_window() -> void:
 	var turn := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
 	turn.tween_property(camera, "rotation:y", atan2(-to_door.x, -to_door.z) + 0.25, 1.4)
 	turn.tween_property(camera, "pitch", deg_to_rad(-6.0), 1.4)
+	# Il cherche du regard : à gauche, à droite, puis fixe quelque chose au loin.
+	var left := nino.global_position + nino.global_basis * Vector3(-2.0, 0.5, -1.2)
+	var right := nino.global_position + nino.global_basis * Vector3(2.0, 0.4, -1.2)
+	visual.look_target = left
+	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 4.0)
+	Sfx.play(&"servo", -18.0, 1.6)
+	await _wait(0.8)
+	visual.look_target = right
+	Sfx.play(&"servo", -18.0, 1.7)
+	await _wait(0.8)
 	visual.look_target = target
-	visual.show_emotion(NinoVisual.Emotion.CURIOUS, 2.0)
+	await _wait(0.5)
+	# Tête penchée : il réfléchit.
+	visual.set_tilt(9.0)
 	thoughts.think([&"eye", &"question"], "", 1.8, true)
-	await _wait(1.6)
+	await _wait(1.2)
+	visual.set_tilt(0.0)
+	thoughts.think([&"eye", &"idea"], "", 1.4)
+	await _wait(0.6)
 	# Les yeux se plissent : il essaie de mieux voir.
 	for i in 2:
 		visual.show_emotion(NinoVisual.Emotion.FOCUSED, 0.7)
@@ -905,7 +1067,7 @@ func _on_upgrade_requested(id: StringName) -> void:
 	await printer.service(nino, UPGRADE_DURATION)
 	GameState.add_upgrade(id)
 	nino.get_visual().show_emotion(NinoVisual.Emotion.HAPPY, 2.0)
-	Sfx.jingle(&"jingle_install")
+	_celebrate_install()
 	if upgrade.category == UpgradeData.Category.MODULE:
 		# Module secondaire : fabriqué, puis équipé s'il reste un emplacement libre.
 		var equipped := GameState.equip_module(id)
@@ -939,7 +1101,7 @@ func _fabricate_cannon(upgrade: UpgradeData) -> void:
 	await _wait(0.5)
 	visual.look_target = null
 	visual.show_emotion(NinoVisual.Emotion.HAPPY, 2.5)
-	Sfx.jingle(&"jingle_install")
+	_celebrate_install()
 	thoughts.think([&"cannon", &"check"], "", 2.2)
 	hud.show_toast("Canon à billes installé", 3.0)
 	var back := create_tween().set_trans(Tween.TRANS_SINE)

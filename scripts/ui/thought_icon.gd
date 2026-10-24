@@ -15,6 +15,7 @@ const ICONS := [
 	&"plug", &"energy", &"arrow", &"up", &"down", &"gear", &"door", &"handle", &"spool", &"robot",
 	&"check", &"cross", &"frame", &"house", &"book", &"sun", &"wrench", &"damage", &"filament",
 	&"ant", &"ant_soldier", &"ant_queen", &"shield", &"cannon", &"acid", &"lock", &"plastic", &"binoculars",
+	&"spider", &"roach", &"web",
 ]
 
 @export var icon: StringName = &"question":
@@ -208,6 +209,43 @@ func _draw_icon(name: StringName, area: Vector2) -> void:
 			for k in 3:
 				draw_circle(c + Vector2(-14 + k * 14, (k % 2) * 10 - 4) * s, 11.0 * s, COOL)
 				draw_circle(c + Vector2(-17 + k * 14, (k % 2) * 10 - 8) * s, 3.5 * s, Color(1, 1, 1, 0.8))
+		&"spider":
+			# Araignée de face : huit pattes en arc, gros abdomen, deux grands yeux.
+			var dark := Color(0.24, 0.19, 0.16)
+			for side in [-1.0, 1.0]:
+				for k in 4:
+					var y := -10.0 + k * 7.0
+					draw_polyline(PackedVector2Array([c + Vector2(side * 10, y) * s, c + Vector2(side * (24 + k * 2), y - 14 + k * 4) * s, c + Vector2(side * (34 + k), y + 10) * s]), INK, w * 0.45, true)
+			_draw_ellipse(c + Vector2(0, 12) * s, Vector2(16, 15) * s, dark)
+			draw_circle(c + Vector2(0, -8) * s, 12.0 * s, dark)
+			for side in [-1.0, 1.0]:
+				draw_circle(c + Vector2(side * 5, -10) * s, 4.5 * s, Color.WHITE)
+				draw_circle(c + Vector2(side * 5, -9) * s, 2.2 * s, INK)
+			draw_line(c + Vector2(-6, 10) * s, c + Vector2(0, 16) * s, ACCENT, w * 0.5, true)
+			draw_line(c + Vector2(6, 10) * s, c + Vector2(0, 16) * s, ACCENT, w * 0.5, true)
+		&"roach":
+			# Cafard de dessus : ovale brun, bouclier clair, longues antennes.
+			var brown := Color(0.45, 0.26, 0.13)
+			for k in 3:
+				var y := -2.0 + k * 10.0
+				draw_line(c + Vector2(-12, y) * s, c + Vector2(-26, y + 6) * s, INK, w * 0.45, true)
+				draw_line(c + Vector2(12, y) * s, c + Vector2(26, y + 6) * s, INK, w * 0.45, true)
+			_draw_ellipse(c + Vector2(0, 8) * s, Vector2(14, 22) * s, brown)
+			draw_line(c + Vector2(0, -2) * s, c + Vector2(0, 28) * s, Color(0.3, 0.17, 0.08), w * 0.4, true)
+			_draw_ellipse(c + Vector2(0, -14) * s, Vector2(13, 8) * s, Color(0.8, 0.62, 0.4))
+			draw_polyline(PackedVector2Array([c + Vector2(-4, -20) * s, c + Vector2(-14, -34) * s, c + Vector2(-28, -38) * s]), INK, w * 0.4, true)
+			draw_polyline(PackedVector2Array([c + Vector2(4, -20) * s, c + Vector2(14, -34) * s, c + Vector2(28, -38) * s]), INK, w * 0.4, true)
+		&"web":
+			# Toile : rayons et spirale.
+			var silk := Color(0.9, 0.9, 0.88)
+			for k in 8:
+				draw_line(c, c + Vector2.from_angle(TAU * k / 8.0) * 34.0 * s, silk, w * 0.35, true)
+			for ring in 3:
+				var points := PackedVector2Array()
+				for k in 9:
+					points.append(c + Vector2.from_angle(TAU * k / 8.0) * (10.0 + ring * 10.0) * s)
+				draw_polyline(points, silk, w * 0.3, true)
+			draw_circle(c, 3.0 * s, INK)
 		_:
 			draw_circle(c, 10.0 * s, INK)
 

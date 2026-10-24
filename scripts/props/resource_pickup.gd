@@ -133,21 +133,43 @@ func _build_filament() -> Node3D:
 	return coil
 
 
-## Petit tas de billes de plastique bleues, rondes et brillantes.
+## Amas de plastique extrudé (« poop » d'impression 3D) : tortillons emmêlés autour
+## d'une petite masse fondue, bleu et cyan. Irrégulier, bien distinct de la spirale
+## orange et régulière du filament de réparation.
 func _build_plastic() -> Node3D:
 	var root := Node3D.new()
-	var material := _material(Color(0.25, 0.6, 0.95), 0.45)
-	material.roughness = 0.15
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.05
-	mesh.height = 0.1
-	mesh.radial_segments = 12
-	mesh.rings = 6
-	for i in 5:
-		var bead := MeshInstance3D.new()
-		bead.mesh = mesh
-		bead.material_override = material
-		var a := TAU * i / 4.0
-		bead.position = Vector3(cos(a) * 0.07, 0.0, sin(a) * 0.07) if i < 4 else Vector3(0.0, 0.07, 0.0)
-		root.add_child(bead)
+	var seed_value := absi(hash(id)) if id != &"" else 7
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var colors := [Color(0.22, 0.55, 0.95), Color(0.3, 0.8, 0.9), Color(0.85, 0.9, 0.95)]
+	# Masse centrale fondue, aplatie et bosselée.
+	var core_mat := _material(colors[0], 0.35)
+	var blob := SphereMesh.new()
+	blob.radius = 0.5
+	blob.height = 1.0
+	blob.radial_segments = 10
+	blob.rings = 5
+	for k in 4:
+		var lump := MeshInstance3D.new()
+		lump.mesh = blob
+		lump.material_override = core_mat
+		lump.scale = Vector3(rng.randf_range(0.08, 0.12), rng.randf_range(0.05, 0.08), rng.randf_range(0.08, 0.12))
+		lump.position = Vector3(rng.randf_range(-0.03, 0.03), 0.03 + k * 0.012, rng.randf_range(-0.03, 0.03))
+		root.add_child(lump)
+	# Tortillons : fils extrudés qui partent en boucles irrégulières.
+	for s_index in 3:
+		var points := PackedVector3Array()
+		var p := Vector3(rng.randf_range(-0.03, 0.03), 0.05, rng.randf_range(-0.03, 0.03))
+		var heading := rng.randf() * TAU
+		for i in 14:
+			heading += rng.randf_range(0.5, 1.3)
+			var radius := 0.05 + 0.04 * sin(i * 0.9 + s_index)
+			p += Vector3(cos(heading) * radius * 0.6, rng.randf_range(-0.012, 0.02), sin(heading) * radius * 0.6)
+			p.y = clampf(p.y, 0.0, 0.14)
+			points.append(p)
+		var strand := Cable.new()
+		strand.material_override = _material(colors[s_index % colors.size()], 0.3)
+		strand.radius = 0.014
+		strand.points = points
+		root.add_child(strand)
 	return root

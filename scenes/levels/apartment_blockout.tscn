@@ -65,7 +65,7 @@ roughness = 0.9
 size = Vector3(29.4, 24, 34.4)
 
 [sub_resource type="StandardMaterial3D" id="Mat_floor_cuisine"]
-albedo_color = Color(0.78, 0.5, 0.38, 1)
+albedo_color = Color(0.74, 0.58, 0.42, 1)
 roughness = 0.9
 
 [sub_resource type="BoxShape3D" id="ZoneShape_cuisine"]
@@ -220,13 +220,6 @@ size = Vector3(30, 1, 57.6)
 bevel = 0.02
 material = SubResource("Mat_ceiling")
 
-[node name="Light_cuisine" type="OmniLight3D" parent="Lights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 21, 28.5)
-light_color = Color(1, 0.93, 0.84, 1)
-light_energy = 0.7
-omni_range = 56.4
-omni_attenuation = 0.8
-
 [node name="Zone4" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.3, 12, 28.5)
 collision_layer = 0
@@ -235,7 +228,7 @@ monitorable = false
 metadata/number = 4
 metadata/zone_id = &"cuisine"
 metadata/title = "Cuisine"
-metadata/status = "Vide — prochain chapitre"
+metadata/status = "Jouable (lot 6) — araignées, cafards"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/Zone4"]
 shape = SubResource("ZoneShape_cuisine")
@@ -247,7 +240,7 @@ billboard = 1
 modulate = Color(1, 0.95, 0.85, 0.9)
 outline_size = 10
 font_size = 72
-text = "4 · CUISINE\nVide — prochain chapitre"
+text = "4 · CUISINE\nJouable (lot 6) — araignées, cafards"
 
 [node name="Floor_salon" type="StaticBody3D" parent="Floors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 34.8)
@@ -822,34 +815,6 @@ size = Vector3(2, 3, 44.4)
 bevel = 0.02
 material = SubResource("Mat_wall")
 
-[node name="KitchenCounter" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -72, 4.5, 25)
-script = ExtResource("1_prop_block")
-size = Vector3(6, 9, 30)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
-[node name="KitchenUpper" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -73.2, 19, 25)
-script = ExtResource("1_prop_block")
-size = Vector3(3.5, 7, 30)
-bevel = 0.02
-material = SubResource("Mat_mass_dark")
-
-[node name="KitchenFridge" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -71.5, 9, 48)
-script = ExtResource("1_prop_block")
-size = Vector3(7, 18, 7)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
-[node name="KitchenTable" type="StaticBody3D" parent="Volumes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60, 3.75, 16)
-script = ExtResource("1_prop_block")
-size = Vector3(8, 7.5, 8)
-bevel = 0.02
-material = SubResource("Mat_mass")
-
 [node name="SofaBase" type="StaticBody3D" parent="Volumes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 2.25, 50.5)
 script = ExtResource("1_prop_block")
@@ -964,7 +929,7 @@ metadata/state = "fermé (ouverture à définir)"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3, 1, 31.5)
 metadata/from = 6
 metadata/to = 4
-metadata/state = "fermé (à définir avec la cuisine)"
+metadata/state = "fermé (ouverture à définir)"
 
 [node name="C_salon_porte_fenetre" type="Marker3D" parent="Connections"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1, 57.3)

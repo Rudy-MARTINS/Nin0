@@ -32,6 +32,10 @@ var _protection := 0.0
 func _ready() -> void:
 	add_to_group(&"nino_integrity")
 	nino.landed.connect(_on_landed)
+	# Fin d'une séquence non interactive : courte protection, jamais de coup immédiat.
+	GameState.hazards_changed.connect(func(suspended: bool) -> void:
+		if not suspended:
+			_protection = maxf(_protection, 1.0))
 	GameState.stats_changed.connect(_refresh_visual)
 	_refresh_visual()
 
@@ -46,6 +50,9 @@ func _physics_process(delta: float) -> void:
 ## Coup porté par une créature : protection temporaire, recul et dégâts typés.
 ## Renvoie false si Nin0 était encore protégé (le coup ne compte pas).
 func hit(amount: float, kind: StringName = &"physical", from: Vector3 = Vector3.INF) -> bool:
+	# Aucune attaque ne touche pendant une séquence non interactive.
+	if GameState.hazards_suspended():
+		return false
 	if _protection > 0.0 or _shutting_down:
 		return false
 	_protection = hit_protection

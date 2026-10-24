@@ -4,7 +4,7 @@ extends Node3D
 ## transformation, tête qui regarde, visage expressif et réactions.
 ## Aucune logique de gameplay ici : uniquement de l'affichage.
 
-enum Emotion { NEUTRAL, CURIOUS, HAPPY, SURPRISED, HURT, FOCUSED, DIZZY }
+enum Emotion { NEUTRAL, CURIOUS, HAPPY, SURPRISED, HURT, FOCUSED, DIZZY, WORRIED, FRUSTRATED, HESITANT, ENTHUSIASTIC }
 
 const EMOTION_VALUES := {
 	Emotion.NEUTRAL: {},
@@ -14,6 +14,11 @@ const EMOTION_VALUES := {
 	Emotion.HURT: {"hurt": 1.0},
 	Emotion.FOCUSED: {"focus": 1.0},
 	Emotion.DIZZY: {"dizzy": 1.0},
+	# Lot 5.1 : nuances composées à partir des mêmes paramètres du visage.
+	Emotion.WORRIED: {"hurt": 0.45, "surprise": 0.45},
+	Emotion.FRUSTRATED: {"hurt": 0.55, "focus": 0.6},
+	Emotion.HESITANT: {"curious": 0.6, "hurt": 0.25},
+	Emotion.ENTHUSIASTIC: {"happy": 1.0, "surprise": 0.45},
 }
 const FACE_PARAMS := ["happy", "surprise", "hurt", "focus", "curious", "dizzy"]
 
